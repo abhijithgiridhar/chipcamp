@@ -1,0 +1,73 @@
+<header class="topbar">
+  <div class="brand"><span class="logo" aria-hidden="true"><i style="background:#FFBF00"></i><i style="background:#4C97FF"></i><i style="background:#CF63CF"></i><i style="background:#59C059"></i></span>Camp Blocks</div>
+  <nav class="ptabs" id="ptabs" aria-label="Choose a robot"></nav>
+  <div class="spacer"></div>
+  <div class="viewtabs" role="tablist" aria-label="Build or Code">
+    <button class="vtab" role="tab" data-view="build" aria-selected="true">🧩 Build</button>
+    <button class="vtab" role="tab" data-view="code" aria-selected="false">⚡ Code</button>
+  </div>
+</header>
+
+<main id="buildView" class="build">
+  <aside class="card palwrap" aria-label="Blocks">
+    <nav class="rail" id="rail"></nav>
+    <div class="fly" id="fly"></div>
+  </aside>
+
+  <section class="card ws" aria-label="Your program">
+    <div class="namebar" id="namebar"></div>
+    <div class="toolbar" id="toolbar"></div>
+    <div class="story" id="story"></div>
+    <div class="script" id="script"></div>
+    <div class="cta">
+      <button class="btn go big" id="makeCode">⚡ Make the code</button>
+      <span class="note" id="blockCount" style="color:#69709a;font-weight:800"></span>
+    </div>
+  </section>
+
+  <aside class="card stagecard" aria-label="Try it">
+    <div class="stagehead">
+      <h2>🎬 Try it</h2>
+      <div class="speedsel" id="speedsel" aria-label="Speed">
+        <button data-sp="1" aria-pressed="true">1×</button><button data-sp="2" aria-pressed="false">2×</button><button data-sp="4" aria-pressed="false">4×</button>
+      </div>
+      <button class="btn small" id="soundBtn" title="Sound on/off" aria-pressed="false">🔇</button>
+      <button class="btn go small" id="runBtn">▶ Run</button>
+      <button class="btn stop small" id="stopBtn" hidden>■ Stop</button>
+    </div>
+    <div class="scene" id="scene"></div>
+    <div class="sliders" id="sliders"></div>
+    <div class="serial" id="serial"><b>Serial Monitor</b></div>
+  </aside>
+</main>
+
+<section id="codeView" class="codeview" hidden aria-label="Generated code">
+  <div class="codetop">
+    <h2 id="codeTitle">Your sketch</h2>
+    <button class="btn" id="backBtn">← Back to blocks</button>
+    <label class="btn small" style="cursor:pointer"><input type="checkbox" id="showAll"> show all tested code</label>
+    <button class="btn go big" id="copyBtn">📋 Copy code</button>
+  </div>
+  <div class="codegrid">
+    <div class="codecard">
+      <div class="legend" id="legend"></div>
+      <div class="codepane" id="codePane" tabindex="0"></div>
+    </div>
+    <div>
+      <div class="card sidecard">
+        <h3>Put it on the robot</h3>
+        <ol>
+          <li><span>Press <b>Copy code</b>.</span></li>
+          <li><span>Open the <b>Arduino IDE</b> and make a new sketch. Select everything (<code>Ctrl/⌘ + A</code>) and paste.</span></li>
+          <li><span><b>Tools → Board → Arduino Nano.</b> If the upload fails, set <b>Processor → ATmega328P (Old Bootloader)</b>.</span></li>
+          <li><span><b>Tools → Port</b>: pick the USB port, then press <b>Upload</b> ➜</span></li>
+          <li><span>Open <b>Tools → Serial Monitor</b> at <code>9600 baud</code> to see anything the robot prints.</span></li>
+        </ol>
+        <p class="small" id="libNote"></p>
+      </div>
+      <div class="card sidecard" id="facilCard" hidden></div>
+    </div>
+  </div>
+</section>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>

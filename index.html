@@ -1,0 +1,1500 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Camp Blocks</title>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Nunito:wght@600;800;900&family=JetBrains+Mono:wght@400;700&display=swap");
+:root{
+  --ink:#2b2f4a; --ink-soft:#69709a; --bg:#e8f0ff; --card:#ffffff; --line:#d3def6; --line-soft:#e6edfb;
+  --purple:#7c4dff; --blue:#4c97ff; --green:#3fb950; --green-d:#2c8f3b; --events:#FFBF00;
+  --font-d:"Fredoka","Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;
+  --font-b:"Nunito","Segoe UI","Trebuchet MS",system-ui,sans-serif;
+  --font-m:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --nh:6px; --nx:16px; --nw:26px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-b);font-size:15px;line-height:1.4;-webkit-font-smoothing:antialiased;}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+[hidden]{display:none!important}
+
+/* ---------- top bar ---------- */
+.topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 18px;background:linear-gradient(90deg,#7c4dff,#4c97ff);color:#fff;box-shadow:0 3px 0 rgba(0,0,0,.12);}
+.brand{font-family:var(--font-d);font-size:24px;font-weight:600;letter-spacing:.2px;display:flex;align-items:center;gap:8px;margin-right:6px}
+.brand .logo{display:inline-grid;grid-template-columns:repeat(2,12px);gap:3px;transform:rotate(-8deg)}
+.brand .logo i{width:12px;height:12px;border-radius:4px;display:block}
+.ptabs{display:flex;gap:8px;flex-wrap:wrap}
+.ptab{border:0;cursor:pointer;font-family:var(--font-d);font-size:17px;font-weight:500;padding:8px 16px;border-radius:16px;background:rgba(255,255,255,.2);color:#fff;display:flex;align-items:center;gap:7px;transition:transform .12s, background .15s;}
+.ptab:hover{background:rgba(255,255,255,.32);transform:translateY(-1px)}
+.ptab[aria-selected="true"]{background:#fff;color:var(--pc);box-shadow:0 4px 0 rgba(0,0,0,.18);transform:translateY(-1px)}
+.ptab .em{font-size:20px}
+.spacer{flex:1}
+.viewtabs{display:flex;background:rgba(0,0,0,.18);border-radius:18px;padding:4px;gap:4px}
+.vtab{border:0;cursor:pointer;font-family:var(--font-d);font-size:17px;padding:8px 18px;border-radius:14px;background:transparent;color:#fff;display:flex;align-items:center;gap:6px}
+.vtab[aria-selected="true"]{background:#fff;color:var(--purple);box-shadow:0 3px 0 rgba(0,0,0,.18)}
+
+.btn{border:0;cursor:pointer;font-family:var(--font-d);font-weight:500;font-size:15px;padding:8px 14px;border-radius:14px;background:#fff;color:var(--ink);box-shadow:0 3px 0 #c9d6f2;border:2px solid #d3def6;display:inline-flex;align-items:center;gap:6px;transition:transform .08s, box-shadow .08s;white-space:nowrap}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 0 #c9d6f2}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 #c9d6f2}
+.btn.go{background:var(--green);border-color:var(--green-d);color:#fff;box-shadow:0 4px 0 var(--green-d)}
+.btn.go:hover{box-shadow:0 5px 0 var(--green-d)}
+.btn.go:active{box-shadow:0 1px 0 var(--green-d)}
+.btn.stop{background:#ff6680;border-color:#d94a63;color:#fff;box-shadow:0 4px 0 #d94a63}
+.btn.big{font-size:19px;padding:12px 22px;border-radius:18px}
+.btn.small{font-size:13px;padding:5px 10px;border-radius:11px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* ---------- build layout ---------- */
+.build{display:grid;grid-template-columns:292px minmax(420px,1fr) 372px;gap:14px;padding:14px 18px 40px;align-items:start;max-width:1700px;margin:0 auto}
+@media (max-width:1180px){.build{grid-template-columns:292px 1fr}.stagecard{grid-column:1/-1}}
+@media (max-width:760px){.build{grid-template-columns:1fr;padding:10px}.palwrap{position:static!important;height:auto!important;max-height:340px}}
+.card{background:var(--card);border:2px solid var(--line);border-radius:20px;box-shadow:0 4px 0 var(--line)}
+
+/* ---------- palette ---------- */
+.palwrap{display:flex;position:sticky;top:12px;height:calc(100vh - 100px);min-height:380px;overflow:hidden}
+.rail{display:flex;flex-direction:column;gap:2px;padding:8px 4px;background:#f3f7ff;border-right:2px solid var(--line-soft);width:68px;flex:none;overflow-y:auto}
+.rail button{border:0;background:transparent;cursor:pointer;padding:7px 2px;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:800;color:var(--ink-soft)}
+.rail button:hover{background:#e6eeff}
+.rail button i{width:28px;height:28px;border-radius:50%;display:block;background:var(--c);box-shadow:inset 0 -3px 0 rgba(0,0,0,.16)}
+.fly{flex:1;overflow-y:auto;padding:6px 12px 24px;scroll-behavior:smooth}
+.fly h3{font-family:var(--font-d);font-weight:500;font-size:16px;margin:14px 0 8px;color:var(--c);display:flex;align-items:center;gap:7px}
+.fly h3::before{content:"";width:12px;height:12px;border-radius:50%;background:var(--c)}
+.fly .hint{font-size:12.5px;color:var(--ink-soft);margin:0 0 10px;background:#f6f9ff;border-radius:12px;padding:8px 10px}
+.trash{border:2px dashed var(--line);border-radius:14px;padding:10px;text-align:center;color:var(--ink-soft);font-size:12.5px;margin-top:14px}
+body.dragging-move .trash{border-color:#ff6680;color:#d94a63;background:#fff0f3}
+body.over-trash .trash{background:#ff6680;color:#fff;border-color:#d94a63}
+
+/* ---------- blocks ---------- */
+.blk{--c:#9966FF;position:relative;filter:drop-shadow(0 2px 0 rgba(0,0,0,.2));user-select:none;touch-action:none}
+.dz>.blk+.blk,.blk+.blk{margin-top:calc(var(--nh) * -1)}
+.blk>.row,.blk>.foot{background:var(--c);color:#fff;font-family:var(--font-d);font-weight:500;font-size:15px;text-shadow:0 1px 0 rgba(0,0,0,.18)}
+.blk>.row{display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-height:46px;padding:8px 10px calc(8px + var(--nh)) 12px;
+  clip-path:polygon(0 0,var(--nx) 0,calc(var(--nx) + 4px) var(--nh),calc(var(--nx) + var(--nw) - 4px) var(--nh),calc(var(--nx) + var(--nw)) 0,100% 0,100% calc(100% - var(--nh)),calc(var(--nx) + var(--nw)) calc(100% - var(--nh)),calc(var(--nx) + var(--nw) - 4px) 100%,calc(var(--nx) + 4px) 100%,var(--nx) calc(100% - var(--nh)),0 calc(100% - var(--nh)));
+  cursor:grab}
+.blk.c>.row{clip-path:polygon(0 0,var(--nx) 0,calc(var(--nx) + 4px) var(--nh),calc(var(--nx) + var(--nw) - 4px) var(--nh),calc(var(--nx) + var(--nw)) 0,100% 0,100% 100%,0 100%);padding-bottom:8px;border-radius:12px 12px 0 0}
+.blk.c>.row.else{clip-path:none;border-radius:0;min-height:34px;padding-top:6px;padding-bottom:6px}
+.blk:not(.c)>.row{border-radius:12px 12px 12px 12px}
+.blk>.foot{height:calc(26px + var(--nh));border-radius:0 0 12px 12px;display:flex;align-items:center;padding:0 12px var(--nh) 12px;gap:8px;
+  clip-path:polygon(0 0,100% 0,100% calc(100% - var(--nh)),calc(var(--nx) + var(--nw)) calc(100% - var(--nh)),calc(var(--nx) + var(--nw) - 4px) 100%,calc(var(--nx) + 4px) 100%,var(--nx) calc(100% - var(--nh)),0 calc(100% - var(--nh)))}
+.cslot{display:flex;background:var(--c)}
+.cslot::before{content:"";width:16px;flex:none;background:var(--c)}
+.cslot>.dz{flex:1;background:#f7f9ff;border-radius:10px 0 0 10px;min-height:44px;margin:0;box-shadow:inset 0 3px 0 rgba(0,0,0,.08)}
+.blk .x{margin-left:auto;border:0;background:rgba(255,255,255,.28);color:#fff;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:12px;line-height:1;padding:0;opacity:.0;transition:opacity .12s}
+.blk:hover>.row .x,.blk>.row .x:focus-visible{opacity:1}
+.blk .x:hover{background:rgba(255,255,255,.5)}
+.blk .tag{font-size:11px;font-weight:700;background:rgba(0,0,0,.16);border-radius:10px;padding:2px 8px;font-family:var(--font-b);text-shadow:none}
+.elsebtn{border:0;cursor:pointer;background:rgba(255,255,255,.28);color:#fff;font-family:var(--font-d);font-size:13px;border-radius:10px;padding:3px 10px}
+.elsebtn:hover{background:rgba(255,255,255,.45)}
+.blk.running>.row,.blk.running>.foot{animation:glow .6s ease-in-out infinite alternate}
+@keyframes glow{from{filter:brightness(1)}to{filter:brightness(1.35) saturate(1.2)}}
+.blk.pop{animation:pop .38s cubic-bezier(.3,1.7,.5,1)}
+@keyframes pop{0%{transform:scale(.6) rotate(-4deg);opacity:.2}100%{transform:scale(1) rotate(0);opacity:1}}
+.blk.lifting{opacity:.3}
+.ghost{position:fixed;z-index:1000;pointer-events:none;transform:rotate(2deg) scale(1.04);filter:drop-shadow(0 10px 12px rgba(40,40,80,.35));opacity:.96}
+.ghost .x{display:none}
+
+/* parameter fields (Scratch style) */
+.pill{display:inline-flex;align-items:center;border-radius:16px;background:#fff;color:var(--ink);text-shadow:none;font-family:var(--font-b);font-weight:800;font-size:14px;padding:0;overflow:hidden;box-shadow:inset 0 -2px 0 rgba(0,0,0,.1)}
+.pill input{border:0;background:transparent;outline:0;font-weight:800;color:var(--ink);padding:3px 9px;min-width:0;text-align:center;font-family:var(--font-b)}
+.pill input[type=number]{width:58px;-moz-appearance:textfield}
+.pill input[type=number]::-webkit-outer-spin-button,.pill input[type=number]::-webkit-inner-spin-button{opacity:.55}
+.pill input[type=text]{width:116px}
+.pill:focus-within{outline:3px solid rgba(255,255,255,.75);outline-offset:1px}
+.drop{display:inline-flex;align-items:center;border-radius:14px;background:rgba(0,0,0,.2);color:#fff;font-family:var(--font-b);font-weight:800;font-size:14px;text-shadow:none;padding:0;position:relative}
+.drop select{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:#fff;font-weight:800;padding:4px 24px 4px 10px;cursor:pointer;outline:0;border-radius:14px;font-family:var(--font-b)}
+.drop select option{color:var(--ink);background:#fff}
+.drop::after{content:"▾";position:absolute;right:9px;pointer-events:none;font-size:12px}
+.drop:focus-within{outline:3px solid rgba(255,255,255,.75);outline-offset:1px}
+.static{display:inline-flex;align-items:center;border-radius:14px;padding:2px 9px;font-weight:800;font-size:13px;font-family:var(--font-b);text-shadow:none}
+.static.p{background:#fff;color:var(--ink)}
+.static.d{background:rgba(0,0,0,.2);color:#fff}
+.palette-blk{margin-bottom:10px;cursor:grab}
+.palette-blk>.row{cursor:grab}
+.palette-blk.c>.foot{height:calc(18px + var(--nh))}
+
+/* ---------- workspace ---------- */
+.ws{padding:14px;background:radial-gradient(#d2dcf3 1.1px,transparent 1.1px) 0 0/22px 22px,#fbfdff;min-height:calc(100vh - 100px)}
+.namebar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px;padding:10px 12px;background:linear-gradient(#fff6c9,#ffefa8);border:2px solid #ffe27a;border-radius:18px;box-shadow:0 3px 0 #f2d45f}
+.namebar label{display:flex;align-items:center;gap:7px;font-family:var(--font-d);font-size:15px;color:#5a4a00}
+.namebar input{border:2px solid #f2d45f;background:#fff;border-radius:12px;padding:6px 10px;font-weight:800;width:150px;outline:0;font-family:var(--font-b);color:var(--ink)}
+.namebar input:focus{border-color:#ffb300;box-shadow:0 0 0 3px rgba(255,191,0,.35)}
+.namebar .note{font-size:11.5px;color:#7a6a20;font-family:var(--font-b)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.story{margin-bottom:14px}
+.steps{display:flex;gap:6px;flex-wrap:wrap}
+.step{border:2px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px 5px 8px;font-family:var(--font-d);font-size:14px;cursor:pointer;display:flex;align-items:center;gap:7px;color:var(--ink-soft);transition:transform .12s}
+.step:hover{transform:translateY(-1px)}
+.step i{width:22px;height:22px;border-radius:50%;background:#e6edfb;display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:800;color:var(--ink-soft)}
+.step.done{border-color:#9bdca4;background:#effbf1;color:#23702f}
+.step.done i{background:var(--green);color:#fff}
+.step.active{border-color:var(--purple);color:var(--purple);box-shadow:0 0 0 3px rgba(124,77,255,.18)}
+.step.just{animation:pop .5s cubic-bezier(.3,1.7,.5,1)}
+.say{margin-top:10px;display:flex;gap:10px;align-items:flex-start;background:#f0ebff;border:2px solid #d9ccff;border-radius:16px;padding:10px 14px;font-size:15px;color:#3b2a7a;font-weight:700}
+.say b{font-family:var(--font-d);font-weight:500}
+.script{display:flex;flex-direction:column;align-items:flex-start;gap:0;min-width:0;padding:4px 4px 10px}
+.script>*{width:min(100%,560px)}
+.hat{position:relative;background:var(--events);color:#4a3a00;font-family:var(--font-d);font-weight:500;font-size:17px;padding:20px 14px 14px 14px;border-radius:60px 60px 12px 12px/34px 34px 12px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;filter:drop-shadow(0 2px 0 rgba(0,0,0,.2));clip-path:none;margin-top:6px}
+.hat .tag{font-size:11px;font-weight:800;background:rgba(0,0,0,.12);border-radius:10px;padding:2px 8px;font-family:var(--font-b)}
+.hat .flag{font-size:22px}
+.hat strong{background:#fff;border-radius:12px;padding:1px 9px;color:var(--ink)}
+.lane{min-height:50px;margin-top:calc(var(--nh) * -1);padding-top:0}
+.dz{display:flex;flex-direction:column;min-height:40px;position:relative}
+.dz.over{outline:3px dashed var(--purple);outline-offset:-3px;border-radius:12px;background:rgba(124,77,255,.07)}
+.dz:empty::before,.dz.empty::before{content:"drop blocks here";display:flex;align-items:center;justify-content:center;min-height:44px;color:#9aa4c7;font-weight:800;font-size:13px;border-radius:10px;border:2px dashed #cfd9f3;margin:4px}
+.dropline{height:0;position:relative;z-index:5}
+.dropline::after{content:"";position:absolute;left:-2px;right:-2px;top:-3px;height:6px;border-radius:4px;background:var(--purple);box-shadow:0 0 0 2px #fff}
+.cta{margin-top:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.laneword{font-family:var(--font-b);font-size:12px;font-weight:800;color:var(--ink-soft);margin:8px 0 2px 4px}
+
+/* ---------- stage ---------- */
+.stagecard{overflow:hidden;position:sticky;top:12px}
+.stagehead{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:2px solid var(--line-soft);background:#f6f9ff;flex-wrap:wrap}
+.stagehead h2{font-family:var(--font-d);font-size:17px;font-weight:500;margin:0;margin-right:auto}
+.speedsel{display:flex;border-radius:12px;overflow:hidden;border:2px solid var(--line)}
+.speedsel button{border:0;background:#fff;padding:3px 9px;font-weight:800;font-size:12px;cursor:pointer;color:var(--ink-soft)}
+.speedsel button[aria-pressed="true"]{background:var(--purple);color:#fff}
+.scene{position:relative;overflow:hidden}
+.sliders{padding:10px 14px;display:flex;flex-direction:column;gap:8px;border-top:2px solid var(--line-soft)}
+.slider{display:grid;grid-template-columns:1fr auto;gap:2px 8px;font-weight:800;font-size:13px}
+.slider input{grid-column:1/-1;accent-color:var(--purple);width:100%}
+.slider output{font-family:var(--font-m);color:var(--purple);grid-row:1;grid-column:2}
+.serial{margin:0 14px 14px;border:2px dashed var(--line);border-radius:14px;background:#fcfdff;font-family:var(--font-m);font-size:12px;padding:8px 10px;height:94px;overflow:auto;color:#3d4668}
+.serial b{font-family:var(--font-b);color:var(--ink-soft);font-size:11px;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:3px}
+.serial div{white-space:pre-wrap}
+.notes{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.fnote{position:absolute;bottom:26%;font-size:30px;font-weight:900;animation:floatup 1.3s ease-out forwards;text-shadow:0 2px 0 rgba(255,255,255,.7)}
+@keyframes floatup{0%{transform:translateY(0) scale(.6);opacity:0}15%{opacity:1}100%{transform:translateY(-130px) scale(1.15) rotate(12deg);opacity:0}}
+
+/* Peeko */
+.pk-scene{position:relative;height:292px;display:grid;place-items:end center;background:linear-gradient(#ffe9d6,#ffd1e0);padding-bottom:26px}
+.pk-bot{--tilt:0deg;transform:rotate(var(--tilt));transform-origin:50% 100%;transition:transform .22s cubic-bezier(.3,1.5,.5,1)}
+.pk-antenna{width:8px;height:30px;background:#d94c40;margin:0 auto -2px;border-radius:4px;position:relative}
+.pk-antenna::after{content:"";position:absolute;top:-12px;left:-8px;width:24px;height:24px;border-radius:50%;background:#ffd93b;border:4px solid #e0a800}
+.pk-head{width:262px;height:176px;border-radius:58px;background:linear-gradient(#ff8c80,#ff6b5e);border:7px solid #d94c40;box-shadow:0 8px 0 #b73c32,0 18px 24px rgba(120,40,40,.25);display:grid;place-items:center}
+.pk-screen{width:210px;height:106px;border-radius:20px;background:#050b14;border:6px solid #1b2236;overflow:hidden;box-shadow:inset 0 0 18px rgba(130,200,255,.18)}
+.pk-screen canvas{width:100%;height:100%;display:block}
+
+/* Chip Bot */
+.cb-scene{--T:1s;position:relative;height:292px;background:linear-gradient(#bfe6ff,#e9f8ff 70%)}
+.cb-sun{position:absolute;right:26px;top:22px;width:54px;height:54px;border-radius:50%;background:#ffd93b;box-shadow:0 0 0 10px rgba(255,217,59,.3)}
+.cb-ground{position:absolute;left:0;right:0;bottom:0;height:76px;background:#7bd389;border-top:6px solid #5cbf6e;overflow:hidden}
+.cb-track{position:absolute;inset:auto 0 18px 0;height:8px;background:repeating-linear-gradient(90deg,#fff 0 28px,transparent 28px 60px);opacity:.85;background-size:60px 8px}
+.moving-f .cb-track{animation:trackf var(--T) linear infinite}
+.moving-b .cb-track{animation:trackb var(--T) linear infinite}
+@keyframes trackf{to{background-position:-60px 0}}
+@keyframes trackb{to{background-position:60px 0}}
+.cb-obstacle{position:absolute;bottom:70px;font-size:50px;transition:left .35s ease;transform:translateX(-50%)}
+.cb-bot{position:absolute;left:17%;bottom:58px;width:92px;display:flex;flex-direction:column;align-items:center;transform-origin:50% 100%}
+.cb-body{width:88px;height:78px;border-radius:26px;background:linear-gradient(#3fd0bf,#2bb3a3);border:5px solid #1e8e80;box-shadow:0 5px 0 #17756a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.cb-eyes{display:flex;gap:14px}
+.cb-eyes i{width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid #17756a;display:block;position:relative}
+.cb-eyes i::after{content:"";position:absolute;width:8px;height:8px;border-radius:50%;background:#17302d;left:5px;top:5px}
+.cb-mouth{width:26px;height:8px;border-radius:0 0 14px 14px;border:3px solid #17756a;border-top:0}
+.cb-legs{display:flex;gap:18px;margin-top:-2px}
+.cb-leg{width:20px;height:26px;border-radius:8px 8px 12px 12px;background:#1e8e80;display:block;transform-origin:50% 0}
+.walking .cb-leg.l{animation:legL var(--T) ease-in-out infinite}
+.walking .cb-leg.r{animation:legR var(--T) ease-in-out infinite}
+.moving-b .walking .cb-leg.l{animation-direction:reverse}
+@keyframes legL{0%,100%{transform:rotate(22deg)}50%{transform:rotate(-22deg)}}
+@keyframes legR{0%,100%{transform:rotate(-22deg)}50%{transform:rotate(22deg)}}
+.walking .cb-body{animation:bob calc(var(--T) / 2) ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-6px)}}
+.turn-l{animation:turnl var(--T) ease-in-out infinite}
+.turn-r{animation:turnr var(--T) ease-in-out infinite}
+@keyframes turnl{0%,100%{transform:rotate(0)}50%{transform:rotate(-14deg) scaleX(.82)}}
+@keyframes turnr{0%,100%{transform:rotate(0)}50%{transform:rotate(14deg) scaleX(.82)}}
+.dancing .cb-body{animation:dance0 var(--T) ease-in-out infinite}
+.dancing.dance-1 .cb-body{animation-name:dance1}
+.dancing.dance-2 .cb-body{animation-name:dance2}
+.dancing.dance-3 .cb-body{animation-name:dance3}
+.dancing .cb-leg.l{animation:legL calc(var(--T) / 2) ease-in-out infinite}
+.dancing .cb-leg.r{animation:legR calc(var(--T) / 2) ease-in-out infinite}
+@keyframes dance0{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+@keyframes dance1{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@keyframes dance2{0%,100%{transform:rotate(-10deg) translateX(-6px)}50%{transform:rotate(10deg) translateX(6px)}}
+@keyframes dance3{0%,100%{transform:scale(1)}25%{transform:scale(1.08,.92)}75%{transform:scale(.94,1.06)}}
+.cb-dist{position:absolute;left:12px;top:12px;background:#fff;border:2px solid #cfe6f7;border-radius:14px;padding:3px 10px;font-weight:800;font-size:13px}
+
+/* Jarvis */
+.jv-scene{position:relative;height:292px;background:linear-gradient(#d9f4ff,#fff6d6)}
+.jv-scene svg{width:100%;height:100%;display:block}
+.jv-scene .plant{transition:transform .5s ease}
+.jv-scene .soil{transition:fill .5s ease}
+.jv-scene .jv-sun{transition:opacity .4s, transform .4s}
+
+/* ---------- code view ---------- */
+.codeview{padding:16px 18px 50px;max-width:1500px;margin:0 auto}
+.codetop{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.codetop h2{font-family:var(--font-d);font-weight:500;font-size:24px;margin:0;margin-right:auto}
+.codegrid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}
+@media (max-width:1000px){.codegrid{grid-template-columns:1fr}}
+.codecard{background:#fffdf6;border:2px solid #f1e6c4;box-shadow:0 4px 0 #f1e6c4;border-radius:20px;overflow:hidden}
+.legend{display:flex;flex-wrap:wrap;gap:8px;padding:10px 14px;border-bottom:2px solid #f1e6c4;background:#fff9e3;font-size:12.5px;font-weight:800;align-items:center}
+.legend span{display:inline-flex;align-items:center;gap:6px;color:#5d5b48}
+.legend i{width:14px;height:14px;border-radius:5px;background:var(--c);display:block}
+.legend mark.v{font-size:12px}
+.codepane{max-height:74vh;overflow:auto;padding:8px 0;font-family:var(--font-m);font-size:13px;line-height:1.62}
+.ln{display:flex;align-items:stretch;min-height:21px}
+.ln .no{width:48px;flex:none;text-align:right;padding-right:14px;color:#c0b79a;user-select:none}
+.ln .tx{flex:1;white-space:pre;padding-right:16px;color:#3e4766}
+.ln.mine{background:color-mix(in srgb,var(--c) 15%,#fffdf6);box-shadow:inset 6px 0 0 var(--c)}
+.ln.mine .tx{color:#262c47;font-weight:600}
+.fold{display:flex;align-items:center;gap:10px;margin:6px 0;padding:8px 14px 8px 48px;background:#eef3ff;border-top:2px dashed #cdd9f6;border-bottom:2px dashed #cdd9f6;color:#44507f;font-family:var(--font-b);font-weight:800;font-size:13.5px;cursor:pointer}
+.fold:hover{background:#e3ebff}
+.fold .chev{font-size:12px}
+mark.v{background:#ffe14d;color:#3a2b00;border-radius:5px;padding:0 3px;font-weight:900;box-shadow:0 0 0 2px rgba(255,225,77,.5)}
+.tk-k{color:#8a3ffc;font-weight:700}.tk-t{color:#0a8aa3}.tk-n{color:#d9611a}.tk-s{color:#1f9d55}.tk-p{color:#d6458a}.tk-c{color:#8a93a6;font-style:italic}.tk-f{color:#2f6fe0}
+.sidecard{padding:14px 16px;margin-bottom:14px}
+.sidecard h3{font-family:var(--font-d);font-weight:500;font-size:18px;margin:0 0 8px}
+.sidecard ol{list-style:none;counter-reset:s;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.sidecard li{counter-increment:s;display:flex;gap:10px;align-items:flex-start;font-size:14px}
+.sidecard li::before{content:counter(s);flex:none;width:26px;height:26px;border-radius:50%;background:var(--purple);color:#fff;display:grid;place-items:center;font-family:var(--font-d);font-size:14px;box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.sidecard code{background:#f1f5ff;border:1px solid var(--line);border-radius:7px;padding:1px 6px;font-family:var(--font-m);font-size:12.5px}
+.sidecard .small{font-size:12.5px;color:var(--ink-soft);margin:8px 0 0}
+.facil{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;font-size:13.5px;font-weight:700}
+.facil input[type=number]{width:84px;border:2px solid var(--line);border-radius:10px;padding:4px 8px;font-weight:800}
+.facil label{display:contents}
+
+/* ---------- misc ---------- */
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#2b2f4a;color:#fff;font-family:var(--font-d);padding:10px 18px;border-radius:16px;opacity:0;pointer-events:none;transition:all .25s;z-index:3000;box-shadow:0 8px 20px rgba(0,0,0,.25)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.modalback{position:fixed;inset:0;background:rgba(43,47,74,.5);display:grid;place-items:center;z-index:2000;padding:16px}
+.modal{background:#fff;border-radius:22px;width:min(560px,100%);max-height:86vh;overflow:auto;padding:18px 20px;box-shadow:0 20px 50px rgba(0,0,0,.3);border:3px solid var(--line)}
+.modal h2{font-family:var(--font-d);font-weight:500;margin:0 0 10px;font-size:22px}
+.modal textarea{width:100%;height:120px;border:2px solid var(--line);border-radius:12px;padding:8px;font-family:var(--font-m);font-size:12px}
+.saverow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:2px solid var(--line-soft)}
+.saverow .who{flex:1;font-weight:800}
+.saverow .who small{display:block;font-weight:600;color:var(--ink-soft)}
+.conf{position:fixed;z-index:2500;font-size:26px;pointer-events:none;animation:conf 1.1s ease-out forwards}
+@keyframes conf{0%{transform:translate(0,0) rotate(0) scale(.6);opacity:1}100%{transform:translate(var(--dx),var(--dy)) rotate(var(--r)) scale(1.2);opacity:0}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="logo" aria-hidden="true"><i style="background:#FFBF00"></i><i style="background:#4C97FF"></i><i style="background:#CF63CF"></i><i style="background:#59C059"></i></span>Camp Blocks</div>
+  <nav class="ptabs" id="ptabs" aria-label="Choose a robot"></nav>
+  <div class="spacer"></div>
+  <div class="viewtabs" role="tablist" aria-label="Build or Code">
+    <button class="vtab" role="tab" data-view="build" aria-selected="true">🧩 Build</button>
+    <button class="vtab" role="tab" data-view="code" aria-selected="false">⚡ Code</button>
+  </div>
+</header>
+
+<main id="buildView" class="build">
+  <aside class="card palwrap" aria-label="Blocks">
+    <nav class="rail" id="rail"></nav>
+    <div class="fly" id="fly"></div>
+  </aside>
+
+  <section class="card ws" aria-label="Your program">
+    <div class="namebar" id="namebar"></div>
+    <div class="toolbar" id="toolbar"></div>
+    <div class="story" id="story"></div>
+    <div class="script" id="script"></div>
+    <div class="cta">
+      <button class="btn go big" id="makeCode">⚡ Make the code</button>
+      <span class="note" id="blockCount" style="color:#69709a;font-weight:800"></span>
+    </div>
+  </section>
+
+  <aside class="card stagecard" aria-label="Try it">
+    <div class="stagehead">
+      <h2>🎬 Try it</h2>
+      <div class="speedsel" id="speedsel" aria-label="Speed">
+        <button data-sp="1" aria-pressed="true">1×</button><button data-sp="2" aria-pressed="false">2×</button><button data-sp="4" aria-pressed="false">4×</button>
+      </div>
+      <button class="btn small" id="soundBtn" title="Sound on/off" aria-pressed="false">🔇</button>
+      <button class="btn go small" id="runBtn">▶ Run</button>
+      <button class="btn stop small" id="stopBtn" hidden>■ Stop</button>
+    </div>
+    <div class="scene" id="scene"></div>
+    <div class="sliders" id="sliders"></div>
+    <div class="serial" id="serial"><b>Serial Monitor</b></div>
+  </aside>
+</main>
+
+<section id="codeView" class="codeview" hidden aria-label="Generated code">
+  <div class="codetop">
+    <h2 id="codeTitle">Your sketch</h2>
+    <button class="btn" id="backBtn">← Back to blocks</button>
+    <label class="btn small" style="cursor:pointer"><input type="checkbox" id="showAll"> show all tested code</label>
+    <button class="btn go big" id="copyBtn">📋 Copy code</button>
+  </div>
+  <div class="codegrid">
+    <div class="codecard">
+      <div class="legend" id="legend"></div>
+      <div class="codepane" id="codePane" tabindex="0"></div>
+    </div>
+    <div>
+      <div class="card sidecard">
+        <h3>Put it on the robot</h3>
+        <ol>
+          <li><span>Press <b>Copy code</b>.</span></li>
+          <li><span>Open the <b>Arduino IDE</b> and make a new sketch. Select everything (<code>Ctrl/⌘ + A</code>) and paste.</span></li>
+          <li><span><b>Tools → Board → Arduino Nano.</b> If the upload fails, set <b>Processor → ATmega328P (Old Bootloader)</b>.</span></li>
+          <li><span><b>Tools → Port</b>: pick the USB port, then press <b>Upload</b> ➜</span></li>
+          <li><span>Open <b>Tools → Serial Monitor</b> at <code>9600 baud</code> to see anything the robot prints.</span></li>
+        </ol>
+        <p class="small" id="libNote"></p>
+      </div>
+      <div class="card sidecard" id="facilCard" hidden></div>
+    </div>
+  </div>
+</section>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>var CAMP_TEMPLATES = {"peeko":"//@@HEADER@@\n/*\n  PEEKO — final action layer (v2: distinct, animated faces)\n  ---------------------------------------------------------\n  Same command protocol as before — send one of:\n  happy / sad / surprised / angry / sleepy / left / right / neutral / celebrate\n  followed by a newline, over Serial.\n\n  What changed: each face is now its own shape (not just a bigger/\n  smaller circle), and each one plays out as a short animation —\n  a few frames drawn in sequence — instead of one static image.\n*/\n\n#include <Wire.h>\n#include <Adafruit_GFX.h>\n#include <Adafruit_SH110X.h>\n#include <Servo.h>\n\nAdafruit_SH1106G display(128, 64, &Wire, -1);\nServo headServo;\n\nconst int buzzerPin = 8;\nconst int HEAD_CENTER = 90;\nconst int HEAD_LEFT   = 50;\nconst int HEAD_RIGHT  = 130;\n\nunsigned long lastBlinkTime = 0;\nunsigned long blinkInterval = 4000;\nbool isPlayingAction = false;\nString inputLine = \"\";\n\n//@@KEEP+\n// ===================== STUDENT PART: NAMES =====================\n// PROGMEM keeps these words in flash memory, so they do not use up RAM.\n//@@CONSTANTS@@\n//@@KEEP-\n\n// ===================== DRAWING HELPERS =====================\n// Small reusable pieces — an eye shape, a mouth curve — built once,\n// then combined differently for each expression.\n\nvoid drawRoundEye(int cx, int cy, int r) {\n  display.fillCircle(cx, cy, r, SH110X_WHITE);\n}\n\nvoid drawHappyEye(int cx, int cy) {\n  // upward-curving \"^\" eye, drawn as two thickened diagonal lines\n  display.drawLine(cx - 9, cy + 5, cx, cy - 5, SH110X_WHITE);\n  display.drawLine(cx - 9, cy + 6, cx, cy - 4, SH110X_WHITE);\n  display.drawLine(cx, cy - 5, cx + 9, cy + 5, SH110X_WHITE);\n  display.drawLine(cx, cy - 4, cx + 9, cy + 6, SH110X_WHITE);\n}\n\nvoid drawSadEye(int cx, int cy) {\n  // downward-drooping eye, opposite curve of the happy eye\n  display.drawLine(cx - 9, cy - 3, cx, cy + 6, SH110X_WHITE);\n  display.drawLine(cx - 9, cy - 2, cx, cy + 7, SH110X_WHITE);\n  display.drawLine(cx, cy + 6, cx + 9, cy - 3, SH110X_WHITE);\n  display.drawLine(cx, cy + 7, cx + 9, cy - 2, SH110X_WHITE);\n}\n\nvoid drawAngryEye(int cx, int cy) {\n  // narrow eye + angled eyebrow above it\n  display.fillRoundRect(cx - 8, cy - 2, 16, 6, 2, SH110X_WHITE);\n  if (cx < 64) display.drawLine(cx - 9, cy - 12, cx + 9, cy - 6, SH110X_WHITE);\n  else         display.drawLine(cx + 9, cy - 12, cx - 9, cy - 6, SH110X_WHITE);\n}\n\nvoid drawSmile(int yBase, int width) {\n  for (int x = 64 - width; x <= 64 + width; x += 2) {\n    int y = yBase + ((x - 64) * (x - 64)) / 55;\n    display.drawPixel(x, y, SH110X_WHITE);\n    display.drawPixel(x, y + 1, SH110X_WHITE);\n  }\n}\n\nvoid drawFrown(int yBase, int width) {\n  for (int x = 64 - width; x <= 64 + width; x += 2) {\n    int y = yBase - ((x - 64) * (x - 64)) / 55;\n    display.drawPixel(x, y, SH110X_WHITE);\n    display.drawPixel(x, y + 1, SH110X_WHITE);\n  }\n}\n\nvoid drawTear(int cx, int cy) {\n  display.fillCircle(cx, cy, 3, SH110X_WHITE);\n}\n\nvoid drawOMouth(int cx, int cy, int r) {\n  display.drawCircle(cx, cy, r, SH110X_WHITE);\n  display.drawCircle(cx, cy, r - 1, SH110X_WHITE);\n}\n\n// ===================== FACES (each one is a short animation) =====================\n\nvoid faceNeutral() {\n  display.clearDisplay();\n  drawRoundEye(40, 28, 9);\n  drawRoundEye(88, 28, 9);\n  display.display();\n}\n\nvoid faceClosed() {\n  display.clearDisplay();\n  display.fillRect(31, 26, 18, 4, SH110X_WHITE);\n  display.fillRect(79, 26, 18, 4, SH110X_WHITE);\n  display.display();\n}\n\nvoid faceHappy() {\n  // Frame 1: eyes still round, no mouth yet\n  display.clearDisplay();\n  drawRoundEye(40, 28, 9);\n  drawRoundEye(88, 28, 9);\n  display.display();\n  delay(150);\n\n  // Frame 2: eyes curve upward into \"^ ^\", small smile appears\n  display.clearDisplay();\n  drawHappyEye(40, 28);\n  drawHappyEye(88, 28);\n  drawSmile(46, 12);\n  display.display();\n  delay(150);\n\n  // Frame 3: full wide smile, held\n  display.clearDisplay();\n  drawHappyEye(40, 28);\n  drawHappyEye(88, 28);\n  drawSmile(44, 20);\n  display.display();\n}\n\nvoid faceSad() {\n  // Frame 1: eyes still round\n  display.clearDisplay();\n  drawRoundEye(40, 28, 9);\n  drawRoundEye(88, 28, 9);\n  display.display();\n  delay(150);\n\n  // Frame 2: eyes droop downward, frown appears\n  display.clearDisplay();\n  drawSadEye(40, 28);\n  drawSadEye(88, 28);\n  drawFrown(54, 18);\n  display.display();\n  delay(200);\n\n  // Frame 3: a tear appears, held\n  display.clearDisplay();\n  drawSadEye(40, 28);\n  drawSadEye(88, 28);\n  drawFrown(54, 18);\n  drawTear(34, 40);\n  display.display();\n}\n\nvoid faceSurprised() {\n  display.clearDisplay();\n  drawRoundEye(40, 28, 9);\n  drawRoundEye(88, 28, 9);\n  display.display();\n  delay(100);\n\n  display.clearDisplay();\n  drawRoundEye(40, 28, 15); // eyes snap wide open\n  drawRoundEye(88, 28, 15);\n  drawOMouth(64, 50, 6);    // small \"o\" mouth\n  display.display();\n}\n\nvoid faceAngry() {\n  display.clearDisplay();\n  drawRoundEye(40, 28, 9);\n  drawRoundEye(88, 28, 9);\n  display.display();\n  delay(100);\n\n  display.clearDisplay();\n  drawAngryEye(40, 28);\n  drawAngryEye(88, 28);\n  drawFrown(52, 14);\n  display.display();\n}\n\n// ===================== SOUNDS =====================\n\nvoid soundHappy() {\n  tone(buzzerPin, 523, 150); delay(160);\n  tone(buzzerPin, 659, 150); delay(160);\n  tone(buzzerPin, 784, 250); delay(260);\n  noTone(buzzerPin);\n}\nvoid soundSad() {\n  tone(buzzerPin, 400, 300); delay(320);\n  tone(buzzerPin, 300, 300); delay(320);\n  tone(buzzerPin, 200, 500); delay(520);\n  noTone(buzzerPin);\n}\nvoid soundSurprised() {\n  tone(buzzerPin, 1200, 120); delay(130);\n  noTone(buzzerPin);\n}\nvoid soundAngry() {\n  tone(buzzerPin, 150, 400); delay(420);\n  noTone(buzzerPin);\n}\n\n// ===================== REACTIONS =====================\n\nvoid reactHappy() {\n  isPlayingAction = true;\n  faceHappy();\n  headServo.write(HEAD_CENTER + 15);\n  soundHappy();\n  headServo.write(HEAD_CENTER);\n  isPlayingAction = false;\n}\nvoid reactSad() {\n  isPlayingAction = true;\n  faceSad();\n  headServo.write(HEAD_CENTER - 20);\n  soundSad();\n  headServo.write(HEAD_CENTER);\n  isPlayingAction = false;\n}\nvoid reactSurprised() {\n  isPlayingAction = true;\n  faceSurprised();\n  headServo.write(HEAD_CENTER - 25);\n  soundSurprised();\n  delay(200);\n  headServo.write(HEAD_CENTER);\n  isPlayingAction = false;\n}\nvoid reactAngry() {\n  isPlayingAction = true;\n  faceAngry();\n  for (int i = 0; i < 3; i++) {\n    headServo.write(HEAD_LEFT + 20); delay(80);\n    headServo.write(HEAD_RIGHT - 20); delay(80);\n  }\n  headServo.write(HEAD_CENTER);\n  soundAngry();\n  isPlayingAction = false;\n}\nvoid reactSleepy() {\n  isPlayingAction = true;\n  faceClosed();\n  delay(600);\n  faceNeutral();\n  isPlayingAction = false;\n}\nvoid reactLeft() {\n  isPlayingAction = true;\n  headServo.write(HEAD_LEFT);\n  delay(400);\n  headServo.write(HEAD_CENTER);\n  isPlayingAction = false;\n}\nvoid reactRight() {\n  isPlayingAction = true;\n  headServo.write(HEAD_RIGHT);\n  delay(400);\n  headServo.write(HEAD_CENTER);\n  isPlayingAction = false;\n}\nvoid reactNeutral() {\n  isPlayingAction = true;\n  faceNeutral();\n  headServo.write(HEAD_CENTER);\n  isPlayingAction = false;\n}\nvoid reactCelebrate() {\n  isPlayingAction = true;\n  for (int i = 0; i < 2; i++) {\n    faceHappy();\n    headServo.write(HEAD_LEFT + 20);\n    tone(buzzerPin, 784, 100);\n    delay(120);\n    headServo.write(HEAD_RIGHT - 20);\n    tone(buzzerPin, 988, 100);\n    delay(120);\n  }\n  headServo.write(HEAD_CENTER);\n  noTone(buzzerPin);\n  isPlayingAction = false;\n}\n\n// ===================== COMMAND DISPATCH =====================\n\nvoid runCommand(String cmd) {\n  cmd.trim();\n  cmd.toLowerCase();\n\n  if (cmd == \"happy\") reactHappy();\n  else if (cmd == \"sad\") reactSad();\n  else if (cmd == \"surprised\") reactSurprised();\n  else if (cmd == \"angry\") reactAngry();\n  else if (cmd == \"sleepy\") reactSleepy();\n  else if (cmd == \"left\") reactLeft();\n  else if (cmd == \"right\") reactRight();\n  else if (cmd == \"neutral\") reactNeutral();\n  else if (cmd == \"celebrate\") reactCelebrate();\n  else {\n    Serial.print(\"Peeko didn't understand: \");\n    Serial.println(cmd);\n  }\n\n  lastBlinkTime = millis();\n}\n\n// ===================== TESTED HELPERS FOR THE BLOCKS =====================\n// Same for every student. Each block in Camp Blocks calls one of these.\n\nvoid pollSerial() {\n  while (Serial.available() > 0) {\n    char c = Serial.read();\n    if (c == '\\n') {\n      runCommand(inputLine);\n      inputLine = \"\";\n    } else {\n      inputLine += c;\n    }\n  }\n}\n\n// Wait without freezing: Peeko still listens to the computer while it waits.\nvoid waitSecs(float secs) {\n  unsigned long ms = (unsigned long)(secs * 1000.0);\n  unsigned long start = millis();\n  while (millis() - start < ms) {\n    pollSerial();\n  }\n}\n\n// Show words on the OLED screen. msg lives in flash memory (PROGMEM / PSTR).\nvoid sayText(const char* msg, float secs) {\n  char buf[21];\n  strncpy_P(buf, msg, 20);\n  buf[20] = 0;\n  int len = strlen(buf);\n  int size = (len <= 10) ? 2 : 1;\n  isPlayingAction = true;\n  display.clearDisplay();\n  display.setTextColor(SH110X_WHITE);\n  display.setTextSize(size);\n  display.setCursor((128 - len * 6 * size) / 2, (64 - 8 * size) / 2);\n  display.print(buf);\n  display.display();\n  waitSecs(secs);\n  faceNeutral();\n  lastBlinkTime = millis();\n  isPlayingAction = false;\n}\n\nvoid playNote(unsigned int hz, float secs) {\n  tone(buzzerPin, hz, (unsigned long)(secs * 1000.0));\n  waitSecs(secs);\n  noTone(buzzerPin);\n}\n\n//@@KEEP+\n// ===================== STUDENT PART: WHAT PEEKO DOES =====================\n\n// Runs ONCE, when Peeko wakes up (when it is powered on).\nvoid studentWake() {\n//@@WAKE@@\n}\n\n// Runs again and again, forever.\nvoid studentForever() {\n//@@FOREVER@@\n}\n//@@KEEP-\n\n// ===================== SETUP / LOOP =====================\n\nvoid setup() {\n  Serial.begin(9600);\n  display.begin(0x3C, true);\n  headServo.attach(9);\n  pinMode(buzzerPin, OUTPUT);\n  randomSeed(analogRead(A0));   // so coin flips are different every time\n  reactNeutral();\n  studentWake();\n}\n\nvoid loop() {\n  pollSerial();\n  studentForever();\n\n  if (!isPlayingAction && millis() - lastBlinkTime > blinkInterval) {\n    faceClosed();\n    delay(150);\n    faceNeutral();\n    lastBlinkTime = millis();\n  }\n}","chipbot":"//@@HEADER@@\n/*\n  CHIP BOT  —  Arduino Nano + IO shield, Otto-style biped\n  --------------------------------------------------------\n  Pins (Otto defaults):\n    D2 left hip   D3 right hip   D4 left foot   D5 right foot\n    D8 ultrasonic TRIG   D9 ultrasonic ECHO   D13 buzzer\n  Servo POWER comes from the 4xAA pack on the shield, NOT from USB.\n\n  The walking, turning and dancing code below is the tested Otto code from\n  Chip Bot Studio. Only the STUDENT PART sections are different for each student.\n*/\n#include <Servo.h>\n#include <EEPROM.h>\n#include <math.h>\n\nconst uint8_t PIN_SERVO[4] = {2, 3, 4, 5};   // YL, YR, RL, RR\n#define PIN_TRIG 8\n#define PIN_ECHO 9\n#define PIN_BUZZER 13\n\nServo servo[4];\nbool attached = false;\nint8_t trim[4] = {0, 0, 0, 0};\nfloat cur[4] = {90, 90, 90, 90};\nuint16_t T_STEP = 1000;                       // gait period in ms (speed block changes it)\nbool abortFlag = false;\n\n//@@KEEP+\n// ===================== STUDENT PART: NAMES =====================\n//@@CONSTANTS@@\n//@@KEEP-\n\n// ---------------------------------------------------------------- serial helpers\nvoid pollSerial() {\n  while (Serial.available()) {\n    if (Serial.read() == '!') abortFlag = true;\n  }\n}\nbool aborted() { pollSerial(); return abortFlag; }\n\nvoid waitMs(uint16_t ms) {\n  unsigned long end = millis() + ms;\n  while (millis() < end) { if (aborted()) return; delay(5); }\n}\n\n// ---------------------------------------------------------------- servos\nvoid attachServos() {\n  if (attached) return;\n  for (uint8_t i = 0; i < 4; i++) servo[i].attach(PIN_SERVO[i]);\n  attached = true;\n}\nvoid detachServos() {\n  if (!attached) return;\n  for (uint8_t i = 0; i < 4; i++) servo[i].detach();\n  attached = false;\n}\nvoid writeServo(uint8_t i, float angle) {\n  cur[i] = angle;\n  int a = (int)(angle + trim[i] + 0.5f);\n  servo[i].write(constrain(a, 0, 180));\n}\n\n// Smoothly move all 4 servos to target[] over `time` ms (same idea as Otto::_moveServos).\nvoid moveServos(uint16_t time, const int target[4]) {\n  attachServos();\n  float start[4], inc[4];\n  uint16_t n = time / 10; if (n < 1) n = 1;\n  for (uint8_t i = 0; i < 4; i++) { start[i] = cur[i]; inc[i] = (target[i] - cur[i]) / (float)n; }\n  for (uint16_t k = 1; k <= n; k++) {\n    if (aborted()) return;\n    for (uint8_t i = 0; i < 4; i++) writeServo(i, start[i] + inc[i] * k);\n    delay(10);\n  }\n  for (uint8_t i = 0; i < 4; i++) writeServo(i, target[i]);\n}\n\n// Oscillator gait (same maths as Otto::_execute): angle = 90 + O + A * sin(2*pi*t/T + phase)\nvoid execute(const int A[4], const int O[4], const int phDeg[4], uint8_t steps) {\n  attachServos();\n  int first[4];\n  for (uint8_t i = 0; i < 4; i++) first[i] = 90 + O[i] + (int)(A[i] * sin(phDeg[i] * PI / 180.0));\n  moveServos(120, first);                          // avoid a jump at the start\n  unsigned long start = millis(), total = (unsigned long)T_STEP * steps, t;\n  while ((t = millis() - start) < total) {\n    if (aborted()) return;\n    for (uint8_t i = 0; i < 4; i++)\n      writeServo(i, 90 + O[i] + A[i] * sin(2.0 * PI * t / T_STEP + phDeg[i] * PI / 180.0));\n    delay(15);\n  }\n}\n\n// ---------------------------------------------------------------- Otto moves\nvoid doWalk(uint8_t dir, uint8_t steps) {          // dir 0 fwd, 1 back\n  int d = dir ? -1 : 1;\n  int A[4] = {30, 30, 20, 20}, O[4] = {0, 0, 4, -4};\n  int ph[4] = {0, 0, d * -90, d * -90};\n  execute(A, O, ph, steps);\n}\nvoid doTurn(uint8_t dir, uint8_t steps) {          // dir 0 left, 1 right\n  int A[4] = {30, 30, 20, 20}, O[4] = {0, 0, 4, -4};\n  int ph[4] = {0, 0, -90, -90};\n  if (dir == 0) { A[0] = 30; A[1] = 10; } else { A[0] = 10; A[1] = 30; }\n  execute(A, O, ph, steps);\n}\n\nstatic const int DH = 25;  // Otto \"h\" for the dance moves\nvoid doDance(uint8_t id, uint8_t reps) {\n  attachServos();\n  int homes[4] = {90, 90, 90, 90};\n  switch (id) {\n    case 0: { int A[4] = {0, 0, DH, DH}, O[4] = {0, 0, DH / 2, -DH / 2}, ph[4] = {0, 0, 0, 0}; execute(A, O, ph, reps); break; }   // swing\n    case 1: { int A[4] = {0, 0, DH, DH}, O[4] = {0, 0, DH, -DH}, ph[4] = {0, 0, 0, 0}; execute(A, O, ph, reps); break; }             // tiptoe swing\n    case 2: { int A[4] = {0, 0, DH, DH}, O[4] = {0, 0, DH, -DH}, ph[4] = {0, 0, -90, 90}; execute(A, O, ph, reps); break; }          // up-down\n    case 3: { int A[4] = {25, 25, 0, 0}, O[4] = {0, 0, 0, 0}, ph[4] = {-90, 90, 0, 0}; execute(A, O, ph, reps); break; }         // jitter\n    case 4:\n    case 5: {                                                                                                                     // moonwalker L / R\n      int dir = (id == 4) ? 1 : -1, phi = -dir * 90;\n      int A[4] = {0, 0, DH, DH}, O[4] = {0, 0, DH / 2 + 2, -DH / 2 - 2}, ph[4] = {0, 0, phi, -60 * dir + phi};\n      execute(A, O, ph, reps); break; }\n    case 6: { int A[4] = {12, 12, DH, DH}, O[4] = {0, 0, DH - 10, -DH + 10}, ph[4] = {0, 180, -90, 90}; execute(A, O, ph, reps); break; } // flapping\n    case 7:\n    case 8: {                                                                                                                     // shake leg R / L\n      int s1[4] = {90, 90, 58, 35}, s2[4] = {90, 90, 58, 120}, s3[4] = {90, 90, 58, 60};\n      if (id == 8) { s1[2] = 180 - 35; s1[3] = 180 - 58; s2[2] = 180 - 120; s2[3] = 180 - 58; s3[2] = 180 - 60; s3[3] = 180 - 58; }\n      for (uint8_t j = 0; j < reps && !aborted(); j++) {\n        moveServos(500, s1); moveServos(500, s2);\n        for (uint8_t i = 0; i < 2; i++) { moveServos(200, s3); moveServos(200, s2); }\n        moveServos(500, homes);\n      }\n      break; }\n    case 9:\n    case 10: {                                                                                                                    // bend R / L\n      int b1[4] = {90, 90, 62, 35}, b2[4] = {90, 90, 62, 105};\n      if (id == 10) { b1[2] = 180 - 35; b1[3] = 180 - 60; b2[2] = 180 - 105; b2[3] = 180 - 60; }\n      for (uint8_t i = 0; i < reps && !aborted(); i++) {\n        moveServos(400, b1); moveServos(400, b2); waitMs(T_STEP * 8 / 10); moveServos(500, homes);\n      }\n      break; }\n  }\n}\n\nvoid doPose(uint8_t a, uint8_t b, uint8_t c, uint8_t d) {\n  int t[4] = {constrain(a, 45, 135), constrain(b, 45, 135), constrain(c, 45, 135), constrain(d, 45, 135)};\n  moveServos(400, t);\n}\nvoid doRest() { int h[4] = {90, 90, 90, 90}; moveServos(500, h); detachServos(); }\nvoid doBeep(uint8_t f20, uint8_t d10) {\n  tone(PIN_BUZZER, (unsigned int)f20 * 20, (unsigned long)d10 * 10);\n  waitMs((uint16_t)d10 * 10);\n}\nvoid doSpeed(uint8_t level) { T_STEP = (level == 0) ? 1400 : (level == 2) ? 700 : 1000; }\nvoid doWait(uint8_t tenths) { waitMs((uint16_t)tenths * 100); }\n\n// ---------------------------------------------------------------- sensing\nuint8_t readDistance() {\n  digitalWrite(PIN_TRIG, LOW); delayMicroseconds(2);\n  digitalWrite(PIN_TRIG, HIGH); delayMicroseconds(10);\n  digitalWrite(PIN_TRIG, LOW);\n  unsigned long us = pulseIn(PIN_ECHO, HIGH, 6000UL);\n  if (us == 0) return 50;\n  unsigned long cm = us / 58;\n  return cm > 50 ? 50 : (uint8_t)cm;\n}\n\n// ===================== TESTED HELPERS FOR THE BLOCKS =====================\n// Same for every student. Each block in Camp Blocks calls one of these.\n\n// Uses the servo calibration saved by Chip Bot Studio (if any). Never writes anything.\nvoid loadTrims() {\n  if (EEPROM.read(0) == 0xC5) {\n    for (uint8_t i = 0; i < 4; i++) trim[i] = (int8_t)EEPROM.read(1 + i);\n  }\n}\n\nvoid waitSecs(float secs) { waitMs((uint16_t)(secs * 1000.0)); }\n\nvoid beepNote(unsigned int hz, float secs) {\n  tone(PIN_BUZZER, hz, (unsigned long)(secs * 1000.0));\n  waitSecs(secs);\n}\n\n//@@KEEP+\n// ===================== STUDENT PART: WHAT CHIP BOT DOES =====================\n\n// Runs ONCE, when Chip Bot wakes up (when it is powered on).\nvoid studentWake() {\n//@@WAKE@@\n}\n\n// Runs again and again, forever.\nvoid studentForever() {\n//@@FOREVER@@\n}\n//@@KEEP-\n\n// ===================== SETUP / LOOP =====================\n\nvoid setup() {\n  pinMode(PIN_TRIG, OUTPUT);\n  pinMode(PIN_ECHO, INPUT);\n  pinMode(PIN_BUZZER, OUTPUT);\n  Serial.begin(9600);\n  loadTrims();\n  doRest();\n  studentWake();\n}\n\nvoid loop() {\n  studentForever();\n}\n","jarvis":"//@@HEADER@@\n/*\n  JARVIS  —  terrarium buddy, Arduino Nano + IO shield\n  ----------------------------------------------------\n    A0  soil moisture sensor\n    A1  light sensor (LDR with a 10k resistor)\n    D9 / D10 / D11  RGB LED  (red / green / blue)\n    D8  buzzer\n\n  The LED only uses ON / OFF (no PWM), so the buzzer's tone() and the LED\n  can never fight over the same timer.\n  Only the STUDENT PART sections are different for each student.\n*/\n\n#define PIN_SOIL   A0\n#define PIN_LIGHT  A1\n#define PIN_LED_R  9\n#define PIN_LED_G  10\n#define PIN_LED_B  11\n#define PIN_BUZZER 8\n\n//@@KEEP+\n// ===================== STUDENT PART: NAMES =====================\n//@@CONSTANTS@@\n//@@KEEP-\n\n// ===================== BENCH SETTINGS (set once by the facilitator) =====================\n//@@SETTINGS@@\n\n// ===================== TESTED HELPERS FOR THE BLOCKS =====================\n// Same for every student. Each block in Camp Blocks calls one of these.\n\n// Average a few readings so the numbers do not jump around.\nint readAverage(int pin) {\n  long total = 0;\n  for (int i = 0; i < 8; i++) {\n    total += analogRead(pin);\n    delay(2);\n  }\n  return (int)(total / 8);\n}\n\n// 0 = bone dry, 100 = soaking wet\nint soilPercent() {\n  long pct = map(readAverage(PIN_SOIL), SOIL_DRY, SOIL_WET, 0, 100);\n  return (int)constrain(pct, 0, 100);\n}\n\n// 0 = dark, 100 = very bright\nint lightPercent() {\n  long pct = map(readAverage(PIN_LIGHT), 0, 1023, 0, 100);\n  if (!LIGHT_BRIGHT_IS_HIGH) pct = 100 - pct;\n  return (int)constrain(pct, 0, 100);\n}\n\n// r, g, b are 1 (on) or 0 (off)\nvoid setColor(int r, int g, int b) {\n  if (LED_COMMON_ANODE) { r = 1 - r; g = 1 - g; b = 1 - b; }\n  digitalWrite(PIN_LED_R, r ? HIGH : LOW);\n  digitalWrite(PIN_LED_G, g ? HIGH : LOW);\n  digitalWrite(PIN_LED_B, b ? HIGH : LOW);\n}\n\nvoid waitSecs(float secs) {\n  delay((unsigned long)(secs * 1000.0));\n}\n\nvoid playNote(unsigned int hz, float secs) {\n  unsigned long ms = (unsigned long)(secs * 1000.0);\n  tone(PIN_BUZZER, hz, ms);\n  delay(ms + 20);\n  noTone(PIN_BUZZER);\n}\n\nvoid printSensors() {\n  Serial.print(F(\"Soil: \"));\n  Serial.print(soilPercent());\n  Serial.print(F(\"% (raw \"));\n  Serial.print(readAverage(PIN_SOIL));\n  Serial.print(F(\")   Light: \"));\n  Serial.print(lightPercent());\n  Serial.print(F(\"% (raw \"));\n  Serial.print(readAverage(PIN_LIGHT));\n  Serial.println(F(\")\"));\n}\n\n//@@KEEP+\n// ===================== STUDENT PART: WHAT JARVIS DOES =====================\n\n// Runs ONCE, when Jarvis wakes up (when it is powered on).\nvoid studentWake() {\n//@@WAKE@@\n}\n\n// Runs again and again, forever.\nvoid studentForever() {\n//@@FOREVER@@\n}\n//@@KEEP-\n\n// ===================== SETUP / LOOP =====================\n\nvoid setup() {\n  Serial.begin(9600);\n  pinMode(PIN_LED_R, OUTPUT);\n  pinMode(PIN_LED_G, OUTPUT);\n  pinMode(PIN_LED_B, OUTPUT);\n  pinMode(PIN_BUZZER, OUTPUT);\n  setColor(0, 0, 0);\n  studentWake();\n}\n\nvoid loop() {\n  studentForever();\n}\n"};</script>
+<script>
+/* Camp Blocks core: block definitions + code generator. No DOM in here, so Node can test it.
+   The tested base sketches live in ../firmware/*.base.ino; this file only fills in the student parts. */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('fs'), require('path'));
+  else root.CampCore = factory(null, null);
+})(typeof self !== 'undefined' ? self : this, function (fs, path) {
+  'use strict';
+
+  const MARK_S = '', MARK_E = '';           // wraps every value a student chose
+  const V = (x) => MARK_S + x + MARK_E;
+  const stripMarks = (s) => s.split(MARK_S).join('').split(MARK_E).join('');
+
+  const TEMPLATES = (typeof CAMP_TEMPLATES !== 'undefined') ? CAMP_TEMPLATES : (function () {
+    const out = {};
+    ['peeko', 'chipbot', 'jarvis'].forEach(function (id) {
+      out[id] = fs.readFileSync(path.join(__dirname, '..', 'firmware', id + '.base.ino'), 'utf8');
+    });
+    return out;
+  })();
+
+  /* ---------- parameter helpers ---------- */
+  const num = (id, d, min, max, step) => ({ id, t: 'num', d, min, max, step });
+  const choice = (id, d, opts) => ({ id, t: 'choice', d, opts });
+  const text = (id, d, max) => ({ id, t: 'text', d, max });
+
+  function cleanText(s, max, fallback) {
+    let t = String(s == null ? '' : s).replace(/[^A-Za-z0-9 .,!?'_-]/g, '').replace(/\s+/g, ' ').trim();
+    if (max) t = t.slice(0, max).trim();
+    return t || fallback || '';
+  }
+  function norm(def, p) {
+    const o = {};
+    def.params.forEach(function (prm) {
+      let v = p ? p[prm.id] : undefined;
+      if (prm.t === 'num') {
+        v = Number(v);
+        if (!isFinite(v)) v = prm.d;
+        v = Math.min(prm.max, Math.max(prm.min, v));
+        if (prm.step) v = Math.round(v / prm.step) * prm.step;
+        v = Math.round(v * 1000) / 1000;
+      } else if (prm.t === 'choice') {
+        if (!prm.opts.some((x) => x[0] === v)) v = prm.d;
+      } else if (prm.t === 'text') {
+        v = cleanText(v, prm.max, prm.d);
+      }
+      o[prm.id] = v;
+    });
+    return o;
+  }
+  const fmtF = (n) => { const s = String(Math.round(n * 100) / 100); return s.indexOf('.') >= 0 ? s : s + '.0'; };
+  const optLabel = (prm, v) => { const o = prm.opts.find((x) => x[0] === v); return o ? o[1] : v; };
+  const LOOP_VARS = ['i', 'j', 'k', 'm', 'n'];
+
+  function B(type, cat, parts, extra) {
+    const def = Object.assign({ type, cat, shape: 'stack', parts }, extra);
+    def.params = parts.filter((x) => typeof x === 'object');
+    return def;
+  }
+
+  /* ---------- shared blocks ---------- */
+  const NOTES = [['C', 'C', 262], ['D', 'D', 294], ['E', 'E', 330], ['F', 'F', 349], ['G', 'G', 392], ['A', 'A', 440], ['B', 'B', 494], ['C2', 'high C', 523]];
+  const noteHz = (n) => (NOTES.find((x) => x[0] === n) || NOTES[0])[2];
+  const noteName = (n) => (NOTES.find((x) => x[0] === n) || NOTES[0])[1];
+
+  const WAIT = B('wait', 'control', ['wait ', num('secs', 1, 0.1, 30, 0.1), ' seconds'], {
+    code: (p) => ['waitSecs(' + V(fmtF(p.secs)) + ');']
+  });
+  const REPEAT = B('repeat', 'control', ['repeat ', num('times', 3, 1, 20, 1), ' times'], {
+    shape: 'c',
+    head: (p, c) => 'for (int ' + c.v + ' = 0; ' + c.v + ' < ' + V(p.times) + '; ' + c.v + '++) {'
+  });
+  const noteBlock = (fn, who) => B('note', 'sound', [who, choice('note', 'C', NOTES.map((n) => [n[0], n[1]])), ' for ', num('secs', 0.3, 0.1, 3, 0.1), ' seconds'], {
+    code: (p) => [fn + '(' + noteHz(p.note) + ', ' + V(fmtF(p.secs)) + ');  // ' + V(noteName(p.note))]
+  });
+  const helloBlock = (cat) => B('hello', cat, ['say hello in the Serial Monitor'], {
+    code: () => ['Serial.print(F("Hi! I\'m "));', 'Serial.print(ROBOT_NAME);', 'Serial.print(F(", built by "));', 'Serial.println(BUILDER_NAME);']
+  });
+
+  /* ---------- the three projects ---------- */
+  const PROJECTS = {
+    peeko: {
+      id: 'peeko', name: 'Peeko', emoji: '👀', color: '#ff6b5e',
+      tagline: 'The robot with expressive eyes',
+      robotLabel: "Peeko's name", robotDefault: 'Peeko',
+      foldBlurb: 'faces, sounds, head moves and listening to the computer',
+      cats: [
+        { id: 'looks', label: 'Looks', color: '#9966FF' },
+        { id: 'sound', label: 'Sound', color: '#CF63CF' },
+        { id: 'control', label: 'Control', color: '#FFAB19' },
+        { id: 'chance', label: 'Chance', color: '#59C059' }
+      ],
+      blocks: [
+        B('act', 'looks', ['Peeko feels ', choice('face', 'happy', [['happy', '😊 happy'], ['sad', '😢 sad'], ['surprised', '😲 surprised'], ['angry', '😠 angry'], ['sleepy', '😴 sleepy'], ['neutral', '😐 neutral'], ['celebrate', '🎉 celebrate']])], {
+          code: (p) => ['runCommand(F("' + V(p.face) + '"));']
+        }),
+        B('look', 'looks', ['Peeko looks ', choice('dir', 'left', [['left', '⬅️ left'], ['right', '➡️ right']])], {
+          code: (p) => ['runCommand(F("' + V(p.dir) + '"));']
+        }),
+        B('say_name', 'looks', ['say ', choice('who', 'robot', [['robot', "my robot's name"], ['me', 'my name']]), ' for ', num('secs', 2, 0.5, 10, 0.5), ' seconds'], {
+          code: (p) => ['sayText(' + V(p.who === 'robot' ? 'ROBOT_NAME' : 'BUILDER_NAME') + ', ' + V(fmtF(p.secs)) + ');']
+        }),
+        B('say_text', 'looks', ['write ', text('words', 'Hello!', 20), ' for ', num('secs', 2, 0.5, 10, 0.5), ' seconds'], {
+          code: (p) => ['sayText(PSTR("' + V(p.words) + '"), ' + V(fmtF(p.secs)) + ');']
+        }),
+        B('head', 'looks', ['turn head to ', num('deg', 90, 40, 140, 5), ' degrees'], {
+          code: (p) => ['headServo.write(' + V(p.deg) + ');']
+        }),
+        noteBlock('playNote', 'play note '),
+        WAIT, REPEAT,
+        B('if_coin', 'chance', ['if coin flip lands ', choice('side', 'heads', [['heads', 'heads'], ['tails', 'tails']])], {
+          shape: 'c', canElse: true,
+          head: (p) => 'if (random(2) == ' + V(p.side === 'heads' ? 0 : 1) + ') {'
+        }),
+        B('if_dice', 'chance', ['if dice roll is ', choice('cmp', 'more', [['more', 'more than'], ['less', 'less than'], ['exactly', 'exactly']]), ' ', num('n', 3, 1, 6, 1)], {
+          shape: 'c', canElse: true,
+          head: (p) => 'if (random(1, 7) ' + V(p.cmp === 'more' ? '>' : p.cmp === 'less' ? '<' : '==') + ' ' + V(p.n) + ') {'
+        })
+      ],
+      story: [
+        { id: 'name', title: 'Name it', say: 'Every robot needs a name! Type yours in the name tag, and watch it appear in the code.', done: (s) => !!s.robot.trim() },
+        { id: 'wake', title: 'Wake up', say: 'What is the very first thing Peeko does when it switches on? Put it under "when Peeko wakes up". This runs once.', done: (s) => s.wake.length > 0 },
+        { id: 'forever', title: 'Forever', say: 'Robots keep going. Everything inside "forever" runs again and again. What should Peeko keep doing?', done: (s) => s.forever.length > 0 },
+        { id: 'wait', title: 'Add time', say: 'Without waiting, Peeko would flicker through everything instantly. Add a wait so we can see each thing.', done: (s) => countType(s, 'wait') > 0 },
+        { id: 'choice', title: 'Make a choice', say: 'Robots decide! Flip a coin: heads Peeko is happy, tails Peeko is sad. That is an "if / else".', done: (s) => countType(s, /^if_/) > 0 },
+        { id: 'repeat', title: 'Repeat', say: 'Want Peeko to do something 3 times? Use "repeat" instead of copying blocks.', done: (s) => countType(s, 'repeat') > 0 }
+      ],
+      example: function (n) {
+        return {
+          wake: [n('say_name', { who: 'robot', secs: 2 }), n('act', { face: 'happy' })],
+          forever: [
+            n('if_coin', { side: 'heads' }, [n('act', { face: 'happy' }), n('repeat', { times: 2 }, [n('note', { note: 'E', secs: 0.2 }), n('note', { note: 'G', secs: 0.2 })])], [n('act', { face: 'sad' })]),
+            n('wait', { secs: 3 })
+          ]
+        };
+      }
+    },
+
+    chipbot: {
+      id: 'chipbot', name: 'Chip Bot', emoji: '🤖', color: '#2bb3a3',
+      tagline: 'The walking, dancing biped',
+      robotLabel: "Chip Bot's name", robotDefault: 'Chip Bot',
+      foldBlurb: 'walking, turning, dancing, servo control and the distance sensor',
+      cats: [
+        { id: 'motion', label: 'Motion', color: '#4C97FF' },
+        { id: 'sound', label: 'Sound', color: '#CF63CF' },
+        { id: 'talk', label: 'Talk', color: '#9966FF' },
+        { id: 'control', label: 'Control', color: '#FFAB19' },
+        { id: 'sensing', label: 'Sensing', color: '#3FB8DE' }
+      ],
+      blocks: [
+        B('walk', 'motion', ['walk ', choice('dir', 'fwd', [['fwd', 'forward'], ['back', 'backward']]), ' ', num('steps', 4, 1, 10, 1), ' steps'], {
+          code: (p) => ['doWalk(' + V(p.dir === 'fwd' ? 0 : 1) + ', ' + V(p.steps) + ');']
+        }),
+        B('turn', 'motion', ['turn ', choice('dir', 'left', [['left', 'left'], ['right', 'right']]), ' ', num('steps', 3, 1, 10, 1), ' steps'], {
+          code: (p) => ['doTurn(' + V(p.dir === 'left' ? 0 : 1) + ', ' + V(p.steps) + ');']
+        }),
+        B('dance', 'motion', ['dance ', choice('move', '0', [['0', 'swing'], ['1', 'tiptoe swing'], ['2', 'up and down'], ['3', 'jitter'], ['4', 'moonwalk left'], ['5', 'moonwalk right'], ['6', 'flapping'], ['7', 'shake right leg'], ['8', 'shake left leg'], ['9', 'bend right'], ['10', 'bend left']]), ' ', num('reps', 2, 1, 8, 1), ' times'], {
+          code: (p) => ['doDance(' + V(p.move) + ', ' + V(p.reps) + ');']
+        }),
+        B('stand', 'motion', ['stand still'], { code: () => ['doRest();'] }),
+        B('speed', 'motion', ['walk speed ', choice('level', '1', [['0', 'slow'], ['1', 'normal'], ['2', 'fast']])], {
+          code: (p) => ['doSpeed(' + V(p.level) + ');']
+        }),
+        noteBlock('beepNote', 'beep note '),
+        helloBlock('talk'),
+        WAIT, REPEAT,
+        B('if_dist', 'sensing', ['if distance is ', choice('cmp', 'less', [['less', 'less than'], ['more', 'more than']]), ' ', num('cm', 15, 3, 50, 1), ' cm'], {
+          shape: 'c', canElse: true,
+          head: (p) => 'if (readDistance() ' + V(p.cmp === 'less' ? '<' : '>') + ' ' + V(p.cm) + ') {'
+        })
+      ],
+      story: [
+        { id: 'name', title: 'Name it', say: 'Give your Chip Bot a name and put your own name on it. Watch both appear in the code.', done: (s) => !!s.robot.trim() },
+        { id: 'wake', title: 'Wake up', say: 'What does Chip Bot do the moment it switches on? Say hello? Beep? Put it under "when Chip Bot wakes up".', done: (s) => s.wake.length > 0 },
+        { id: 'forever', title: 'Forever', say: 'Now the main behaviour. Everything inside "forever" repeats again and again.', done: (s) => s.forever.length > 0 },
+        { id: 'wait', title: 'Add time', say: 'Robots need rests. Add a wait so Chip Bot does not rush from one move to the next.', done: (s) => countType(s, 'wait') > 0 },
+        { id: 'choice', title: 'Make a choice', say: 'Chip Bot has eyes (the distance sensor). If something is close, turn away. Otherwise keep walking. That is an "if / else".', done: (s) => countType(s, /^if_/) > 0 },
+        { id: 'repeat', title: 'Repeat', say: 'A dance with 3 wiggles? Use "repeat" instead of copying blocks.', done: (s) => countType(s, 'repeat') > 0 }
+      ],
+      example: function (n) {
+        return {
+          wake: [n('hello'), n('repeat', { times: 2 }, [n('note', { note: 'C2', secs: 0.2 }), n('wait', { secs: 0.1 })])],
+          forever: [
+            n('if_dist', { cmp: 'less', cm: 15 }, [n('turn', { dir: 'left', steps: 3 }), n('note', { note: 'G', secs: 0.2 })], [n('walk', { dir: 'fwd', steps: 4 })]),
+            n('wait', { secs: 0.5 })
+          ]
+        };
+      }
+    },
+
+    jarvis: {
+      id: 'jarvis', name: 'Jarvis', emoji: '🌱', color: '#8b7fe8',
+      tagline: 'The terrarium buddy that senses soil and light',
+      robotLabel: "Plant buddy's name", robotDefault: 'Jarvis',
+      foldBlurb: 'sensor readings, the LED and the buzzer',
+      settingsDefault: { soilDry: 520, soilWet: 280, ledAnode: false, lightHigh: true },
+      cats: [
+        { id: 'looks', label: 'Looks', color: '#9966FF' },
+        { id: 'sound', label: 'Sound', color: '#CF63CF' },
+        { id: 'control', label: 'Control', color: '#FFAB19' },
+        { id: 'sensing', label: 'Sensing', color: '#3FB8DE' }
+      ],
+      blocks: [
+        B('light', 'looks', ['set light to ', choice('color', 'green', [['red', '🔴 red'], ['green', '🟢 green'], ['blue', '🔵 blue'], ['yellow', '🟡 yellow'], ['cyan', '🩵 cyan'], ['purple', '🟣 purple'], ['white', '⚪ white'], ['off', '⚫ off']])], {
+          code: (p) => {
+            const rgb = { red: '1, 0, 0', green: '0, 1, 0', blue: '0, 0, 1', yellow: '1, 1, 0', cyan: '0, 1, 1', purple: '1, 0, 1', white: '1, 1, 1', off: '0, 0, 0' }[p.color];
+            return ['setColor(' + rgb + ');  // ' + V(p.color)];
+          }
+        }),
+        helloBlock('looks'),
+        noteBlock('playNote', 'play note '),
+        WAIT, REPEAT,
+        B('print', 'sensing', ['print sensor readings'], { code: () => ['printSensors();'] }),
+        B('if_soil', 'sensing', ['if soil wetness is ', choice('cmp', 'below', [['below', 'below'], ['above', 'above']]), ' ', num('pct', 40, 0, 100, 5), ' %'], {
+          shape: 'c', canElse: true,
+          head: (p) => 'if (soilPercent() ' + V(p.cmp === 'below' ? '<' : '>') + ' ' + V(p.pct) + ') {'
+        }),
+        B('if_light', 'sensing', ['if brightness is ', choice('cmp', 'below', [['below', 'below'], ['above', 'above']]), ' ', num('pct', 30, 0, 100, 5), ' %'], {
+          shape: 'c', canElse: true,
+          head: (p) => 'if (lightPercent() ' + V(p.cmp === 'below' ? '<' : '>') + ' ' + V(p.pct) + ') {'
+        })
+      ],
+      story: [
+        { id: 'name', title: 'Name it', say: 'Name your plant buddy and put your own name on it. Both appear in the code.', done: (s) => !!s.robot.trim() },
+        { id: 'wake', title: 'Wake up', say: 'What does Jarvis do the moment it switches on? Say hello? Show a colour? Put it under "when Jarvis wakes up".', done: (s) => s.wake.length > 0 },
+        { id: 'forever', title: 'Forever', say: 'A plant buddy never stops watching. Everything inside "forever" repeats again and again.', done: (s) => s.forever.length > 0 },
+        { id: 'wait', title: 'Add time', say: 'Soil does not change every millisecond. Add a wait so Jarvis checks every couple of seconds.', done: (s) => countType(s, 'wait') > 0 },
+        { id: 'choice', title: 'Make a choice', say: 'If the soil is dry, show red. Otherwise show green. That is an "if / else", and it is how every smart device decides.', done: (s) => countType(s, /^if_/) > 0 },
+        { id: 'repeat', title: 'Repeat', say: 'Make an alarm that beeps 3 times. Use "repeat" instead of copying blocks.', done: (s) => countType(s, 'repeat') > 0 }
+      ],
+      example: function (n) {
+        return {
+          wake: [n('hello'), n('light', { color: 'green' })],
+          forever: [
+            n('if_soil', { cmp: 'below', pct: 40 }, [n('light', { color: 'red' }), n('repeat', { times: 3 }, [n('note', { note: 'C', secs: 0.2 }), n('wait', { secs: 0.2 })])], [n('light', { color: 'green' })]),
+            n('print'),
+            n('wait', { secs: 2 })
+          ]
+        };
+      }
+    }
+  };
+  Object.keys(PROJECTS).forEach(function (id) {
+    const P = PROJECTS[id];
+    P.blockMap = {};
+    P.blocks.forEach((b) => { P.blockMap[b.type] = b; });
+    P.catMap = {};
+    P.cats.forEach((c) => { P.catMap[c.id] = c; });
+  });
+
+  /* ---------- state + tree helpers ---------- */
+  let uidN = 0;
+  const uid = () => 'n' + (++uidN) + Math.random().toString(36).slice(2, 6);
+
+  function defaults(def) { const p = {}; def.params.forEach((x) => { p[x.id] = x.d; }); return p; }
+  function mkNode(projId, type, p, kids, els) {
+    const def = PROJECTS[projId].blockMap[type];
+    const node = { id: uid(), type, p: Object.assign(defaults(def), p || {}) };
+    if (def.shape === 'c') { node.kids = kids || []; if (def.canElse && els) node.els = els; }
+    return node;
+  }
+  function newState(projId) {
+    const P = PROJECTS[projId];
+    return { builder: '', robot: '', date: '', settings: Object.assign({}, P.settingsDefault || {}), wake: [], forever: [] };
+  }
+  function exampleState(projId) {
+    const st = newState(projId);
+    const ex = PROJECTS[projId].example((type, p, kids, els) => mkNode(projId, type, p, kids, els));
+    st.wake = ex.wake; st.forever = ex.forever;
+    return st;
+  }
+  function walk(list, fn) {
+    (list || []).forEach(function (n) { fn(n); walk(n.kids, fn); walk(n.els, fn); });
+  }
+  function countType(state, t) {
+    let c = 0;
+    const test = (type) => (t instanceof RegExp ? t.test(type) : type === t);
+    walk(state.wake, (n) => { if (test(n.type)) c++; });
+    walk(state.forever, (n) => { if (test(n.type)) c++; });
+    return c;
+  }
+  function countBlocks(state) { let c = 0; walk(state.wake, () => c++); walk(state.forever, () => c++); return c; }
+
+  /* ---------- code generation ---------- */
+  function genList(P, list, depth, out, indent, keep) {
+    (list || []).forEach(function (node) {
+      const def = P.blockMap[node.type];
+      if (!def) return;
+      const p = norm(def, node.p);
+      const pad = indent + '  '.repeat(depth);
+      const push = (t) => out.push({ t: pad + t, src: 'student', cat: def.cat, keep: true, node: node.id });
+      if (def.shape === 'c') {
+        const v = LOOP_VARS[depth] || 'r' + depth;
+        push(def.head(p, { v }));
+        const before = out.length;
+        genList(P, node.kids, depth + 1, out, indent);
+        if (out.length === before) out.push({ t: pad + '  // (nothing in here yet)', src: 'student', cat: def.cat, keep: true, node: node.id });
+        if (def.canElse && node.els) {
+          push('} else {');
+          const b2 = out.length;
+          genList(P, node.els, depth + 1, out, indent);
+          if (out.length === b2) out.push({ t: pad + '  // (nothing in here yet)', src: 'student', cat: def.cat, keep: true, node: node.id });
+        }
+        push('}');
+      } else {
+        def.code(p).forEach(push);
+      }
+    });
+  }
+
+  function generate(projId, state, opts) {
+    const P = PROJECTS[projId];
+    const robot = cleanText(state.robot, 16, P.robotDefault);
+    const builder = cleanText(state.builder, 16, 'a CHIP Camp student');
+    const builderConst = cleanText(state.builder, 16, 'Friend');
+    const date = cleanText(state.date, 24, '');
+    const settings = Object.assign({}, P.settingsDefault || {}, state.settings || {});
+    const wakeOut = [], foreverOut = [];
+    genList(P, state.wake, 0, wakeOut, '  ');
+    genList(P, state.forever, 0, foreverOut, '  ');
+    const empty = (t) => [{ t: '  // (nothing here yet: drag blocks into the ' + t + ' part)', src: 'student', cat: 'control', keep: true }];
+    const rule = '// ============================================================';
+    const header = [
+      rule,
+      '//  ' + P.name.toUpperCase() + '  —  built by ' + V(builder),
+      '//  Robot name: ' + V(robot),
+      '//  Made with Camp Blocks' + (date ? ' · ' + V(date) : ''),
+      rule
+    ];
+    const constants = P.id === 'peeko'
+      ? ['const char BUILDER_NAME[] PROGMEM = "' + V(builderConst) + '";   // who built this robot', 'const char ROBOT_NAME[]   PROGMEM = "' + V(robot) + '";   // what this robot is called']
+      : ['const char BUILDER_NAME[] = "' + V(builderConst) + '";   // who built this robot', 'const char ROBOT_NAME[]   = "' + V(robot) + '";   // what this robot is called'];
+    const settingsLines = P.id === 'jarvis' ? [
+      'const bool LED_COMMON_ANODE      = ' + (settings.ledAnode ? 'true' : 'false') + ';   // true if the RGB LED\'s long leg goes to 5V',
+      'const int  SOIL_DRY              = ' + Math.round(settings.soilDry) + ';   // raw reading with the probe in dry air',
+      'const int  SOIL_WET              = ' + Math.round(settings.soilWet) + ';   // raw reading with the probe in a glass of water',
+      'const bool LIGHT_BRIGHT_IS_HIGH  = ' + (settings.lightHigh ? 'true' : 'false') + ';   // false if brighter light gives a smaller number'
+    ] : [];
+
+    const lines = [];
+    let keep = false;
+    TEMPLATES[projId].split('\n').forEach(function (ln) {
+      const m = ln.trim();
+      if (m === '//@@KEEP+') { keep = true; return; }
+      if (m === '//@@KEEP-') { keep = false; return; }
+      if (m === '//@@HEADER@@') { header.forEach((t) => lines.push({ t, src: 'student', cat: 'name', keep: true })); return; }
+      if (m === '//@@CONSTANTS@@') { constants.forEach((t) => lines.push({ t, src: 'student', cat: 'name', keep: true })); return; }
+      if (m === '//@@SETTINGS@@') { settingsLines.forEach((t) => lines.push({ t, src: 'settings', keep: false })); return; }
+      if (m === '//@@WAKE@@') { (wakeOut.length ? wakeOut : empty('wake-up')).forEach((l) => lines.push(l)); return; }
+      if (m === '//@@FOREVER@@') { (foreverOut.length ? foreverOut : empty('forever')).forEach((l) => lines.push(l)); return; }
+      lines.push({ t: ln, src: 'base', keep });
+    });
+    const textOut = stripMarks(lines.map((l) => l.t).join('\n'));
+    return { lines, text: textOut, robot, builder: builderConst };
+  }
+
+  return {
+    PROJECTS, TEMPLATES, MARK_S, MARK_E, stripMarks,
+    norm, cleanText, fmtF, noteHz, NOTES,
+    newState, exampleState, mkNode, defaults, walk, countType, countBlocks, generate, uid, LOOP_VARS
+  };
+});
+
+</script>
+<script>
+/* Camp Blocks runtime: runs the block tree against a "stage" (the on-screen robot) so students can
+   watch their logic before flashing. No DOM here, so Node can test it with a mock stage. */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./core.js'));
+  else root.CampRuntime = factory(root.CampCore);
+})(typeof self !== 'undefined' ? self : this, function (Core) {
+  'use strict';
+  const STOP = { stop: true };
+
+  // c = context: { stage, sleep(sec), sensors:{distance,soil,light}, names:{robot,builder}, settings, speedLevel }
+  const COMMON = {
+    wait: async (p, c) => { await c.sleep(p.secs); },
+    note: async (p, c) => { c.stage.note(Core.noteHz(p.note), p.secs); await c.sleep(p.secs); },
+    hello: async (p, c) => { c.stage.print("Hi! I'm " + c.names.robot + ', built by ' + c.names.builder); }
+  };
+
+  const RUN = {
+    peeko: Object.assign({}, COMMON, {
+      act: (p, c) => c.stage.react(p.face, c.sleep),
+      look: (p, c) => c.stage.react(p.dir, c.sleep),
+      say_name: (p, c) => c.stage.say(p.who === 'robot' ? c.names.robot : c.names.builder, p.secs, c.sleep),
+      say_text: (p, c) => c.stage.say(p.words, p.secs, c.sleep),
+      head: async (p, c) => { c.stage.head(p.deg); },
+      cond_if_coin: (p) => (Math.random() < 0.5 ? 'heads' : 'tails') === p.side,
+      cond_if_dice: (p) => { const r = 1 + Math.floor(Math.random() * 6); return p.cmp === 'more' ? r > p.n : p.cmp === 'less' ? r < p.n : r === p.n; }
+    }),
+
+    chipbot: Object.assign({}, COMMON, {
+      walk: async (p, c) => {
+        const T = c.stepSeconds();
+        for (let i = 0; i < p.steps; i++) {
+          c.stage.walk(p.dir, T);
+          await c.sleep(T + (i === 0 ? 0.12 : 0));
+          c.sensors.set('distance', p.dir === 'fwd' ? Math.max(3, c.sensors.distance - 3) : Math.min(50, c.sensors.distance + 3));
+        }
+        c.stage.idle();
+      },
+      turn: async (p, c) => {
+        const T = c.stepSeconds();
+        for (let i = 0; i < p.steps; i++) { c.stage.turn(p.dir, T); await c.sleep(T + (i === 0 ? 0.12 : 0)); }
+        c.stage.idle();
+        c.sensors.set('distance', p.steps >= 2 ? 50 : Math.min(50, c.sensors.distance + 15));
+      },
+      dance: async (p, c) => {
+        const T = c.stepSeconds(), m = Number(p.move);
+        const per = (m === 7 || m === 8) ? 2.9 : (m === 9 || m === 10) ? 0.9 + T * 0.8 + 0.5 : T;
+        for (let i = 0; i < p.reps; i++) { c.stage.dance(m, per); await c.sleep(per); }
+        c.stage.idle();
+      },
+      stand: async (p, c) => { c.stage.idle(); await c.sleep(0.5); },
+      speed: async (p, c) => { c.speedLevel = Number(p.level); },
+      cond_if_dist: (p, c) => (p.cmp === 'less' ? c.sensors.distance < p.cm : c.sensors.distance > p.cm)
+    }),
+
+    jarvis: Object.assign({}, COMMON, {
+      light: async (p, c) => { c.stage.led(p.color); },
+      print: async (p, c) => {
+        const s = c.settings;
+        const rawSoil = Math.round(s.soilDry + (s.soilWet - s.soilDry) * c.sensors.soil / 100);
+        const rawLight = Math.round((s.lightHigh ? c.sensors.light : 100 - c.sensors.light) * 10.23);
+        c.stage.print('Soil: ' + Math.round(c.sensors.soil) + '% (raw ' + rawSoil + ')   Light: ' + Math.round(c.sensors.light) + '% (raw ' + rawLight + ')');
+      },
+      cond_if_soil: (p, c) => (p.cmp === 'below' ? c.sensors.soil < p.pct : c.sensors.soil > p.pct),
+      cond_if_light: (p, c) => (p.cmp === 'below' ? c.sensors.light < p.pct : c.sensors.light > p.pct)
+    })
+  };
+
+  async function runList(projId, list, c) {
+    const P = Core.PROJECTS[projId];
+    for (const node of list || []) {
+      if (c.stopped()) throw STOP;
+      const def = P.blockMap[node.type];
+      if (!def) continue;
+      const p = Core.norm(def, node.p);
+      c.onNode(node.id, true);
+      try {
+        if (def.type === 'repeat') {
+          for (let t = 0; t < p.times; t++) { if (c.stopped()) throw STOP; await runList(projId, node.kids, c); }
+        } else if (def.shape === 'c') {
+          const yes = RUN[projId]['cond_' + def.type](p, c);
+          if (yes) await runList(projId, node.kids, c);
+          else if (node.els) await runList(projId, node.els, c);
+        } else {
+          const fn = RUN[projId][def.type];
+          if (!fn) throw new Error('no runtime for block ' + projId + '/' + def.type);
+          await fn(p, c);
+        }
+      } finally { c.onNode(node.id, false); }
+    }
+  }
+
+  async function runProgram(projId, state, c) {
+    try {
+      c.stage.reset();
+      await runList(projId, state.wake, c);
+      for (;;) {
+        await runList(projId, state.forever, c);
+        await c.sleep(0.03);
+      }
+    } catch (e) {
+      if (e !== STOP) throw e;
+    }
+  }
+
+  return { RUN, runProgram, runList, STOP };
+});
+
+</script>
+<script>
+/* Camp Blocks stages: the little on-screen robots that run the student's blocks.
+   Peeko's faces are a canvas port of the drawing code in the tested Peeko sketch. */
+(function (root, factory) {
+  root.CampStages = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+  const $ = (el, sel) => el.querySelector(sel);
+
+  /* ---------- shared: tiny sound + floating notes ---------- */
+  const Sound = {
+    on: false, ctx: null,
+    beep(hz, secs) {
+      if (!this.on) return;
+      try {
+        this.ctx = this.ctx || new (window.AudioContext || window.webkitAudioContext)();
+        const o = this.ctx.createOscillator(), g = this.ctx.createGain(), t = this.ctx.currentTime;
+        o.type = 'square'; o.frequency.value = hz;
+        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.06, t + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + Math.max(0.05, secs));
+        o.connect(g); g.connect(this.ctx.destination); o.start(t); o.stop(t + secs + 0.05);
+      } catch (e) { /* no audio, no problem */ }
+    }
+  };
+  function floatNote(layer, hz) {
+    const n = document.createElement('span');
+    n.className = 'fnote'; n.textContent = ['♪', '♫', '♩'][Math.floor(Math.random() * 3)];
+    n.style.left = (30 + Math.random() * 40) + '%';
+    n.style.color = 'hsl(' + Math.round((hz % 500) / 500 * 300) + ',80%,55%)';
+    layer.appendChild(n);
+    setTimeout(() => n.remove(), 1400);
+  }
+
+  /* ---------- Peeko ---------- */
+  function peeko(mount, sensors) {
+    mount.innerHTML =
+      '<div class="pk-scene"><div class="pk-bot"><div class="pk-antenna"></div><div class="pk-head">' +
+      '<div class="pk-screen"><canvas width="256" height="128"></canvas></div></div></div><div class="notes"></div></div>';
+    const bot = $(mount, '.pk-bot'), cv = $(mount, 'canvas'), notes = $(mount, '.notes');
+    const g = cv.getContext('2d');
+    const FG = '#e8f6ff', BG = '#050b14';
+    const d = {
+      clear() { g.setTransform(2, 0, 0, 2, 0, 0); g.fillStyle = BG; g.fillRect(0, 0, 128, 64); },
+      fillCircle(cx, cy, r) { g.fillStyle = FG; g.beginPath(); g.arc(cx + 0.5, cy + 0.5, r + 0.5, 0, 6.2832); g.fill(); },
+      drawCircle(cx, cy, r) { g.strokeStyle = FG; g.lineWidth = 1; g.beginPath(); g.arc(cx + 0.5, cy + 0.5, r, 0, 6.2832); g.stroke(); },
+      line(x0, y0, x1, y1) { g.strokeStyle = FG; g.lineWidth = 1.1; g.beginPath(); g.moveTo(x0 + 0.5, y0 + 0.5); g.lineTo(x1 + 0.5, y1 + 0.5); g.stroke(); },
+      pixel(x, y) { g.fillStyle = FG; g.fillRect(x, y, 1, 1); },
+      rect(x, y, w, h) { g.fillStyle = FG; g.fillRect(x, y, w, h); },
+      text(str) {
+        const size = str.length <= 10 ? 2 : 1;
+        g.fillStyle = FG; g.font = 'bold ' + (10 * size) + 'px "Courier New", monospace'; g.textBaseline = 'top';
+        g.fillText(str, (128 - str.length * 6 * size) / 2, (64 - 8 * size) / 2 - size);
+      }
+    };
+    // --- the same shapes as the tested sketch (drawRoundEye, drawHappyEye, ...)
+    const eyes = (r) => { d.fillCircle(40, 28, r); d.fillCircle(88, 28, r); };
+    const happyEye = (cx, cy) => { d.line(cx - 9, cy + 5, cx, cy - 5); d.line(cx - 9, cy + 6, cx, cy - 4); d.line(cx, cy - 5, cx + 9, cy + 5); d.line(cx, cy - 4, cx + 9, cy + 6); };
+    const sadEye = (cx, cy) => { d.line(cx - 9, cy - 3, cx, cy + 6); d.line(cx - 9, cy - 2, cx, cy + 7); d.line(cx, cy + 6, cx + 9, cy - 3); d.line(cx, cy + 7, cx + 9, cy - 2); };
+    const angryEye = (cx, cy) => { d.rect(cx - 8, cy - 2, 16, 6); if (cx < 64) d.line(cx - 9, cy - 12, cx + 9, cy - 6); else d.line(cx + 9, cy - 12, cx - 9, cy - 6); };
+    const smile = (yb, w) => { for (let x = 64 - w; x <= 64 + w; x += 2) { const y = yb + Math.trunc(((x - 64) * (x - 64)) / 55); d.pixel(x, y); d.pixel(x, y + 1); } };
+    const frown = (yb, w) => { for (let x = 64 - w; x <= 64 + w; x += 2) { const y = yb - Math.trunc(((x - 64) * (x - 64)) / 55); d.pixel(x, y); d.pixel(x, y + 1); } };
+    const oMouth = (cx, cy, r) => { d.drawCircle(cx, cy, r); d.drawCircle(cx, cy, r - 1); };
+    const F = {
+      neutral() { d.clear(); eyes(9); },
+      closed() { d.clear(); d.rect(31, 26, 18, 4); d.rect(79, 26, 18, 4); },
+      happy1() { d.clear(); eyes(9); },
+      happy2() { d.clear(); happyEye(40, 28); happyEye(88, 28); smile(46, 12); },
+      happy3() { d.clear(); happyEye(40, 28); happyEye(88, 28); smile(44, 20); },
+      sad2() { d.clear(); sadEye(40, 28); sadEye(88, 28); frown(54, 18); },
+      sad3() { d.clear(); sadEye(40, 28); sadEye(88, 28); frown(54, 18); d.fillCircle(34, 40, 3); },
+      surprised2() { d.clear(); eyes(15); oMouth(64, 50, 6); },
+      angry2() { d.clear(); angryEye(40, 28); angryEye(88, 28); frown(52, 14); }
+    };
+
+    let busy = 0, lastActive = performance.now(), stage;
+    const tilt = (angle) => { bot.style.setProperty('--tilt', ((angle - 90) * 0.4) + 'deg'); };
+    const note = (hz, secs) => { floatNote(notes, hz); Sound.beep(hz, secs); };
+    const happyFace = async (sleep) => { F.happy1(); await sleep(0.15); F.happy2(); await sleep(0.15); F.happy3(); };
+
+    stage = {
+      reset() { busy = 0; F.neutral(); tilt(90); notes.innerHTML = ''; lastActive = performance.now(); },
+      note, print: (t) => sensors.print(t),
+      head(angle) { tilt(angle); },
+      async say(text, secs, sleep) {
+        busy++;
+        try { d.clear(); d.text(text); await sleep(secs); F.neutral(); } finally { busy--; lastActive = performance.now(); }
+      },
+      async react(cmd, sleep) {
+        busy++;
+        try {
+          const C = 90, L = 50, R = 130;
+          switch (cmd) {
+            case 'happy': await happyFace(sleep); tilt(C + 15); note(523, 0.15); await sleep(0.16); note(659, 0.15); await sleep(0.16); note(784, 0.25); await sleep(0.26); tilt(C); break;
+            case 'sad': F.happy1(); await sleep(0.15); F.sad2(); await sleep(0.2); F.sad3(); tilt(C - 20); note(400, 0.3); await sleep(0.32); note(300, 0.3); await sleep(0.32); note(200, 0.5); await sleep(0.52); tilt(C); break;
+            case 'surprised': F.happy1(); await sleep(0.1); F.surprised2(); tilt(C - 25); note(1200, 0.12); await sleep(0.13); await sleep(0.2); tilt(C); break;
+            case 'angry': F.happy1(); await sleep(0.1); F.angry2(); for (let i = 0; i < 3; i++) { tilt(L + 20); await sleep(0.08); tilt(R - 20); await sleep(0.08); } tilt(C); note(150, 0.4); await sleep(0.42); break;
+            case 'sleepy': F.closed(); await sleep(0.6); F.neutral(); break;
+            case 'left': tilt(L); await sleep(0.4); tilt(C); break;
+            case 'right': tilt(R); await sleep(0.4); tilt(C); break;
+            case 'neutral': F.neutral(); tilt(C); break;
+            case 'celebrate':
+              for (let i = 0; i < 2; i++) { await happyFace(sleep); tilt(L + 20); note(784, 0.1); await sleep(0.12); tilt(R - 20); note(988, 0.1); await sleep(0.12); }
+              tilt(C); break;
+          }
+        } finally { busy--; lastActive = performance.now(); }
+      }
+    };
+    F.neutral(); tilt(90);
+    const blink = setInterval(() => {
+      if (!mount.isConnected) { clearInterval(blink); return; }
+      if (busy === 0 && performance.now() - lastActive > 4000) { F.closed(); setTimeout(() => { if (busy === 0) F.neutral(); }, 150); lastActive = performance.now(); }
+    }, 500);
+    return { stage, controls: '' };
+  }
+
+  /* ---------- Chip Bot ---------- */
+  function chipbot(mount, sensors) {
+    mount.innerHTML =
+      '<div class="cb-scene"><div class="cb-sun"></div><div class="cb-ground"><div class="cb-track"></div></div>' +
+      '<div class="cb-obstacle"><span>📦</span></div>' +
+      '<div class="cb-bot"><div class="cb-body"><div class="cb-eyes"><i></i><i></i></div><div class="cb-mouth"></div></div>' +
+      '<div class="cb-legs"><b class="cb-leg l"></b><b class="cb-leg r"></b></div></div>' +
+      '<div class="cb-dist">📏 <b>50</b> cm</div><div class="notes"></div></div>';
+    const scene = $(mount, '.cb-scene'), bot = $(mount, '.cb-bot'), notes = $(mount, '.notes');
+    const obs = $(mount, '.cb-obstacle'), distEl = $(mount, '.cb-dist b');
+    const apply = () => {
+      const dcm = sensors.distance;
+      distEl.textContent = Math.round(dcm);
+      obs.style.left = (30 + (dcm / 50) * 52) + '%';
+    };
+    sensors.on('distance', apply); apply();
+    const clear = () => { scene.className = 'cb-scene'; bot.className = 'cb-bot'; };
+    const stage = {
+      reset() { clear(); notes.innerHTML = ''; scene.style.setProperty('--T', '1s'); },
+      idle() { clear(); },
+      walk(dir, T) { clear(); scene.style.setProperty('--T', T + 's'); scene.classList.add(dir === 'fwd' ? 'moving-f' : 'moving-b'); bot.classList.add('walking'); },
+      turn(dir, T) { clear(); scene.style.setProperty('--T', T + 's'); bot.classList.add(dir === 'left' ? 'turn-l' : 'turn-r'); },
+      dance(m, per) { clear(); scene.style.setProperty('--T', Math.max(0.5, per) + 's'); bot.classList.add('dancing', 'dance-' + (Number(m) % 4)); },
+      note(hz, secs) { floatNote(notes, hz); Sound.beep(hz, secs); },
+      print: (t) => sensors.print(t)
+    };
+    const controls = '<label class="slider"><span>📏 Something in front of Chip Bot</span><input type="range" min="3" max="50" step="1" data-s="distance"><output></output></label>';
+    return { stage, controls };
+  }
+
+  /* ---------- Jarvis ---------- */
+  const LED = { red: '#ff3b3b', green: '#35d07f', blue: '#3b82ff', yellow: '#ffd93b', cyan: '#2de2e6', purple: '#b06bff', white: '#ffffff', off: '#59606e' };
+  function jarvis(mount, sensors) {
+    mount.innerHTML =
+      '<div class="jv-scene"><svg viewBox="0 0 320 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Terrarium">' +
+      '<defs><filter id="jvglow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="9"/></filter></defs>' +
+      '<g class="jv-sun"><circle cx="58" cy="52" r="26" fill="#ffd93b"/><g stroke="#ffd93b" stroke-width="5" stroke-linecap="round">' +
+      '<path d="M58 8v10M58 86v10M14 52h10M92 52h10M27 21l7 7M82 76l7 7M89 21l-7 7M34 76l-7 7"/></g></g>' +
+      '<g class="jv-lamp"><rect x="244" y="26" width="10" height="30" rx="4" fill="#b8bfd0"/><circle class="glow" cx="249" cy="30" r="26" fill="#59606e" filter="url(#jvglow)" opacity="0"/>' +
+      '<circle class="bulb" cx="249" cy="30" r="15" fill="#59606e" stroke="#fff" stroke-width="3"/></g>' +
+      '<path d="M70 120h180c8 0 12 5 12 12v112c0 14-10 24-24 24H82c-14 0-24-10-24-24V132c0-7 4-12 12-12z" fill="#e6f6ff" fill-opacity=".55" stroke="#9cc4e4" stroke-width="5"/>' +
+      '<rect class="soil" x="62" y="204" width="196" height="60" rx="14" fill="#8a5a2b"/>' +
+      '<g class="plant"><path class="stem" d="M160 210 C160 180 160 160 160 140" stroke="#3aa85c" stroke-width="7" fill="none" stroke-linecap="round"/>' +
+      '<g class="leafL"><ellipse cx="136" cy="152" rx="26" ry="12" fill="#43c06b"/></g><g class="leafR"><ellipse cx="184" cy="148" rx="26" ry="12" fill="#43c06b"/></g>' +
+      '<ellipse class="leafT" cx="160" cy="132" rx="12" ry="22" fill="#4fd079"/></g>' +
+      '<text class="jv-buzz" x="286" y="152" font-size="26" opacity="0">🔔</text></svg><div class="notes"></div></div>';
+    const q = (s) => mount.querySelector(s), notes = $(mount, '.notes');
+    const soilEl = q('.soil'), plant = q('.plant'), sun = q('.jv-sun'), bulb = q('.bulb'), glow = q('.glow');
+    const leaves = mount.querySelectorAll('.leafL ellipse,.leafR ellipse,.leafT');
+    const lerp = (a, b, t) => Math.round(a + (b - a) * t);
+    const mix = (c1, c2, t) => 'rgb(' + c1.map((v, i) => lerp(v, c2[i], t)).join(',') + ')';
+    const update = () => {
+      const w = sensors.soil / 100, l = sensors.light / 100;
+      soilEl.setAttribute('fill', mix([201, 162, 106], [96, 60, 30], w));
+      const leafCol = mix([196, 172, 70], [67, 192, 107], Math.min(1, w * 1.4));
+      leaves.forEach((e) => e.setAttribute('fill', leafCol));
+      plant.style.transformOrigin = '160px 210px';
+      plant.style.transform = 'rotate(' + ((1 - w) * 12) + 'deg) scaleY(' + (0.8 + w * 0.2) + ')';
+      sun.style.opacity = 0.2 + l * 0.8;
+      sun.style.transformOrigin = '58px 52px';
+      sun.style.transform = 'scale(' + (0.8 + l * 0.35) + ')';
+    };
+    sensors.on('soil', update); sensors.on('light', update); update();
+    let buzzT = 0;
+    const stage = {
+      reset() { stage.led('off'); notes.innerHTML = ''; },
+      led(color) { const c = LED[color] || LED.off; bulb.setAttribute('fill', c); glow.setAttribute('fill', c); glow.setAttribute('opacity', color === 'off' ? 0 : 0.85); },
+      note(hz, secs) {
+        floatNote(notes, hz); Sound.beep(hz, secs);
+        const b = q('.jv-buzz'); b.setAttribute('opacity', 1); clearTimeout(buzzT); buzzT = setTimeout(() => b.setAttribute('opacity', 0), secs * 1000 + 100);
+      },
+      print: (t) => sensors.print(t)
+    };
+    stage.led('off');
+    const controls =
+      '<label class="slider"><span>🌱 Soil wetness</span><input type="range" min="0" max="100" step="1" data-s="soil"><output></output></label>' +
+      '<label class="slider"><span>☀️ Light</span><input type="range" min="0" max="100" step="1" data-s="light"><output></output></label>';
+    return { stage, controls };
+  }
+
+  return { make: { peeko, chipbot, jarvis }, Sound };
+});
+
+</script>
+<script>
+/* Camp Blocks UI: blocks, drag and drop, stage, code view. */
+(function () {
+  'use strict';
+  const Core = CampCore, Runtime = CampRuntime, Stages = CampStages;
+  const PROJECTS = Core.PROJECTS, ORDER = ['peeko', 'chipbot', 'jarvis'];
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+  const todayStr = () => new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+
+  const S = { proj: 'peeko', view: 'build', states: {}, speed: 1, lastLane: 'forever', activeStory: null, doneBefore: {}, showAll: false, openFolds: new Set() };
+  const P = () => PROJECTS[S.proj];
+  function state() {
+    if (!S.states[S.proj]) { S.states[S.proj] = Core.newState(S.proj); S.states[S.proj].date = todayStr(); }
+    return S.states[S.proj];
+  }
+
+  /* ---------- persistence ---------- */
+  const KEY = 'campblocks.v2', SAVES = 'campblocks.saves.v1';
+  function lsGet(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+  let saveT = 0;
+  function persist() { clearTimeout(saveT); saveT = setTimeout(() => lsSet(KEY, { proj: S.proj, states: S.states }), 250); }
+  function cleanList(proj, list) {
+    const Pj = PROJECTS[proj];
+    return (Array.isArray(list) ? list : []).filter((n) => n && Pj.blockMap[n.type]).map((n) => {
+      const def = Pj.blockMap[n.type];
+      const node = { id: n.id || Core.uid(), type: n.type, p: Object.assign(Core.defaults(def), n.p || {}) };
+      if (def.shape === 'c') { node.kids = cleanList(proj, n.kids); if (def.canElse && n.els) node.els = cleanList(proj, n.els); }
+      return node;
+    });
+  }
+  function cleanState(proj, st) {
+    const base = Core.newState(proj);
+    return Object.assign(base, { builder: String((st && st.builder) || ''), robot: String((st && st.robot) || ''), date: (st && st.date) || todayStr(),
+      settings: Object.assign(base.settings, (st && st.settings) || {}), wake: cleanList(proj, st && st.wake), forever: cleanList(proj, st && st.forever) });
+  }
+  (function load() {
+    const d = lsGet(KEY);
+    if (d && d.states) { ORDER.forEach((id) => { if (d.states[id]) S.states[id] = cleanState(id, d.states[id]); }); if (PROJECTS[d.proj]) S.proj = d.proj; }
+  })();
+
+  /* ---------- small helpers ---------- */
+  let toastT = 0;
+  function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2200); }
+  function confetti(x, y) {
+    const em = ['🎉', '✨', '⭐', '💜', '💙', '🟡', '🟢'];
+    for (let i = 0; i < 16; i++) {
+      const s = el('span', 'conf', em[i % em.length]);
+      s.style.left = x + 'px'; s.style.top = y + 'px';
+      s.style.setProperty('--dx', (Math.random() * 260 - 130) + 'px'); s.style.setProperty('--dy', (Math.random() * -220 - 20) + 'px'); s.style.setProperty('--r', (Math.random() * 360 - 180) + 'deg');
+      document.body.appendChild(s); setTimeout(() => s.remove(), 1200);
+    }
+  }
+  function twoClick(btn, label, action) {
+    let armed = false, t = 0; const orig = btn.innerHTML;
+    btn.onclick = () => {
+      if (!armed) { armed = true; btn.innerHTML = label; t = setTimeout(() => { armed = false; btn.innerHTML = orig; }, 3000); return; }
+      clearTimeout(t); armed = false; btn.innerHTML = orig; action();
+    };
+  }
+  function changed() { persist(); renderStory(); updateHat(); updateCount(); if (S.view === 'code') renderCode(); }
+
+  /* ---------- header ---------- */
+  function renderTabs() {
+    const nav = $('#ptabs'); nav.innerHTML = '';
+    ORDER.forEach((id) => {
+      const p = PROJECTS[id];
+      const b = el('button', 'ptab', '<span class="em">' + p.emoji + '</span>' + esc(p.name));
+      b.setAttribute('aria-selected', id === S.proj ? 'true' : 'false');
+      b.style.setProperty('--pc', p.color);
+      b.onclick = () => { if (id === S.proj) return; stopRun(); S.proj = id; S.activeStory = null; S.openFolds.clear(); persist(); renderAll(); };
+      nav.appendChild(b);
+    });
+  }
+  $$('.vtab').forEach((b) => { b.onclick = () => setView(b.dataset.view); });
+  function setView(v) {
+    S.view = v; stopRun();
+    $$('.vtab').forEach((b) => b.setAttribute('aria-selected', b.dataset.view === v ? 'true' : 'false'));
+    $('#buildView').hidden = v !== 'build'; $('#codeView').hidden = v !== 'code';
+    if (v === 'code') renderCode();
+    window.scrollTo(0, 0);
+  }
+  $('#makeCode').onclick = (e) => { confetti(e.clientX, e.clientY); setView('code'); };
+  $('#backBtn').onclick = () => setView('build');
+
+  /* ---------- palette ---------- */
+  function paramEls(def, node, interactive) {
+    const out = [];
+    def.parts.forEach((part) => {
+      if (typeof part === 'string') { const s = el('span'); s.textContent = part; out.push(s); return; }
+      if (!interactive) {
+        const s = el('span', 'static ' + (part.t === 'choice' ? 'd' : 'p'));
+        s.textContent = part.t === 'choice' ? ((part.opts.find((o) => o[0] === part.d) || [])[1] || part.d) : part.d;
+        out.push(s); return;
+      }
+      if (part.t === 'num') {
+        const w = el('span', 'pill'), i = el('input'); i.type = 'number'; i.min = part.min; i.max = part.max; i.step = part.step || 1; i.value = node.p[part.id];
+        i.setAttribute('aria-label', part.id);
+        i.oninput = () => { const v = Number(i.value); if (isFinite(v)) { node.p[part.id] = v; changed(); } };
+        i.onchange = () => { const v = Core.norm({ params: [part] }, { [part.id]: i.value })[part.id]; node.p[part.id] = v; i.value = v; changed(); };
+        w.appendChild(i); out.push(w);
+      } else if (part.t === 'choice') {
+        const w = el('span', 'drop'), sel = el('select');
+        part.opts.forEach((o) => { const op = el('option'); op.value = o[0]; op.textContent = o[1]; sel.appendChild(op); });
+        sel.value = node.p[part.id]; sel.setAttribute('aria-label', part.id);
+        sel.onchange = () => { node.p[part.id] = sel.value; changed(); };
+        w.appendChild(sel); out.push(w);
+      } else if (part.t === 'text') {
+        const w = el('span', 'pill'), i = el('input'); i.type = 'text'; i.maxLength = part.max; i.value = node.p[part.id]; i.setAttribute('aria-label', part.id);
+        i.oninput = () => { node.p[part.id] = i.value; changed(); };
+        i.onchange = () => { const v = Core.cleanText(i.value, part.max, part.d); node.p[part.id] = v; i.value = v; changed(); };
+        w.appendChild(i); out.push(w);
+      }
+    });
+    return out;
+  }
+  function renderPalette() {
+    const p = P(), fly = $('#fly'), rail = $('#rail');
+    fly.innerHTML = ''; rail.innerHTML = '';
+    fly.appendChild(el('p', 'hint', 'Drag a block into the script, or just tap it. Change the numbers and words once it is there.'));
+    p.cats.forEach((cat) => {
+      const b = el('button', null, '<i></i>' + esc(cat.label)); b.style.setProperty('--c', cat.color);
+      b.onclick = () => { const h = $('#cat-' + cat.id); if (h) fly.scrollTo({ top: h.offsetTop - 8, behavior: 'smooth' }); };
+      rail.appendChild(b);
+      const h = el('h3', null, esc(cat.label)); h.id = 'cat-' + cat.id; h.style.setProperty('--c', cat.color); fly.appendChild(h);
+      p.blocks.filter((d) => d.cat === cat.id).forEach((def) => {
+        const blk = el('div', 'blk palette-blk' + (def.shape === 'c' ? ' c' : ''));
+        blk.style.setProperty('--c', cat.color); blk.dataset.type = def.type;
+        const row = el('div', 'row'); paramEls(def, null, false).forEach((x) => row.appendChild(x)); blk.appendChild(row);
+        if (def.shape === 'c') blk.appendChild(el('div', 'foot'));
+        fly.appendChild(blk);
+      });
+    });
+    fly.appendChild(el('div', 'trash', '🗑 Drag a block here to throw it away'));
+  }
+
+  /* ---------- the script ---------- */
+  function makeDz(list, lane) {
+    const dz = el('div', 'dz' + (list.length ? '' : ' empty')); dz.__list = list; if (lane) dz.dataset.lane = lane;
+    list.forEach((n) => { const b = nodeEl(n, list); if (b) dz.appendChild(b); });
+    return dz;
+  }
+  function nodeEl(node, list) {
+    const p = P(), def = p.blockMap[node.type]; if (!def) return null;
+    const cat = p.catMap[def.cat];
+    const blk = el('div', 'blk' + (def.shape === 'c' ? ' c' : '')); blk.style.setProperty('--c', cat.color);
+    blk.dataset.nid = node.id; blk.__node = node; blk.__list = list;
+    const row = el('div', 'row'); paramEls(def, node, true).forEach((x) => row.appendChild(x));
+    const x = el('button', 'x', '✕'); x.title = 'Remove this block'; x.setAttribute('aria-label', 'Remove block');
+    x.onclick = (e) => { e.stopPropagation(); const i = list.indexOf(node); if (i > -1) list.splice(i, 1); renderScript(); changed(); };
+    row.appendChild(x); blk.appendChild(row);
+    if (def.shape === 'c') {
+      const slot = el('div', 'cslot'); slot.appendChild(makeDz(node.kids, null)); blk.appendChild(slot);
+      if (def.canElse && node.els) {
+        blk.appendChild(el('div', 'row else', 'else'));
+        const s2 = el('div', 'cslot'); s2.appendChild(makeDz(node.els, null)); blk.appendChild(s2);
+      }
+      const foot = el('div', 'foot');
+      if (def.canElse) {
+        const eb = el('button', 'elsebtn', node.els ? '− take away else' : '+ add else');
+        eb.onclick = (e) => { e.stopPropagation(); if (node.els) delete node.els; else node.els = []; renderScript(); changed(); };
+        foot.appendChild(eb);
+      }
+      blk.appendChild(foot);
+    }
+    return blk;
+  }
+  function updateHat() { const s = $('#hatName'); if (s) s.textContent = Core.cleanText(state().robot, 16, P().robotDefault); }
+  function updateCount() { const n = Core.countBlocks(state()); $('#blockCount').textContent = n ? n + (n === 1 ? ' block' : ' blocks') + ' in your program' : ''; }
+  function renderScript() {
+    const st = state(), root = $('#script'); root.innerHTML = '';
+    const hat = el('div', 'hat', '<span class="flag">🏁</span><span>when <strong id="hatName"></strong> wakes up</span><span class="tag">runs once</span>');
+    root.appendChild(hat);
+    const wake = makeDz(st.wake, 'wake'); wake.classList.add('lane'); root.appendChild(wake);
+    const forever = el('div', 'blk c'); forever.style.setProperty('--c', '#FFAB19'); forever.style.marginTop = '4px';
+    forever.appendChild(el('div', 'row', '<span>🔁 forever</span><span class="tag">again and again</span>'));
+    const slot = el('div', 'cslot'); slot.appendChild(makeDz(st.forever, 'forever')); forever.appendChild(slot);
+    forever.appendChild(el('div', 'foot'));
+    root.appendChild(forever);
+    updateHat(); updateCount();
+  }
+
+  /* ---------- drag and drop (pointer events: mouse + touch) ---------- */
+  let drag = null;
+  document.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    const lane = e.target.closest && e.target.closest('[data-lane]'); if (lane) S.lastLane = lane.dataset.lane;
+    if (e.target.closest('input,select,textarea,button,.pill,.drop')) return;
+    const pal = e.target.closest('.palette-blk');
+    const blk = !pal && e.target.closest('.blk[data-nid]');
+    if (!pal && !blk) return;
+    if (blk && !e.target.closest('.blk[data-nid] > .row')) return;
+    const src = pal || blk, r = src.getBoundingClientRect();
+    drag = { kind: pal ? 'new' : 'move', type: pal && pal.dataset.type, el: src, node: blk && blk.__node, list: blk && blk.__list, sx: e.clientX, sy: e.clientY, ox: e.clientX - r.left, oy: e.clientY - r.top, w: r.width, active: false, ghost: null, target: null, idx: 0, line: null };
+    e.preventDefault();
+  });
+  document.addEventListener('pointermove', (e) => {
+    if (!drag) return;
+    if (!drag.active) {
+      if (Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) < 6) return;
+      drag.active = true;
+      const g = drag.el.cloneNode(true); g.classList.add('ghost'); g.classList.remove('lifting', 'pop'); g.style.width = drag.w + 'px'; document.body.appendChild(g); drag.ghost = g;
+      document.body.classList.add('dragging', 'dragging-' + drag.kind);
+      if (drag.kind === 'move') drag.el.classList.add('lifting');
+    }
+    drag.ghost.style.left = (e.clientX - drag.ox) + 'px'; drag.ghost.style.top = (e.clientY - drag.oy) + 'px';
+    const stack = document.elementsFromPoint(e.clientX, e.clientY);
+    const dz = stack.find((x) => x.classList && x.classList.contains('dz') && !(drag.kind === 'move' && drag.el.contains(x)));
+    const overPal = !dz && stack.some((x) => x.classList && x.classList.contains('palwrap'));
+    document.body.classList.toggle('over-trash', !!(overPal && drag.kind === 'move'));
+    if (drag.target && drag.target !== dz) drag.target.classList.remove('over');
+    if (drag.line) { drag.line.remove(); drag.line = null; }
+    drag.target = dz || null;
+    if (dz) {
+      dz.classList.add('over');
+      const kids = Array.from(dz.children).filter((c) => c.classList.contains('blk') && c !== drag.el);
+      let idx = kids.length;
+      for (let i = 0; i < kids.length; i++) { const r = kids[i].getBoundingClientRect(); if (e.clientY < r.top + r.height / 2) { idx = i; break; } }
+      drag.idx = idx;
+      drag.line = el('div', 'dropline');
+      if (idx < kids.length) dz.insertBefore(drag.line, kids[idx]); else dz.appendChild(drag.line);
+    }
+  });
+  function endDrag(e, cancel) {
+    if (!drag) return;
+    const d = drag; drag = null;
+    document.body.classList.remove('dragging', 'dragging-new', 'dragging-move', 'over-trash');
+    if (d.ghost) d.ghost.remove();
+    if (d.line) d.line.remove();
+    if (d.target) d.target.classList.remove('over');
+    d.el.classList.remove('lifting');
+    if (cancel) return;
+    if (!d.active) { if (d.kind === 'new') addBlock(d.type); return; }
+    const st = state();
+    if (d.target) {
+      const list = d.target.__list;
+      if (d.kind === 'new') {
+        const n = Core.mkNode(S.proj, d.type); list.splice(d.idx, 0, n); finishDrop(n.id);
+      } else {
+        const i = d.list.indexOf(d.node); if (i > -1) d.list.splice(i, 1);
+        list.splice(Math.min(d.idx, list.length), 0, d.node); finishDrop(d.node.id);
+      }
+      const lane = d.target.closest('[data-lane]'); if (lane) S.lastLane = lane.dataset.lane;
+    } else if (d.kind === 'move') {
+      const stack = document.elementsFromPoint(e.clientX, e.clientY);
+      if (stack.some((x) => x.classList && x.classList.contains('palwrap'))) { const i = d.list.indexOf(d.node); if (i > -1) d.list.splice(i, 1); renderScript(); changed(); }
+    }
+  }
+  document.addEventListener('pointerup', (e) => endDrag(e, false));
+  document.addEventListener('pointercancel', (e) => endDrag(e, true));
+  function finishDrop(id) {
+    renderScript(); changed();
+    const b = $('.blk[data-nid="' + id + '"]'); if (b) { b.classList.add('pop'); b.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); setTimeout(() => b.classList.remove('pop'), 500); }
+  }
+  function addBlock(type) {
+    const st = state(), list = S.lastLane === 'wake' ? st.wake : st.forever;
+    const n = Core.mkNode(S.proj, type); list.push(n); finishDrop(n.id);
+  }
+
+  /* ---------- name tag, toolbar, story ---------- */
+  function renderNamebar() {
+    const p = P(), st = state(), bar = $('#namebar');
+    bar.innerHTML = '<label>👋 My name <input id="inBuilder" maxlength="16" placeholder="e.g. Aarav" autocomplete="off"></label>' +
+      '<label>' + p.emoji + ' ' + esc(p.robotLabel) + ' <input id="inRobot" maxlength="16" placeholder="' + esc(p.robotDefault) + '" autocomplete="off"></label>' +
+      '<span class="note">letters &amp; numbers only: they go into the code</span>';
+    const a = $('#inBuilder'), b = $('#inRobot');
+    a.value = st.builder; b.value = st.robot;
+    a.oninput = () => { st.builder = a.value; changed(); };
+    b.oninput = () => { st.robot = b.value; changed(); };
+    a.onchange = () => { a.value = st.builder = Core.cleanText(a.value, 16, ''); changed(); };
+    b.onchange = () => { b.value = st.robot = Core.cleanText(b.value, 16, ''); changed(); };
+  }
+  function renderToolbar() {
+    const bar = $('#toolbar'); bar.innerHTML = '';
+    const mk = (html, fn, cls) => { const b = el('button', 'btn small ' + (cls || ''), html); b.onclick = fn; bar.appendChild(b); return b; };
+    const ex = mk('✨ Show me an example', () => {}); twoClick(ex, 'Replace my blocks? Click again', () => { const old = state(); const e = Core.exampleState(S.proj); e.builder = old.builder; e.robot = old.robot; e.date = old.date; e.settings = old.settings; S.states[S.proj] = e; renderScript(); renderNamebar(); changed(); toast('Here is an example. Change anything you like!'); });
+    const cl = mk('🧹 Clear', () => {}); twoClick(cl, 'Clear everything? Click again', () => { const st = state(); st.wake = []; st.forever = []; renderScript(); changed(); });
+    mk('💾 Save', saveSlot);
+    mk('📂 My saves', openSaves);
+    mk('🔗 Share', openShare);
+  }
+  function saveSlot() {
+    const st = state(), saves = lsGet(SAVES) || [];
+    const who = Core.cleanText(st.builder, 16, '') || '(no name yet)';
+    const id = S.proj + ':' + who.toLowerCase();
+    const rec = { id, proj: S.proj, who, robot: Core.cleanText(st.robot, 16, P().robotDefault), ts: Date.now(), state: JSON.parse(JSON.stringify(st)) };
+    const i = saves.findIndex((s) => s.id === id); if (i > -1) saves[i] = rec; else saves.push(rec);
+    toast(lsSet(SAVES, saves) ? 'Saved ' + who + "'s " + P().name + ' ✔' : 'Could not save in this browser');
+  }
+  function modal(html, mount) {
+    const back = el('div', 'modalback'), m = el('div', 'modal', html); back.appendChild(m); document.body.appendChild(back);
+    const close = () => back.remove(); back.onclick = (e) => { if (e.target === back) close(); };
+    mount && mount(m, close); return close;
+  }
+  function openSaves() {
+    const saves = (lsGet(SAVES) || []).sort((a, b) => b.ts - a.ts);
+    modal('<h2>📂 My saves</h2><p style="color:#69709a;margin:0 0 8px">Your latest work is also kept automatically on this laptop. Saves are handy when a friend uses the laptop next.</p><div id="saveList"></div><div style="margin-top:12px"><button class="btn" id="closeM">Close</button></div>', (m, close) => {
+      const list = $('#saveList', m);
+      if (!saves.length) list.innerHTML = '<p>Nothing saved yet. Press <b>💾 Save</b> to keep your program.</p>';
+      saves.forEach((s) => {
+        const row = el('div', 'saverow', '<div class="who">' + PROJECTS[s.proj].emoji + ' ' + esc(s.who) + '<small>' + esc(PROJECTS[s.proj].name) + ' · ' + esc(s.robot) + ' · ' + new Date(s.ts).toLocaleString([], { hour: 'numeric', minute: '2-digit', day: 'numeric', month: 'short' }) + '</small></div>');
+        const open = el('button', 'btn small go', 'Open'); open.onclick = () => { stopRun(); S.proj = s.proj; S.states[s.proj] = cleanState(s.proj, s.state); S.activeStory = null; persist(); close(); renderAll(); toast('Opened ' + s.who + "'s " + PROJECTS[s.proj].name); };
+        const del = el('button', 'btn small', '🗑'); del.title = 'Delete this save'; del.onclick = () => { lsSet(SAVES, (lsGet(SAVES) || []).filter((x) => x.id !== s.id)); close(); openSaves(); };
+        row.appendChild(open); row.appendChild(del); list.appendChild(row);
+      });
+      $('#closeM', m).onclick = close;
+    });
+  }
+  function openShare() {
+    const payload = JSON.stringify({ camp: 1, proj: S.proj, state: state() });
+    modal('<h2>🔗 Share my program</h2><p style="margin:0 0 6px;color:#69709a">Copy this text to move your program to another laptop, or paste a friend\'s text below.</p><textarea id="shareTx" spellcheck="false"></textarea><div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn" id="copyShare">📋 Copy</button><button class="btn go" id="loadShare">📥 Load pasted program</button><button class="btn" id="closeM">Close</button></div>', (m, close) => {
+      const tx = $('#shareTx', m); tx.value = payload;
+      $('#copyShare', m).onclick = () => { tx.select(); copyText(tx.value).then(() => toast('Copied!')); };
+      $('#loadShare', m).onclick = () => {
+        try { const d = JSON.parse(tx.value); if (!d || !PROJECTS[d.proj]) throw 0; stopRun(); S.proj = d.proj; S.states[d.proj] = cleanState(d.proj, d.state); persist(); close(); renderAll(); toast('Program loaded'); }
+        catch (e) { toast("That text didn't look like a program"); }
+      };
+      $('#closeM', m).onclick = close;
+    });
+  }
+  function copyText(text) {
+    const fallback = () => { const ta = el('textarea'); ta.value = text; ta.style.cssText = 'position:fixed;opacity:0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (e) { /* ignore */ } ta.remove(); };
+    if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text).catch(fallback);
+    fallback(); return Promise.resolve();
+  }
+
+  function renderStory() {
+    const p = P(), st = state(), box = $('#story');
+    const steps = p.story.map((s) => ({ s, done: !!s.done(st) }));
+    const first = steps.find((x) => !x.done);
+    const active = S.activeStory && steps.find((x) => x.s.id === S.activeStory) ? S.activeStory : (first ? first.s.id : steps[steps.length - 1].s.id);
+    const prev = S.doneBefore[S.proj] || {};
+    box.innerHTML = '';
+    const row = el('div', 'steps');
+    steps.forEach((x, i) => {
+      const b = el('button', 'step' + (x.done ? ' done' : '') + (x.s.id === active ? ' active' : ''), '<i>' + (x.done ? '✓' : (i + 1)) + '</i>' + esc(x.s.title));
+      if (x.done && prev[x.s.id] === false) { b.classList.add('just'); const r = b.getBoundingClientRect(); setTimeout(() => confetti(r.left + 20, r.top + 10), 30); }
+      b.onclick = () => { S.activeStory = x.s.id; renderStory(); };
+      row.appendChild(b);
+    });
+    box.appendChild(row);
+    const cur = steps.find((x) => x.s.id === active);
+    box.appendChild(el('div', 'say', '<span style="font-size:22px">🎤</span><div><b>Step ' + (steps.indexOf(cur) + 1) + ': ' + esc(cur.s.title) + '.</b> ' + esc(cur.s.say) + '</div>'));
+    const rec = {}; steps.forEach((x) => { rec[x.s.id] = x.done; }); S.doneBefore[S.proj] = rec;
+  }
+
+  /* ---------- stage ---------- */
+  const sensors = {
+    distance: 50, soil: 35, light: 70, _l: {},
+    on(k, f) { (this._l[k] = this._l[k] || []).push(f); },
+    set(k, v) { this[k] = v; (this._l[k] || []).forEach((f) => f()); const i = $('#sliders input[data-s="' + k + '"]'); if (i) { i.value = v; const o = i.parentElement.querySelector('output'); if (o) o.textContent = Math.round(v); } },
+    print(t) { const s = $('#serial'), d = el('div'); d.textContent = t; s.appendChild(d); while (s.children.length > 40) s.children[1].remove(); s.scrollTop = s.scrollHeight; }
+  };
+  let stageApi = null, running = false, stopFlag = false;
+  function mountStage() {
+    sensors._l = {};
+    const made = Stages.make[S.proj]($('#scene'), sensors);
+    stageApi = made.stage;
+    const sl = $('#sliders'); sl.innerHTML = made.controls; sl.hidden = !made.controls;
+    $$('input[data-s]', sl).forEach((i) => {
+      const k = i.dataset.s, o = i.parentElement.querySelector('output');
+      i.value = sensors[k]; o.textContent = Math.round(sensors[k]);
+      i.oninput = () => { sensors.set(k, Number(i.value)); };
+    });
+    $('#serial').innerHTML = '<b>Serial Monitor</b>';
+  }
+  function stopRun() { if (running) stopFlag = true; }
+  async function runIt() {
+    if (running) return;
+    running = true; stopFlag = false;
+    $('#runBtn').hidden = true; $('#stopBtn').hidden = false;
+    const st = state(), settings = Object.assign({}, P().settingsDefault || {}, st.settings || {});
+    $('#serial').innerHTML = '<b>Serial Monitor</b>';
+    const ctx = {
+      stage: stageApi, sensors, settings, speedLevel: 1,
+      names: { robot: Core.cleanText(st.robot, 16, P().robotDefault), builder: Core.cleanText(st.builder, 16, 'Friend') },
+      stepSeconds() { return [1.4, 1.0, 0.7][this.speedLevel] || 1; },
+      stopped: () => stopFlag,
+      onNode: (id, on) => { const b = $('.blk[data-nid="' + id + '"]'); if (b) b.classList.toggle('running', on); },
+      sleep: async (sec) => { let left = sec * 1000 / S.speed; while (left > 0) { if (stopFlag) throw Runtime.STOP; const dt = Math.min(left, 40); await new Promise((r) => setTimeout(r, dt)); left -= dt; } }
+    };
+    try { await Runtime.runProgram(S.proj, st, ctx); }
+    catch (e) { console.error(e); toast('Oops, the preview hit a problem'); }
+    $$('.blk.running').forEach((b) => b.classList.remove('running'));
+    running = false; $('#runBtn').hidden = false; $('#stopBtn').hidden = true;
+  }
+  $('#runBtn').onclick = runIt;
+  $('#stopBtn').onclick = () => { stopFlag = true; };
+  $$('#speedsel button').forEach((b) => { b.onclick = () => { S.speed = Number(b.dataset.sp); $$('#speedsel button').forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false')); }; });
+  $('#soundBtn').onclick = () => { Stages.Sound.on = !Stages.Sound.on; $('#soundBtn').textContent = Stages.Sound.on ? '🔊' : '🔇'; $('#soundBtn').setAttribute('aria-pressed', Stages.Sound.on); if (Stages.Sound.on) Stages.Sound.beep(660, 0.12); };
+
+  /* ---------- code view ---------- */
+  const TYPES = new Set(['void', 'int', 'float', 'long', 'unsigned', 'bool', 'boolean', 'char', 'String', 'uint8_t', 'uint16_t', 'int8_t', 'byte', 'double', 'short', 'Servo', 'Adafruit_SH1106G', 'size_t']);
+  const KW = new Set(['if', 'else', 'for', 'while', 'return', 'const', 'static', 'true', 'false', 'switch', 'case', 'break', 'default', 'PROGMEM', 'HIGH', 'LOW', 'OUTPUT', 'INPUT', 'PI']);
+  const TOK = /(\/\/[^\n]*)|("(?:[^"\\]|\\.)*")|(#\s*\w+)|(\b\d+(?:\.\d+)?\b)|([A-Za-z_]\w*)/g;
+  function hl(line) {
+    let out = '', last = 0, m; TOK.lastIndex = 0;
+    while ((m = TOK.exec(line))) {
+      out += esc(line.slice(last, m.index));
+      const t = m[0]; let cls = null;
+      if (m[1]) cls = 'c'; else if (m[2]) cls = 's'; else if (m[3]) cls = 'p'; else if (m[4]) cls = 'n';
+      else cls = TYPES.has(t) ? 't' : KW.has(t) ? 'k' : (line.charAt(TOK.lastIndex) === '(' ? 'f' : null);
+      out += cls ? '<span class="tk-' + cls + '">' + esc(t) + '</span>' : esc(t);
+      last = TOK.lastIndex;
+    }
+    out += esc(line.slice(last));
+    return out.split(Core.MARK_S).join('<mark class="v">').split(Core.MARK_E).join('</mark>');
+  }
+  const NAME_COLOR = '#FFBF00';
+  function renderCode() {
+    const p = P(), gen = Core.generate(S.proj, state());
+    $('#codeTitle').textContent = p.emoji + ' ' + (gen.robot) + "'s sketch";
+    const legend = $('#legend'); legend.innerHTML = '<span>Colour = the block that made the line:</span>';
+    const used = new Set(gen.lines.filter((l) => l.src === 'student').map((l) => l.cat));
+    p.cats.filter((c) => used.has(c.id)).forEach((c) => { const s = el('span', null, '<i></i>' + esc(c.label)); s.style.setProperty('--c', c.color); legend.appendChild(s); });
+    legend.appendChild(el('span', null, '<mark class="v">your words &amp; numbers</mark>'));
+    const pane = $('#codePane'); pane.innerHTML = '';
+    let i = 0;
+    const line = (l, n) => {
+      const color = l.src === 'student' ? (l.cat === 'name' ? NAME_COLOR : ((p.catMap[l.cat] || { color: '#FFAB19' }).color)) : null;
+      const row = el('div', 'ln' + (color ? ' mine' : '')); if (color) row.style.setProperty('--c', color);
+      row.innerHTML = '<span class="no">' + n + '</span><span class="tx">' + hl(l.t || ' ') + '</span>'; return row;
+    };
+    while (i < gen.lines.length) {
+      const l = gen.lines[i];
+      const fold = l.src === 'base' && !l.keep && !S.showAll;
+      if (!fold) { pane.appendChild(line(l, i + 1)); i++; continue; }
+      let j = i; while (j < gen.lines.length && gen.lines[j].src === 'base' && !gen.lines[j].keep) j++;
+      const count = j - i, key = i;
+      if (S.openFolds.has(key)) {
+        const head = el('div', 'fold', '<span class="chev">▾</span><span>✓ ' + count + ' lines of tested ' + esc(p.name) + ' code (click to hide)</span>'); head.onclick = () => { S.openFolds.delete(key); renderCode(); }; pane.appendChild(head);
+        for (let k = i; k < j; k++) pane.appendChild(line(gen.lines[k], k + 1));
+      } else if (count <= 3) {
+        for (let k = i; k < j; k++) pane.appendChild(line(gen.lines[k], k + 1));
+      } else {
+        const head = el('div', 'fold', '<span class="chev">▸</span><span>✓ ' + count + ' lines of tested ' + esc(p.name) + ' code: ' + esc(p.foldBlurb) + ' (click to show)</span>'); head.onclick = () => { S.openFolds.add(key); renderCode(); }; pane.appendChild(head);
+      }
+      i = j;
+    }
+    const libs = { peeko: 'Libraries needed (Tools → Manage Libraries): <b>Adafruit GFX Library</b> and <b>Adafruit SH110X</b> (say yes to installing BusIO too). Servo is already built in.', chipbot: 'Servo is built into the Arduino IDE, so there is nothing extra to install.', jarvis: 'No extra libraries needed.' };
+    $('#libNote').innerHTML = libs[S.proj];
+    renderFacil();
+  }
+  function renderFacil() {
+    const card = $('#facilCard');
+    if (S.proj !== 'jarvis') { card.hidden = true; return; }
+    const st = state(); card.hidden = false;
+    card.innerHTML = '<h3>🔧 Facilitator: bench settings</h3><p class="small" style="margin:0 0 8px">Set these once per board. Print the sensor readings with the probe in dry air, then in a glass of water, and copy the raw numbers here.</p><div class="facil">' +
+      '<label>Soil raw reading when dry <input type="number" id="fDry" min="0" max="1023"></label><label>Soil raw reading when wet <input type="number" id="fWet" min="0" max="1023"></label>' +
+      '<label>Brighter light gives a bigger number <input type="checkbox" id="fLight"></label><label>RGB LED long leg goes to 5V (common anode) <input type="checkbox" id="fAnode"></label></div>';
+    $('#fDry').value = st.settings.soilDry; $('#fWet').value = st.settings.soilWet; $('#fLight').checked = !!st.settings.lightHigh; $('#fAnode').checked = !!st.settings.ledAnode;
+    const clamp = (v, d) => { v = Math.round(Number(v)); return isFinite(v) ? Math.min(1023, Math.max(0, v)) : d; };
+    $('#fDry').onchange = (e) => { st.settings.soilDry = clamp(e.target.value, 520); persist(); renderCode(); };
+    $('#fWet').onchange = (e) => { st.settings.soilWet = clamp(e.target.value, 280); persist(); renderCode(); };
+    $('#fLight').onchange = (e) => { st.settings.lightHigh = e.target.checked; persist(); renderCode(); };
+    $('#fAnode').onchange = (e) => { st.settings.ledAnode = e.target.checked; persist(); renderCode(); };
+  }
+  $('#showAll').onchange = (e) => { S.showAll = e.target.checked; renderCode(); };
+  $('#copyBtn').onclick = (e) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    copyText(Core.generate(S.proj, state()).text).then(() => { confetti(r.left + r.width / 2, r.top); toast('Copied! Now paste it into the Arduino IDE 🎉'); });
+  };
+
+  /* ---------- boot ---------- */
+  function renderAll() { renderTabs(); renderPalette(); renderNamebar(); renderToolbar(); renderScript(); renderStory(); mountStage(); if (S.view === 'code') renderCode(); }
+  renderAll();
+  window.__camp = { S, state, Core, renderAll, setView, sensors, runIt };
+})();
+
+</script>
+</body>
+</html>
