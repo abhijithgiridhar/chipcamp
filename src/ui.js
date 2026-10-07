@@ -13,7 +13,9 @@
   const P = () => PROJECTS[S.proj];
   function state() {
     if (!S.states[S.proj]) { S.states[S.proj] = Core.newState(S.proj); S.states[S.proj].date = todayStr(); }
-    return S.states[S.proj];
+    const st = S.states[S.proj];
+    if (!st.builder) st.builder = ChipCamp.get().name;
+    return st;
   }
 
   /* ---------- persistence ---------- */
@@ -39,6 +41,7 @@
   (function load() {
     const d = lsGet(KEY);
     if (d && d.states) { ORDER.forEach((id) => { if (d.states[id]) S.states[id] = cleanState(id, d.states[id]); }); if (PROJECTS[d.proj]) S.proj = d.proj; }
+    const chosen = ChipCamp.get().robot; if (chosen && PROJECTS[chosen]) S.proj = chosen;
   })();
 
   /* ---------- small helpers ---------- */
@@ -60,7 +63,7 @@
       clearTimeout(t); armed = false; btn.innerHTML = orig; action();
     };
   }
-  function changed() { persist(); renderStory(); updateHat(); updateCount(); if (S.view === 'code') renderCode(); }
+  function changed() { persist(); ChipCamp.codeBlocks(S.proj, Core.countBlocks(state())); renderStory(); updateHat(); updateCount(); if (S.view === 'code') renderCode(); }
 
   /* ---------- header ---------- */
   function renderTabs() {
@@ -70,7 +73,7 @@
       const b = el('button', 'ptab', '<span class="em">' + p.emoji + '</span>' + esc(p.name));
       b.setAttribute('aria-selected', id === S.proj ? 'true' : 'false');
       b.style.setProperty('--pc', p.color);
-      b.onclick = () => { if (id === S.proj) return; stopRun(); S.proj = id; S.activeStory = null; S.openFolds.clear(); persist(); renderAll(); };
+      b.onclick = () => { if (id === S.proj) return; stopRun(); S.proj = id; ChipCamp.setRobot(id); S.activeStory = null; S.openFolds.clear(); persist(); renderAll(); };
       nav.appendChild(b);
     });
   }

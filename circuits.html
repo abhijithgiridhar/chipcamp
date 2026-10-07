@@ -1,0 +1,1119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Circuit Lab · Chip Camp</title>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Nunito:wght@600;800;900&family=JetBrains+Mono:wght@400;700&display=swap");
+:root{
+  --ink:#2b2f4a; --ink-soft:#69709a; --bg:#e8f0ff; --card:#ffffff; --line:#d3def6; --line-soft:#e6edfb;
+  --purple:#7c4dff; --blue:#4c97ff; --green:#3fb950; --green-d:#2c8f3b; --events:#FFBF00;
+  --font-d:"Fredoka","Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;
+  --font-b:"Nunito","Segoe UI","Trebuchet MS",system-ui,sans-serif;
+  --font-m:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --nh:6px; --nx:16px; --nw:26px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-b);font-size:15px;line-height:1.4;-webkit-font-smoothing:antialiased;}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+[hidden]{display:none!important}
+
+/* ---------- top bar ---------- */
+.topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 18px;background:linear-gradient(90deg,#7c4dff,#4c97ff);color:#fff;box-shadow:0 3px 0 rgba(0,0,0,.12);}
+.brand{font-family:var(--font-d);font-size:24px;font-weight:600;letter-spacing:.2px;display:flex;align-items:center;gap:8px;margin-right:6px}
+.brand .logo{display:inline-grid;grid-template-columns:repeat(2,12px);gap:3px;transform:rotate(-8deg)}
+.brand .logo i{width:12px;height:12px;border-radius:4px;display:block}
+.ptabs{display:flex;gap:8px;flex-wrap:wrap}
+.ptab{border:0;cursor:pointer;font-family:var(--font-d);font-size:17px;font-weight:500;padding:8px 16px;border-radius:16px;background:rgba(255,255,255,.2);color:#fff;display:flex;align-items:center;gap:7px;transition:transform .12s, background .15s;}
+.ptab:hover{background:rgba(255,255,255,.32);transform:translateY(-1px)}
+.ptab[aria-selected="true"]{background:#fff;color:var(--pc);box-shadow:0 4px 0 rgba(0,0,0,.18);transform:translateY(-1px)}
+.ptab .em{font-size:20px}
+.spacer{flex:1}
+.viewtabs{display:flex;background:rgba(0,0,0,.18);border-radius:18px;padding:4px;gap:4px}
+.vtab{border:0;cursor:pointer;font-family:var(--font-d);font-size:17px;padding:8px 18px;border-radius:14px;background:transparent;color:#fff;display:flex;align-items:center;gap:6px}
+.vtab[aria-selected="true"]{background:#fff;color:var(--purple);box-shadow:0 3px 0 rgba(0,0,0,.18)}
+
+.btn{border:0;cursor:pointer;font-family:var(--font-d);font-weight:500;font-size:15px;padding:8px 14px;border-radius:14px;background:#fff;color:var(--ink);box-shadow:0 3px 0 #c9d6f2;border:2px solid #d3def6;display:inline-flex;align-items:center;gap:6px;transition:transform .08s, box-shadow .08s;white-space:nowrap}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 0 #c9d6f2}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 #c9d6f2}
+.btn.go{background:var(--green);border-color:var(--green-d);color:#fff;box-shadow:0 4px 0 var(--green-d)}
+.btn.go:hover{box-shadow:0 5px 0 var(--green-d)}
+.btn.go:active{box-shadow:0 1px 0 var(--green-d)}
+.btn.stop{background:#ff6680;border-color:#d94a63;color:#fff;box-shadow:0 4px 0 #d94a63}
+.btn.big{font-size:19px;padding:12px 22px;border-radius:18px}
+.btn.small{font-size:13px;padding:5px 10px;border-radius:11px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* ---------- blocks ---------- */
+.blk{--c:#9966FF;position:relative;filter:drop-shadow(0 2px 0 rgba(0,0,0,.2));user-select:none;touch-action:none}
+.dz>.blk+.blk,.blk+.blk{margin-top:calc(var(--nh) * -1)}
+.blk>.row,.blk>.foot{background:var(--c);color:#fff;font-family:var(--font-d);font-weight:500;font-size:15px;text-shadow:0 1px 0 rgba(0,0,0,.18)}
+.blk>.row{display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-height:46px;padding:8px 10px calc(8px + var(--nh)) 12px;
+  clip-path:polygon(0 0,var(--nx) 0,calc(var(--nx) + 4px) var(--nh),calc(var(--nx) + var(--nw) - 4px) var(--nh),calc(var(--nx) + var(--nw)) 0,100% 0,100% calc(100% - var(--nh)),calc(var(--nx) + var(--nw)) calc(100% - var(--nh)),calc(var(--nx) + var(--nw) - 4px) 100%,calc(var(--nx) + 4px) 100%,var(--nx) calc(100% - var(--nh)),0 calc(100% - var(--nh)));
+  cursor:grab}
+.blk.c>.row{clip-path:polygon(0 0,var(--nx) 0,calc(var(--nx) + 4px) var(--nh),calc(var(--nx) + var(--nw) - 4px) var(--nh),calc(var(--nx) + var(--nw)) 0,100% 0,100% 100%,0 100%);padding-bottom:8px;border-radius:12px 12px 0 0}
+.blk.c>.row.else{clip-path:none;border-radius:0;min-height:34px;padding-top:6px;padding-bottom:6px}
+.blk:not(.c)>.row{border-radius:12px 12px 12px 12px}
+.blk>.foot{height:calc(26px + var(--nh));border-radius:0 0 12px 12px;display:flex;align-items:center;padding:0 12px var(--nh) 12px;gap:8px;
+  clip-path:polygon(0 0,100% 0,100% calc(100% - var(--nh)),calc(var(--nx) + var(--nw)) calc(100% - var(--nh)),calc(var(--nx) + var(--nw) - 4px) 100%,calc(var(--nx) + 4px) 100%,var(--nx) calc(100% - var(--nh)),0 calc(100% - var(--nh)))}
+.cslot{display:flex;background:var(--c)}
+.cslot::before{content:"";width:16px;flex:none;background:var(--c)}
+.cslot>.dz{flex:1;background:#f7f9ff;border-radius:10px 0 0 10px;min-height:44px;margin:0;box-shadow:inset 0 3px 0 rgba(0,0,0,.08)}
+.blk .x{margin-left:auto;border:0;background:rgba(255,255,255,.28);color:#fff;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:12px;line-height:1;padding:0;opacity:.0;transition:opacity .12s}
+.blk:hover>.row .x,.blk>.row .x:focus-visible{opacity:1}
+.blk .x:hover{background:rgba(255,255,255,.5)}
+.blk .tag{font-size:11px;font-weight:700;background:rgba(0,0,0,.16);border-radius:10px;padding:2px 8px;font-family:var(--font-b);text-shadow:none}
+.elsebtn{border:0;cursor:pointer;background:rgba(255,255,255,.28);color:#fff;font-family:var(--font-d);font-size:13px;border-radius:10px;padding:3px 10px}
+.elsebtn:hover{background:rgba(255,255,255,.45)}
+.blk.running>.row,.blk.running>.foot{animation:glow .6s ease-in-out infinite alternate}
+@keyframes glow{from{filter:brightness(1)}to{filter:brightness(1.35) saturate(1.2)}}
+.blk.pop{animation:pop .38s cubic-bezier(.3,1.7,.5,1)}
+@keyframes pop{0%{transform:scale(.6) rotate(-4deg);opacity:.2}100%{transform:scale(1) rotate(0);opacity:1}}
+.blk.lifting{opacity:.3}
+.ghost{position:fixed;z-index:1000;pointer-events:none;transform:rotate(2deg) scale(1.04);filter:drop-shadow(0 10px 12px rgba(40,40,80,.35));opacity:.96}
+.ghost .x{display:none}
+
+/* parameter fields (Scratch style) */
+.pill{display:inline-flex;align-items:center;border-radius:16px;background:#fff;color:var(--ink);text-shadow:none;font-family:var(--font-b);font-weight:800;font-size:14px;padding:0;overflow:hidden;box-shadow:inset 0 -2px 0 rgba(0,0,0,.1)}
+.pill input{border:0;background:transparent;outline:0;font-weight:800;color:var(--ink);padding:3px 9px;min-width:0;text-align:center;font-family:var(--font-b)}
+.pill input[type=number]{width:58px;-moz-appearance:textfield}
+.pill input[type=number]::-webkit-outer-spin-button,.pill input[type=number]::-webkit-inner-spin-button{opacity:.55}
+.pill input[type=text]{width:116px}
+.pill:focus-within{outline:3px solid rgba(255,255,255,.75);outline-offset:1px}
+.drop{display:inline-flex;align-items:center;border-radius:14px;background:rgba(0,0,0,.2);color:#fff;font-family:var(--font-b);font-weight:800;font-size:14px;text-shadow:none;padding:0;position:relative}
+.drop select{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:#fff;font-weight:800;padding:4px 24px 4px 10px;cursor:pointer;outline:0;border-radius:14px;font-family:var(--font-b)}
+.drop select option{color:var(--ink);background:#fff}
+.drop::after{content:"▾";position:absolute;right:9px;pointer-events:none;font-size:12px}
+.drop:focus-within{outline:3px solid rgba(255,255,255,.75);outline-offset:1px}
+.static{display:inline-flex;align-items:center;border-radius:14px;padding:2px 9px;font-weight:800;font-size:13px;font-family:var(--font-b);text-shadow:none}
+.static.p{background:#fff;color:var(--ink)}
+.static.d{background:rgba(0,0,0,.2);color:#fff}
+.palette-blk{margin-bottom:10px;cursor:grab}
+.palette-blk>.row{cursor:grab}
+.palette-blk.c>.foot{height:calc(18px + var(--nh))}
+
+.dz{display:flex;flex-direction:column;min-height:40px;position:relative}
+.dz.over{outline:3px dashed var(--purple);outline-offset:-3px;border-radius:12px;background:rgba(124,77,255,.07)}
+.dz:empty::before,.dz.empty::before{content:"drop blocks here";display:flex;align-items:center;justify-content:center;min-height:44px;color:#9aa4c7;font-weight:800;font-size:13px;border-radius:10px;border:2px dashed #cfd9f3;margin:4px}
+.dropline{height:0;position:relative;z-index:5}
+.dropline::after{content:"";position:absolute;left:-2px;right:-2px;top:-3px;height:6px;border-radius:4px;background:var(--purple);box-shadow:0 0 0 2px #fff}
+/* ---------- misc ---------- */
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#2b2f4a;color:#fff;font-family:var(--font-d);padding:10px 18px;border-radius:16px;opacity:0;pointer-events:none;transition:all .25s;z-index:3000;box-shadow:0 8px 20px rgba(0,0,0,.25)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.modalback{position:fixed;inset:0;background:rgba(43,47,74,.5);display:grid;place-items:center;z-index:2000;padding:16px}
+.modal{background:#fff;border-radius:22px;width:min(560px,100%);max-height:86vh;overflow:auto;padding:18px 20px;box-shadow:0 20px 50px rgba(0,0,0,.3);border:3px solid var(--line)}
+.modal h2{font-family:var(--font-d);font-weight:500;margin:0 0 10px;font-size:22px}
+.modal textarea{width:100%;height:120px;border:2px solid var(--line);border-radius:12px;padding:8px;font-family:var(--font-m);font-size:12px}
+.saverow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:2px solid var(--line-soft)}
+.saverow .who{flex:1;font-weight:800}
+.saverow .who small{display:block;font-weight:600;color:var(--ink-soft)}
+.conf{position:fixed;z-index:2500;font-size:26px;pointer-events:none;animation:conf 1.1s ease-out forwards}
+@keyframes conf{0%{transform:translate(0,0) rotate(0) scale(.6);opacity:1}100%{transform:translate(var(--dx),var(--dy)) rotate(var(--r)) scale(1.2);opacity:0}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+.homebtn{display:inline-grid;place-items:center;width:42px;height:42px;border-radius:14px;background:rgba(255,255,255,.22);color:#fff;text-decoration:none;font-size:21px;box-shadow:0 3px 0 rgba(0,0,0,.14);transition:transform .12s,background .15s;flex:none}
+.homebtn:hover{background:rgba(255,255,255,.36);transform:translateY(-1px)}
+.homebtn:focus-visible{outline:3px solid #fff;outline-offset:2px}
+
+/* Circuit Lab */
+body{background:var(--bg);margin:0}
+.ptabs{display:flex;gap:8px;flex-wrap:wrap}
+.ptab{border:0;cursor:pointer;font-family:var(--font-d);font-size:16px;font-weight:500;padding:7px 14px;border-radius:15px;background:rgba(255,255,255,.2);color:#fff;display:flex;align-items:center;gap:6px}
+.ptab:hover{background:rgba(255,255,255,.32)}
+.ptab[aria-selected="true"]{background:#fff;color:var(--pc);box-shadow:0 4px 0 rgba(0,0,0,.18)}
+.lab{display:grid;grid-template-columns:minmax(0,1fr) 330px;grid-template-areas:"bin bin" "canvas check";gap:14px;padding:14px 18px 36px;max-width:1700px;margin:0 auto;align-items:start}
+@media (max-width:980px){.lab{grid-template-columns:1fr;grid-template-areas:"bin" "canvas" "check"}}
+.binrow{grid-area:bin;padding:10px 14px}
+.binhead{display:flex;align-items:baseline;gap:10px;margin-bottom:8px;font-family:var(--font-d);font-size:17px}
+.binhead span{font-family:var(--font-b);font-size:13px;font-weight:700;color:var(--ink-soft)}
+.bin{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:flex;align-items:center;gap:8px;background:#fff;border:2px solid var(--line);border-radius:14px;padding:6px 12px 6px 8px;cursor:grab;user-select:none;touch-action:none;box-shadow:0 3px 0 var(--line);font-weight:800;font-size:14px;transition:transform .1s}
+.chip:hover{transform:translateY(-1px)}
+.chip .em{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-size:20px;background:var(--cc,#eef2ff)}
+.chip small{display:block;font-weight:700;color:var(--ink-soft);font-size:11.5px}
+.chip.used{opacity:.4;cursor:default;box-shadow:none}
+.chip.pulse{animation:pulsechip .7s ease-in-out 4}
+@keyframes pulsechip{50%{box-shadow:0 0 0 6px rgba(124,77,255,.35);border-color:var(--purple)}}
+.chipghost{position:fixed;z-index:1000;pointer-events:none;background:#fff;border:2px solid var(--purple);border-radius:14px;padding:6px 12px;font-weight:800;box-shadow:0 10px 20px rgba(40,40,80,.3)}
+.canvascard{grid-area:canvas;padding:10px;min-width:0}
+.toolrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.toolrow .spacer{flex:1}
+.hintline{min-height:26px;font-weight:800;font-size:14.5px;color:#4a2a9a;background:#f0ebff;border:2px solid #d9ccff;border-radius:12px;padding:5px 12px;margin-bottom:8px}
+.hintline:empty{display:none}
+.hintline.bad{background:#fff0f3;border-color:#ffb3c0;color:#a62a45}
+.hintline.good{background:#effbf1;border-color:#9bdca4;color:#1d6b2b}
+.svgwrap{overflow:auto;border-radius:16px;border:2px solid var(--line);background:#f4f8ff;max-height:74vh;touch-action:none}
+#svg{display:block;width:100%;height:auto;user-select:none;-webkit-user-select:none;background:radial-gradient(#d4def5 1.1px,transparent 1.1px) 0 0/24px 24px,#f8fbff}
+#svg text{font-family:var(--font-b);pointer-events:none}
+#svg .term{cursor:crosshair}
+#svg .part{cursor:grab}
+#svg .part.sel>.hl{opacity:1}
+#svg .hl{opacity:0;fill:none;stroke:#7c4dff;stroke-width:3;stroke-dasharray:6 4}
+#svg .wire{fill:none;stroke-linecap:round;stroke-width:5}
+#svg .wirehit{fill:none;stroke:transparent;stroke-width:16;cursor:pointer}
+#svg .wire.sel{stroke-width:7;filter:drop-shadow(0 0 4px #7c4dff)}
+#svg .pulse{fill:none;stroke:#7c4dff;stroke-width:4;animation:ring 1s ease-out infinite}
+@keyframes ring{0%{r:6;opacity:1}100%{r:26;opacity:0}}
+#svg .snap{fill:rgba(124,77,255,.18);stroke:#7c4dff;stroke-width:3}
+#svg .xbtn{cursor:pointer}
+#svg.alive .horn{animation:horn .8s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 50%}
+@keyframes horn{from{transform:rotate(-30deg)}to{transform:rotate(30deg)}}
+#svg .eyes{opacity:0}
+#svg.alive .eyes{opacity:1}
+#svg.alive .sonar{animation:sonar 1.2s ease-out infinite}
+@keyframes sonar{0%{opacity:.9;transform:scale(.4)}100%{opacity:0;transform:scale(1.6)}}
+#svg .sonar{opacity:0;transform-box:fill-box;transform-origin:50% 50%}
+#svg.alive .ledglow{animation:ledcycle 1.8s linear infinite}
+@keyframes ledcycle{0%{fill:#ff3b3b}33%{fill:#35d07f}66%{fill:#3b82ff}100%{fill:#ff3b3b}}
+#svg .ledglow{fill:#59606e}
+.checkcard{grid-area:check;padding:14px;position:sticky;top:12px}
+.prog{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.bar{flex:1;height:14px;border-radius:9px;background:#e6edfb;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#59c059,#3fb950);border-radius:9px;transition:width .3s}
+#progtext{font-family:var(--font-d);font-size:15px;white-space:nowrap}
+.grp{margin:12px 0 4px;font-family:var(--font-d);font-size:14px;color:var(--ink-soft);text-transform:none}
+.citem{display:grid;grid-template-columns:24px 1fr;gap:8px;align-items:start;padding:6px 8px;border-radius:12px;cursor:pointer;font-weight:800;font-size:14px}
+.citem:hover{background:#f3f6ff}
+.citem .ic{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:13px;background:#e6edfb;color:var(--ink-soft)}
+.citem.ok .ic{background:var(--green);color:#fff}
+.citem.ok{color:#23702f}
+.citem.bad .ic{background:#e5484d;color:#fff}
+.citem.bad{color:#a62a45;background:#fff5f6}
+.citem.opt .ic{background:#ffe9a8;color:#7a5b00}
+.citem .why{display:block;font-weight:700;font-size:12.5px;color:#7a5b9a;margin-top:2px}
+.citem.bad .why{color:#a62a45}
+.citem.hint{outline:3px solid rgba(124,77,255,.35)}
+.problem{background:#fff0f3;border:2px solid #ffb3c0;color:#a62a45;border-radius:12px;padding:8px 10px;font-weight:800;font-size:13.5px;margin-bottom:8px}
+.facil{margin-top:16px;border:2px dashed var(--line);border-radius:12px;padding:8px 10px;font-size:13px}
+.facil summary{cursor:pointer;font-family:var(--font-d);font-size:14px;color:var(--ink-soft)}
+.facil p{margin:8px 0;color:var(--ink-soft);font-weight:700}
+.facilbtns{display:flex;gap:6px;flex-wrap:wrap}
+.cardh{margin:0 0 10px;font-family:var(--font-d);font-weight:500;font-size:18px}
+.celebrate{background:linear-gradient(135deg,#effbf1,#e8f3ff);border:2px solid #9bdca4;border-radius:14px;padding:10px 12px;margin-bottom:10px;font-weight:800;color:#1d6b2b}
+.celebrate a{display:inline-block;margin-top:8px}
+
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="homebtn" href="index.html" title="Back to the Chip Camp welcome screen" aria-label="Home">🏠</a>
+  <div class="brand"><span class="logo" aria-hidden="true"><i style="background:#FFAB19"></i><i style="background:#4C97FF"></i><i style="background:#59C059"></i><i style="background:#e5484d"></i></span>Circuit Lab</div>
+  <nav class="ptabs" id="ptabs" aria-label="Choose a robot"></nav>
+  <div class="spacer"></div>
+  <button class="btn small" id="undoBtn" title="Undo the last change">↶ Undo</button>
+</header>
+
+<main class="lab">
+  <section class="card binrow" aria-label="Your kit">
+    <div class="binhead"><b>Your kit</b><span>Drag parts onto the board, or tap them.</span></div>
+    <div class="bin" id="bin"></div>
+  </section>
+
+  <section class="card canvascard" aria-label="Circuit board">
+    <div class="toolrow">
+      <button class="btn small" id="hintBtn">💡 Hint</button>
+      <button class="btn small" id="delBtn" disabled>🗑 Delete</button>
+      <button class="btn small" id="flipBtn" hidden>⟲ Flip plug</button>
+      <span class="spacer"></span>
+      <button class="btn small" id="zoomOut" aria-label="Zoom out">−</button>
+      <button class="btn small" id="zoomFit" aria-label="Fit to screen">Fit</button>
+      <button class="btn small" id="zoomIn" aria-label="Zoom in">＋</button>
+      <button class="btn go" id="powerBtn">⚡ Power on!</button>
+    </div>
+    <div class="hintline" id="hintline" role="status" aria-live="polite"></div>
+    <div class="svgwrap" id="svgwrap"><svg id="svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Circuit board canvas"></svg></div>
+  </section>
+
+  <aside class="card checkcard" aria-label="Build checklist">
+    <h2 class="cardh">Build checklist</h2>
+    <div class="prog"><div class="bar"><i id="barfill"></i></div><span id="progtext"></span></div>
+    <div id="problems"></div>
+    <div id="checklist"></div>
+    <details class="facil">
+      <summary>For facilitators</summary>
+      <p>Show the finished wiring to compare, or clear the board.</p>
+      <div class="facilbtns"><button class="btn small" id="solveBtn">🎓 Show finished circuit</button><button class="btn small" id="clearBtn">🧹 Clear board</button></div>
+    </details>
+  </aside>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* Chip Camp: what each student has chosen and finished, shared by every page (kept in this browser only). */
+(function (root) {
+  'use strict';
+  const KEY = 'chipcamp.v1';
+  const ROBOTS = ['chipbot', 'peeko', 'jarvis'];
+  function read() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
+  function write(d) { try { localStorage.setItem(KEY, JSON.stringify(d)); } catch (e) { /* private window: just don't remember */ } }
+  function clean(s) { return String(s == null ? '' : s).replace(/[^A-Za-z0-9 .,!?'_-]/g, '').replace(/\s+/g, ' ').trim().slice(0, 16); }
+
+  root.ChipCamp = {
+    ROBOTS,
+    get() {
+      const d = read();
+      return { name: clean(d.name), robot: ROBOTS.indexOf(d.robot) >= 0 ? d.robot : null, levels: d.levels || {}, circuits: d.circuits || {}, code: d.code || {} };
+    },
+    robotOrDefault() { return this.get().robot || 'chipbot'; },
+    setName(n) { const d = read(); d.name = clean(n); write(d); },
+    setRobot(r) { if (ROBOTS.indexOf(r) < 0) return; const d = read(); d.robot = r; write(d); },
+    levelDone(level, stars) { const d = read(); d.levels = d.levels || {}; d.levels[level] = Math.max(d.levels[level] || 0, stars || 1); write(d); },
+    circuitDone(robot) { const d = read(); d.circuits = d.circuits || {}; d.circuits[robot] = true; write(d); },
+    codeBlocks(robot, n) { const d = read(); d.code = d.code || {}; d.code[robot] = n; write(d); },
+    levelsCompleted() { const l = this.get().levels; return Object.keys(l).filter((k) => l[k] > 0).length; }
+  };
+})(typeof self !== 'undefined' ? self : this);
+
+</script>
+<script>
+/* Circuit Lab core: parts, board + breadboard geometry, the netlist (what is connected to what), the wiring checker
+   for each robot, and a known-good solution. No DOM here so Node can test every rule. */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.LabCore = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  /* ---------- geometry (SVG units) ---------- */
+  const DIG = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], ANA = [0, 1, 2, 3, 4, 5];
+  const L = {
+    W: 1200, H: 800,
+    board: { x: 60, y: 210, w: 660, h: 350 },
+    dig: { x0: 160, dx: 44, yS: 262, yV: 278, yG: 294, labelY: 247 },
+    ana: { x0: 160, dx: 44, yS: 470, yV: 486, yG: 502, labelY: 455 },
+    i2c: { x0: 480, dx: 30, y: 486, order: ['GND', 'VCC', 'SDA', 'SCL'] },
+    ext: { x: 668, yP: 470, yN: 500 },
+    usb: { x: 60, y: 390 },
+    bb: { x: 745, y: 214, cols: 20, pitch: 20, xOff: 36, rowTop: 74, rowBot: 194, rails: { 'T+': 26, 'T-': 46, 'B+': 306, 'B-': 326 }, w: 452, h: 354 }
+  };
+  const ROWS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
+
+  function boardTermPos(id) {
+    let m = /^D(\d+)\.([SVG])$/.exec(id);
+    if (m) return { x: L.dig.x0 + (Number(m[1]) - 2) * L.dig.dx, y: L.dig['y' + m[2]] };
+    m = /^A(\d)\.([SVG])$/.exec(id);
+    if (m) return { x: L.ana.x0 + Number(m[1]) * L.ana.dx, y: L.ana['y' + m[2]] };
+    m = /^I2C\.(GND|VCC|SDA|SCL)$/.exec(id);
+    if (m) return { x: L.i2c.x0 + L.i2c.order.indexOf(m[1]) * L.i2c.dx, y: L.i2c.y };
+    if (id === 'EXT.P') return { x: L.ext.x, y: L.ext.yP };
+    if (id === 'EXT.N') return { x: L.ext.x, y: L.ext.yN };
+    if (id === 'USB') return { x: L.usb.x, y: L.usb.y };
+    return null;
+  }
+  function headerCenter(pin) { const p = boardTermPos(pin + '.V'); return p; }
+  function holeXY(col, row) {
+    const i = ROWS.indexOf(row);
+    return { x: L.bb.x + L.bb.xOff + (col - 1) * L.bb.pitch, y: L.bb.y + (i < 5 ? L.bb.rowTop + i * L.bb.pitch : L.bb.rowBot + (i - 5) * L.bb.pitch) };
+  }
+  function railXY(rail, idx) { return { x: L.bb.x + L.bb.xOff + (idx - 1) * L.bb.pitch, y: L.bb.y + L.bb.rails[rail] }; }
+  const HOLE_RE = /^([A-Za-z0-9_]+)#(\d+)([a-j])$/, RAIL_RE = /^([A-Za-z0-9_]+)#([TB][+-])(\d+)$/;
+  function holePos(id) {
+    let m = HOLE_RE.exec(id); if (m) return holeXY(Number(m[2]), m[3]);
+    m = RAIL_RE.exec(id); if (m) return railXY(m[2], Number(m[3]));
+    return null;
+  }
+
+  /* ---------- parts ---------- */
+  const P = L.bb.pitch;
+  const PARTS = {
+    servo: { name: 'Servo motor', kind: 'plug3', w: 86, h: 42, port: { x: -43, y: 10 }, cable: { s: '#ff9f1a', v: '#e5484d', g: '#6b4423' }, note: 'SG90. Orange = signal, red = power, brown = ground.' },
+    buzzer: { name: 'Buzzer module', kind: 'plug3', w: 46, h: 46, port: { x: 0, y: 23 }, cable: { s: '#ffd93b', v: '#e5484d', g: '#2b2f4a' }, note: 'Beeps when the pin is switched on.' },
+    soil: { name: 'Soil moisture sensor', kind: 'plug3', w: 56, h: 84, port: { x: 28, y: -14 }, cable: { s: '#59c059', v: '#e5484d', g: '#2b2f4a' }, note: 'Two metal probes go in the soil.' },
+    usb: { name: 'USB cable', kind: 'usb', w: 80, h: 46, port: { x: 40, y: 0 }, note: 'Powers the Nano and carries your code to it.' },
+    hcsr04: { name: 'Ultrasonic sensor (HC-SR04)', kind: 'pins', w: 124, h: 60, terms: { vcc: [-42, 32], trig: [-14, 32], echo: [14, 32], gnd: [42, 32] }, labels: { vcc: 'VCC', trig: 'TRIG', echo: 'ECHO', gnd: 'GND' }, note: 'Chip Bot\'s eyes. It measures distance with sound.' },
+    oled: { name: 'OLED screen', kind: 'pins', w: 100, h: 66, terms: { gnd: [-36, -37], vcc: [-12, -37], scl: [12, -37], sda: [36, -37] }, labels: { gnd: 'GND', vcc: 'VCC', scl: 'SCL', sda: 'SDA' }, note: 'Peeko\'s eyes live on this little screen.' },
+    battery: { name: '4×AA battery pack', kind: 'leads', w: 104, h: 48, terms: { p: [64, -12], n: [64, 12] }, labels: { p: '+', n: '−' }, note: 'Powers the servos. Do not run servos from USB.' },
+    ldr: { name: 'Light sensor (LDR)', kind: 'legs', w: 40, h: 30, legs: { a: [0, 0], b: [2 * P, 0] }, seatPitch: 2, note: 'Its resistance changes with light. It needs a partner resistor.' },
+    resistor: { name: 'Resistor', kind: 'legs', w: 66, h: 14, legs: { a: [0, 0], b: [4 * P, 0] }, seatPitch: 4, note: 'Click it to change its value.' },
+    rgb: { name: 'RGB LED', kind: 'legs', w: 56, h: 50, legs: { r: [0, 0], k: [P, 0], g: [2 * P, 0], b: [3 * P, 0] }, seatPitch: 1, note: 'Red, green, blue and one shared ground (the long leg, K).' },
+    breadboard: { name: 'Breadboard', kind: 'breadboard', w: L.bb.w, h: L.bb.h, note: 'Holes in the same column are joined underneath.' }
+  };
+  const OHMS = [100, 220, 1000, 10000, 100000];
+  const ohmLabel = (o) => (o >= 1000 ? (o / 1000) + 'kΩ' : o + 'Ω');
+  const legsKind = (type) => PARTS[type].kind === 'legs';
+
+  /* ---------- what is in each kit ---------- */
+  const INV = {
+    chipbot: [
+      { key: 'usb', type: 'usb', label: 'USB cable', qty: 1 },
+      { key: 'lhip', type: 'servo', role: 'lhip', label: 'Servo: left hip', qty: 1 },
+      { key: 'rhip', type: 'servo', role: 'rhip', label: 'Servo: right hip', qty: 1 },
+      { key: 'lfoot', type: 'servo', role: 'lfoot', label: 'Servo: left foot', qty: 1 },
+      { key: 'rfoot', type: 'servo', role: 'rfoot', label: 'Servo: right foot', qty: 1 },
+      { key: 'hcsr04', type: 'hcsr04', label: 'Ultrasonic sensor', qty: 1 },
+      { key: 'battery', type: 'battery', label: '4×AA battery pack', qty: 1 },
+      { key: 'buzzer', type: 'buzzer', label: 'Buzzer (bonus)', qty: 1, optional: true }
+    ],
+    peeko: [
+      { key: 'usb', type: 'usb', label: 'USB cable', qty: 1 },
+      { key: 'oled', type: 'oled', label: 'OLED screen', qty: 1 },
+      { key: 'head', type: 'servo', role: 'head', label: 'Servo: head', qty: 1 },
+      { key: 'buzzer', type: 'buzzer', label: 'Buzzer (bonus)', qty: 1, optional: true }
+    ],
+    jarvis: [
+      { key: 'usb', type: 'usb', label: 'USB cable', qty: 1 },
+      { key: 'breadboard', type: 'breadboard', label: 'Breadboard', qty: 1 },
+      { key: 'soil', type: 'soil', label: 'Soil moisture sensor', qty: 1 },
+      { key: 'ldr', type: 'ldr', label: 'Light sensor (LDR)', qty: 1 },
+      { key: 'resistor', type: 'resistor', label: 'Resistors (from the box)', qty: 5, multi: true },
+      { key: 'rgb', type: 'rgb', label: 'RGB LED', qty: 1 },
+      { key: 'buzzer', type: 'buzzer', label: 'Buzzer', qty: 1 }
+    ]
+  };
+  const invOf = (proj, key) => INV[proj].find((i) => i.key === key);
+
+  /* ---------- state ---------- */
+  function newState(proj) { return { v: 1, proj, n: 0, parts: [], wires: [] }; }
+  function addPart(st, key, x, y) {
+    const inv = invOf(st.proj, key); if (!inv) throw new Error('unknown part ' + key);
+    const have = st.parts.filter((p) => p.key === key).length; if (have >= inv.qty) return null;
+    const id = inv.type + (++st.n);
+    const part = { id, key, type: inv.type, role: inv.role || null, x: x || 0, y: y || 0, plug: null, plugPos: null, seat: null };
+    if (inv.type === 'resistor') part.ohms = 220;
+    st.parts.push(part); return part;
+  }
+  function addWire(st, a, b) {
+    if (a === b) return null;
+    if (st.wires.some((w) => (w.a === a && w.b === b) || (w.a === b && w.b === a))) return null;
+    const w = { id: 'w' + (++st.n), a, b }; st.wires.push(w); return w;
+  }
+
+  /* ---------- the netlist ---------- */
+  const canon = (id) => {
+    let m = HOLE_RE.exec(id); if (m) return m[1] + ':' + m[2] + ':' + (m[3] < 'f' ? 'top' : 'bot');
+    m = RAIL_RE.exec(id); if (m) return m[1] + ':' + m[2];
+    return id;
+  };
+  const SIGNAL = DIG.map((n) => 'D' + n).concat(ANA.map((n) => 'A' + n));
+  function legHoles(part, state) {
+    if (!part.seat) return null;
+    const out = {}; const base = part.seat;
+    Object.keys(PARTS[part.type].legs).forEach((t) => { out[t] = base.bb + '#' + (base.col + PARTS[part.type].legs[t][0] / P) + base.row; });
+    return out;
+  }
+  function buildNets(state) {
+    const parent = new Map();
+    const find = (x) => { if (!parent.has(x)) parent.set(x, x); let r = x; while (parent.get(r) !== r) r = parent.get(r); let c = x; while (parent.get(c) !== r) { const n = parent.get(c); parent.set(c, r); c = n; } return r; };
+    const union = (a, b) => { const ra = find(canon(a)), rb = find(canon(b)); if (ra !== rb) parent.set(ra, rb); };
+    SIGNAL.forEach((p) => { union(p + '.V', 'NET:5V'); union(p + '.G', 'NET:GND'); });
+    union('I2C.VCC', 'NET:5V'); union('I2C.GND', 'NET:GND'); union('EXT.N', 'NET:GND');
+    union('I2C.SDA', 'A4.S'); union('I2C.SCL', 'A5.S'); union('EXT.P', 'NET:VEXT');
+    state.parts.forEach((p) => {
+      const def = PARTS[p.type];
+      if (def.kind === 'plug3' && p.plug && boardTermPos(p.plug.to + '.V')) {
+        const f = !!p.plug.flip;
+        union(p.id + '.s', p.plug.to + (f ? '.G' : '.S')); union(p.id + '.v', p.plug.to + '.V'); union(p.id + '.g', p.plug.to + (f ? '.S' : '.G'));
+      }
+      if (def.kind === 'legs' && p.seat) { const h = legHoles(p); Object.keys(h).forEach((t) => union(p.id + '.' + t, h[t])); }
+    });
+    state.wires.forEach((w) => union(w.a, w.b));
+    return {
+      root: (id) => find(canon(id)),
+      same: (a, b) => find(canon(a)) === find(canon(b)),
+      ids: () => Array.from(parent.keys())
+    };
+  }
+
+  /* ---------- checking ---------- */
+  const NAMES = { 'NET:5V': '5V power', 'NET:GND': 'ground (GND)', 'NET:VEXT': 'the battery +' };
+  function makeCtx(proj, state) {
+    const nets = buildNets(state);
+    const part = (key) => state.parts.find((p) => p.key === key);
+    const label = (key) => (invOf(proj, key) || {}).label || key;
+    const boardNames = (id) => {
+      const r = nets.root(id), out = [];
+      SIGNAL.forEach((p) => { if (nets.root(p + '.S') === r) out.push(p); });
+      if (nets.root('NET:5V') === r) out.push('5V power');
+      if (nets.root('NET:GND') === r) out.push('ground (GND)');
+      if (nets.root('NET:VEXT') === r) out.push('the battery +');
+      return out;
+    };
+    return { proj, state, nets, part, label, boardNames };
+  }
+  const base = (id, group, text, o) => Object.assign({ id, group, text, status: 'todo', msg: '', focus: [], ghost: [], optional: false }, o || {});
+  const termName = (t) => ({ s: 'signal', v: 'power', g: 'ground', vcc: 'VCC', gnd: 'GND', trig: 'TRIG', echo: 'ECHO', scl: 'SCL', sda: 'SDA', p: '+', n: '−', ao: 'signal' }[t] || t);
+
+  function plugItem(ctx, group, key, pin, text, opts) {
+    const p = ctx.part(key), inv = invOf(ctx.proj, key), it = base(key + '.plug', group, text, { optional: !!(opts && opts.optional || inv && inv.optional), focus: ['header:' + pin] });
+    if (!p) { it.status = it.optional ? 'optional' : 'todo'; it.msg = 'Drag the ' + ctx.label(key) + ' onto the board first.'; it.focus = ['bin:' + key]; return it; }
+    if (!p.plug) { it.msg = 'Plug the ' + ctx.label(key) + ' cable into ' + pin + '. Drag its plug onto the pins.'; return it; }
+    if (p.plug.to !== pin) { it.status = 'bad'; it.msg = 'The ' + ctx.label(key) + ' is plugged into ' + p.plug.to + ', but the code expects ' + pin + '.'; return it; }
+    if (p.plug.flip) { it.status = 'bad'; it.msg = 'The plug is the wrong way round! Match the colours: the dark wire goes on the black G pin. Click the plug to flip it.'; return it; }
+    it.status = 'ok'; return it;
+  }
+  function linkItem(ctx, group, key, term, target, text, opts) {
+    const p = ctx.part(key), inv = invOf(ctx.proj, key), id = p && p.id + '.' + term;
+    const it = base(key + '.' + term, group, text, { optional: !!(opts && opts.optional || inv && inv.optional), focus: [p ? id : 'bin:' + key, target] });
+    if (!p) { it.status = it.optional ? 'optional' : 'todo'; it.msg = 'Drag the ' + ctx.label(key) + ' onto the board first.'; it.focus = ['bin:' + key]; return it; }
+    it.ghost = [[id, target]];
+    if (ctx.nets.same(id, target)) { it.status = 'ok'; return it; }
+    const where = ctx.boardNames(id);
+    if (where.length) { it.status = 'bad'; it.msg = termName(term) + ' is connected to ' + where.join(' and ') + ', but it needs to go to ' + (NAMES[target] || target.split('.')[0]) + '.'; }
+    else it.msg = 'Connect ' + termName(term) + ' to ' + (NAMES[target] || target.split('.')[0] + (target.endsWith('.S') ? ' (the S pin)' : '')) + ' with a wire.';
+    return it;
+  }
+  function resistorBetween(ctx, group, idSuffix, a, b, ohms, text) {
+    const res = ctx.state.parts.filter((p) => p.type === 'resistor');
+    const it = base(idSuffix, group, text, { focus: [a, b], ghost: [] });
+    if (!res.length) { it.msg = 'Take a ' + ohmLabel(ohms) + ' resistor from the box and place it on the breadboard.'; it.focus = ['bin:resistor']; return it; }
+    const joins = (r) => (ctx.nets.same(r.id + '.a', a) && ctx.nets.same(r.id + '.b', b)) || (ctx.nets.same(r.id + '.a', b) && ctx.nets.same(r.id + '.b', a));
+    const good = res.find((r) => joins(r) && r.ohms === ohms);
+    if (good && !ctx.nets.same(a, b)) { it.status = 'ok'; return it; }
+    const wrongVal = res.find((r) => joins(r) && r.ohms !== ohms);
+    if (wrongVal) { it.status = 'bad'; it.msg = 'That resistor is ' + ohmLabel(wrongVal.ohms) + ' but this job needs ' + ohmLabel(ohms) + '. Click the resistor to change it.'; return it; }
+    if (ctx.nets.same(a, b)) { it.status = 'bad'; it.msg = 'These two are joined directly with no resistor in between. Without it things can burn out!'; return it; }
+    it.msg = 'Connect them through a ' + ohmLabel(ohms) + ' resistor.';
+    return it;
+  }
+  function simpleItem(ctx, group, id, text, ok, msgTodo, focus) { return base(id, group, text, { status: ok ? 'ok' : 'todo', msg: ok ? '' : msgTodo, focus: focus || [] }); }
+
+  const SPEC = {
+    chipbot(c) {
+      const out = [];
+      out.push(usbItem(c));
+      out.push(plugItem(c, 'Servos', 'lhip', 'D2', 'Left hip servo → D2'));
+      out.push(plugItem(c, 'Servos', 'rhip', 'D3', 'Right hip servo → D3'));
+      out.push(plugItem(c, 'Servos', 'lfoot', 'D4', 'Left foot servo → D4'));
+      out.push(plugItem(c, 'Servos', 'rfoot', 'D5', 'Right foot servo → D5'));
+      out.push(linkItem(c, 'Ultrasonic eyes', 'hcsr04', 'vcc', 'NET:5V', 'VCC → 5V power'));
+      out.push(linkItem(c, 'Ultrasonic eyes', 'hcsr04', 'gnd', 'NET:GND', 'GND → ground'));
+      out.push(linkItem(c, 'Ultrasonic eyes', 'hcsr04', 'trig', 'D8.S', 'TRIG → D8'));
+      out.push(linkItem(c, 'Ultrasonic eyes', 'hcsr04', 'echo', 'D9.S', 'ECHO → D9'));
+      out.push(linkItem(c, 'Battery for the servos', 'battery', 'p', 'EXT.P', 'Battery + → EXT +'));
+      out.push(linkItem(c, 'Battery for the servos', 'battery', 'n', 'EXT.N', 'Battery − → EXT −'));
+      out.push(plugItem(c, 'Bonus', 'buzzer', 'D13', 'Buzzer → D13', { optional: true }));
+      return out;
+    },
+    peeko(c) {
+      const out = [];
+      out.push(usbItem(c));
+      out.push(linkItem(c, 'OLED screen', 'oled', 'gnd', 'NET:GND', 'GND → ground'));
+      out.push(linkItem(c, 'OLED screen', 'oled', 'vcc', 'NET:5V', 'VCC → 5V power'));
+      out.push(linkItem(c, 'OLED screen', 'oled', 'sda', 'A4.S', 'SDA → A4 (the data wire)'));
+      out.push(linkItem(c, 'OLED screen', 'oled', 'scl', 'A5.S', 'SCL → A5 (the clock wire)'));
+      out.push(plugItem(c, 'Head', 'head', 'D9', 'Head servo → D9'));
+      out.push(plugItem(c, 'Bonus', 'buzzer', 'D8', 'Buzzer → D8', { optional: true }));
+      return out;
+    },
+    jarvis(c) {
+      const out = [];
+      out.push(usbItem(c));
+      out.push(plugItem(c, 'Soil sensor', 'soil', 'A0', 'Soil sensor → A0'));
+      const ldr = c.part('ldr');
+      const ldrIt = base('ldr.divider', 'Light sensor', 'LDR between 5V and A1', { focus: ldr ? [ldr.id + '.a', ldr.id + '.b', 'A1.S'] : ['bin:ldr'] });
+      if (!ldr) { ldrIt.msg = 'Drag the light sensor (LDR) onto the breadboard.'; }
+      else if ((c.nets.same(ldr.id + '.a', 'NET:5V') && c.nets.same(ldr.id + '.b', 'A1.S')) || (c.nets.same(ldr.id + '.b', 'NET:5V') && c.nets.same(ldr.id + '.a', 'A1.S'))) ldrIt.status = 'ok';
+      else { ldrIt.msg = 'One LDR leg goes to 5V power and the other leg to A1.'; const w = c.boardNames(ldr.id + '.a').concat(c.boardNames(ldr.id + '.b')); if (w.length) { ldrIt.status = 'bad'; ldrIt.msg = 'The LDR legs reach ' + w.join(' and ') + '. One leg must reach 5V power and the other must reach A1.'; } }
+      out.push(ldrIt);
+      out.push(resistorBetween(c, 'Light sensor', 'ldr.pulldown', 'A1.S', 'NET:GND', 10000, '10kΩ resistor between A1 and ground'));
+      const led = c.part('rgb');
+      if (!led) {
+        out.push(base('rgb.k', 'RGB light', 'RGB LED long leg (K) → ground', { msg: 'Drag the RGB LED onto the breadboard.', focus: ['bin:rgb'] }));
+        ['Red', 'Green', 'Blue'].forEach((n, i) => out.push(base('rgb.' + 'rgb'[i], 'RGB light', n + ' leg ← 220Ω resistor ← ' + ['D9', 'D10', 'D11'][i], { msg: 'Drag the RGB LED onto the breadboard first.', focus: ['bin:rgb'] })));
+      } else {
+        const k = base('rgb.k', 'RGB light', 'RGB LED long leg (K) → ground', { focus: [led.id + '.k', 'NET:GND'], ghost: [[led.id + '.k', 'NET:GND']] });
+        if (c.nets.same(led.id + '.k', 'NET:GND')) k.status = 'ok'; else { const w = c.boardNames(led.id + '.k'); if (w.length) { k.status = 'bad'; k.msg = 'K is connected to ' + w.join(' and ') + '. It must go to ground.'; } else k.msg = 'Connect the LED\'s K leg (the longest one) to ground.'; }
+        out.push(k);
+        [['r', 'D9', 'Red'], ['g', 'D10', 'Green'], ['b', 'D11', 'Blue']].forEach((x) => {
+          out.push(resistorBetween(c, 'RGB light', 'rgb.' + x[0], x[1] + '.S', led.id + '.' + x[0], 220, x[2] + ' leg ← 220Ω resistor ← ' + x[1]));
+        });
+      }
+      out.push(plugItem(c, 'Buzzer', 'buzzer', 'D8', 'Buzzer → D8'));
+      return out;
+    }
+  };
+  function usbItem(c) {
+    const p = c.part('usb'), it = base('usb', 'Power & code', 'USB cable plugged into the Nano', { focus: ['USB'] });
+    if (!p) { it.msg = 'Drag the USB cable onto the board first.'; it.focus = ['bin:usb']; return it; }
+    if (!p.plug || p.plug.to !== 'USB') { it.msg = 'Drag the end of the USB cable onto the USB port on the left of the board.'; return it; }
+    it.status = 'ok'; return it;
+  }
+
+  function findProblems(ctx) {
+    const probs = [], seen = new Set();
+    const ids = ctx.nets.ids();
+    const roots = {}; ids.forEach((id) => { const r = ctx.nets.root(id); (roots[r] = roots[r] || []).push(id); });
+    const rootOf = (n) => ctx.nets.root(n);
+    const rP = rootOf('NET:5V'), rG = rootOf('NET:GND'), rE = rootOf('NET:VEXT');
+    if (rP === rG) probs.push({ type: 'short', msg: '⚡ SHORT CIRCUIT! Power (5V) is touching ground. Unplug the USB cable and find the wire that joins them.', focus: [] });
+    if (rE === rG && rE !== rP) probs.push({ type: 'short', msg: '⚡ The battery + is touching ground. That is a short circuit!', focus: [] });
+    if (rE === rP && rE !== rG) probs.push({ type: 'short', msg: '⚡ The battery + is joined to the Nano\'s 5V. Keep the two power sources apart.', focus: [] });
+    const pinsByRoot = {};
+    SIGNAL.forEach((p) => { const r = rootOf(p + '.S'); (pinsByRoot[r] = pinsByRoot[r] || []).push(p); });
+    Object.keys(pinsByRoot).forEach((r) => {
+      const pins = pinsByRoot[r];
+      if (pins.length > 1 && !seen.has(r)) { seen.add(r); probs.push({ type: 'joined', msg: pins.join(' and ') + ' are connected together. Each pin should do its own job.', focus: pins.map((p) => p + '.S') }); }
+      if (pins.length >= 1 && (r === rP || r === rG || r === rE)) probs.push({ type: 'power', msg: pins[0] + ' is wired straight to ' + (r === rG ? 'ground' : 'power') + '. A signal pin should only go to its sensor.', focus: [pins[0] + '.S'] });
+    });
+    return probs;
+  }
+
+  function check(proj, state) {
+    const ctx = makeCtx(proj, state);
+    const items = SPEC[proj](ctx);
+    const problems = findProblems(ctx);
+    const req = items.filter((i) => !i.optional || i.status === 'ok' || i.status === 'bad');
+    const done = req.filter((i) => i.status === 'ok').length;
+    const complete = req.every((i) => i.status === 'ok') && problems.length === 0;
+    return { items, problems, done, total: req.length, complete };
+  }
+
+  /* ---------- known-good circuits (for "show me", and so tests can prove the checker) ---------- */
+  function solution(proj) {
+    const st = newState(proj), add = (k, x, y) => addPart(st, k, x, y), plug = (k, to) => { const p = st.parts.find((q) => q.key === k); p.plug = { to, flip: false }; }, w = (a, b) => addWire(st, a, b);
+    const seat = (id, col, row, ohms) => { const p = st.parts.find((q) => q.id === id); p.seat = { bb: bb.id, col, row }; if (ohms) p.ohms = ohms; };
+    let bb = null;
+    add('usb', 120, 120); plug('usb', 'USB');
+    if (proj === 'chipbot') {
+      [['lhip', 150, 110, 'D2'], ['rhip', 270, 110, 'D3'], ['lfoot', 390, 110, 'D4'], ['rfoot', 510, 110, 'D5']].forEach(([k, x, y, pin]) => { add(k, x, y); plug(k, pin); });
+      const hc = add('hcsr04', 660, 120);
+      w(hc.id + '.vcc', 'D8.V'); w(hc.id + '.gnd', 'D8.G'); w(hc.id + '.trig', 'D8.S'); w(hc.id + '.echo', 'D9.S');
+      const bt = add('battery', 900, 650); w(bt.id + '.p', 'EXT.P'); w(bt.id + '.n', 'EXT.N');
+      add('buzzer', 610, 150); plug('buzzer', 'D13');
+    } else if (proj === 'peeko') {
+      const o = add('oled', 560, 640);
+      w(o.id + '.gnd', 'I2C.GND'); w(o.id + '.vcc', 'I2C.VCC'); w(o.id + '.sda', 'I2C.SDA'); w(o.id + '.scl', 'I2C.SCL');
+      add('head', 330, 110); plug('head', 'D9');
+      add('buzzer', 470, 140); plug('buzzer', 'D8');
+    } else {
+      bb = add('breadboard', L.bb.x, L.bb.y);
+      add('soil', 200, 650); plug('soil', 'A0');
+      add('buzzer', 450, 150); plug('buzzer', 'D8');
+      const ldr = add('ldr'); seat(ldr.id, 2, 'c');
+      const r10 = add('resistor'); seat(r10.id, 4, 'd', 10000);
+      w('A1.V', bb.id + '#2a'); w('A1.S', bb.id + '#4a'); w('A1.G', bb.id + '#8a');
+      const led = add('rgb'); seat(led.id, 13, 'a');
+      const rr = add('resistor'); seat(rr.id, 9, 'b', 220);
+      const rg = add('resistor'); seat(rg.id, 11, 'c', 220);
+      const rb = add('resistor'); seat(rb.id, 12, 'd', 220);
+      w('D9.S', bb.id + '#9a'); w('D10.S', bb.id + '#11a'); w('D11.S', bb.id + '#12a'); w('D12.G', bb.id + '#14b');
+    }
+    return st;
+  }
+
+  /* position of any terminal for drawing wires and ghosts */
+  function seatXY(part, state) {
+    const b = state.parts.find((q) => q.id === part.seat.bb); if (!b) return null; return holeXY(part.seat.col, part.seat.row);
+  }
+  function partOrigin(part, state) {
+    if (part.type === 'breadboard') return { x: L.bb.x, y: L.bb.y };
+    if (part.seat) return seatXY(part, state) || { x: part.x, y: part.y };
+    return { x: part.x, y: part.y };
+  }
+  function termPos(id, state) {
+    const b = boardTermPos(id); if (b) return b;
+    const h = holePos(id); if (h) return h;
+    const m = /^([a-z0-9]+)\.([a-z]+)$/.exec(id); if (!m) return null;
+    const part = state.parts.find((p) => p.id === m[1]); if (!part) return null;
+    const def = PARTS[part.type], o = partOrigin(part, state);
+    if (def.terms && def.terms[m[2]]) return { x: o.x + def.terms[m[2]][0], y: o.y + def.terms[m[2]][1] };
+    if (def.legs && def.legs[m[2]]) { const l = def.legs[m[2]]; return { x: o.x + l[0], y: o.y + l[1] }; }
+    return null;
+  }
+
+  return { L, PARTS, INV, ROWS, DIG, ANA, OHMS, ohmLabel, legsKind, invOf, newState, addPart, addWire, buildNets, check, solution, termPos, partOrigin, boardTermPos, headerCenter, holeXY, holePos, canon, legHoles, SIGNAL };
+});
+
+</script>
+<script>
+/* Circuit Lab UI */
+(function () {
+  'use strict';
+  const Lab = LabCore, L = Lab.L, PARTS = Lab.PARTS, P = L.bb.pitch;
+  const $ = (s, r) => (r || document).querySelector(s), $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+  const ROBOTS = [['chipbot', '🤖', 'Chip Bot', '#2bb3a3'], ['peeko', '👀', 'Peeko', '#ff6b5e'], ['jarvis', '🌱', 'Jarvis', '#8b7fe8']];
+  const EMOJI = { usb: '🔌', servo: '⚙️', buzzer: '🔔', soil: '🌱', hcsr04: '📡', oled: '🖥️', battery: '🔋', ldr: '☀️', resistor: '🟫', rgb: '💡', breadboard: '🟦' };
+  const CHIPCOL = { usb: '#e8eefc', servo: '#dbeafe', buzzer: '#fff2c4', soil: '#dcf5e1', hcsr04: '#d9ecff', oled: '#e3e0ff', battery: '#ffe1d6', ldr: '#fff2c4', resistor: '#f3e6d6', rgb: '#ffe1f3', breadboard: '#e6f1ff' };
+  const BANDS = { 100: ['#7a4a21', '#111', '#7a4a21'], 220: ['#d6342f', '#d6342f', '#7a4a21'], 1000: ['#7a4a21', '#111', '#d6342f'], 10000: ['#7a4a21', '#111', '#f08a1c'], 100000: ['#7a4a21', '#111', '#f0d21c'] };
+  const WIRE_COLORS = ['#3b82f6', '#f59e0b', '#10b981', '#a855f7', '#ec4899', '#14b8a6', '#8b5cf6', '#f97316'];
+
+  const svg = $('#svg');
+  const S = { proj: ChipCamp.robotOrDefault(), st: null, sel: null, zoom: 1, undo: [], alive: false, hintT: 0, pulses: [], snap: null, preview: null };
+  const KEY = (p) => 'chipcamp.lab.v1.' + p;
+
+  /* ---------- persistence ---------- */
+  function sanitize(proj, st) {
+    const out = Lab.newState(proj); if (!st || !Array.isArray(st.parts)) return out;
+    out.n = Number(st.n) || 0;
+    const have = {};
+    st.parts.forEach((p) => {
+      const inv = Lab.invOf(proj, p.key); if (!inv || inv.type !== p.type) return;
+      have[inv.key] = (have[inv.key] || 0) + 1; if (have[inv.key] > inv.qty) return;
+      const part = { id: String(p.id), key: p.key, type: p.type, role: inv.role || null, x: +p.x || 0, y: +p.y || 0, plug: null, plugPos: null, seat: null };
+      if (p.plug && typeof p.plug.to === 'string') part.plug = { to: p.plug.to, flip: !!p.plug.flip };
+      if (p.plugPos) part.plugPos = { x: +p.plugPos.x || 0, y: +p.plugPos.y || 0 };
+      if (p.seat && Lab.legsKind(p.type)) part.seat = { bb: String(p.seat.bb), col: +p.seat.col, row: String(p.seat.row) };
+      if (p.type === 'resistor') part.ohms = Lab.OHMS.indexOf(p.ohms) >= 0 ? p.ohms : 220;
+      out.parts.push(part);
+    });
+    const ids = new Set(out.parts.map((p) => p.id));
+    out.parts.forEach((p) => { if (p.seat && !ids.has(p.seat.bb)) p.seat = null; });
+    (st.wires || []).forEach((w) => { if (w && typeof w.a === 'string' && typeof w.b === 'string') out.wires.push({ id: String(w.id), a: w.a, b: w.b }); });
+    out.wires = out.wires.filter((w) => Lab.termPos(w.a, out) && Lab.termPos(w.b, out));
+    return out;
+  }
+  function load(proj) { try { return sanitize(proj, JSON.parse(localStorage.getItem(KEY(proj)))); } catch (e) { return Lab.newState(proj); } }
+  function save() { try { localStorage.setItem(KEY(S.proj), JSON.stringify(S.st)); } catch (e) { /* ignore */ } }
+  S.st = load(S.proj);
+
+  /* ---------- toast / confetti ---------- */
+  let toastT = 0;
+  function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2300); }
+  function confetti(x, y) {
+    const em = ['⚡', '✨', '⭐', '🎉', '💜', '🟡', '🟢'];
+    for (let i = 0; i < 20; i++) {
+      const s = el('span', 'conf', em[i % em.length]); s.style.left = x + 'px'; s.style.top = y + 'px';
+      s.style.setProperty('--dx', (Math.random() * 320 - 160) + 'px'); s.style.setProperty('--dy', (Math.random() * -260 - 20) + 'px'); s.style.setProperty('--r', (Math.random() * 360 - 180) + 'deg');
+      document.body.appendChild(s); setTimeout(() => s.remove(), 1200);
+    }
+  }
+
+  /* ---------- helpers ---------- */
+  const getPart = (id) => S.st.parts.find((p) => p.id === id);
+  const bbPart = () => S.st.parts.find((p) => p.type === 'breadboard');
+  function toSvg(e) { const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; const m = svg.getScreenCTM(); return m ? pt.matrixTransform(m.inverse()) : { x: 0, y: 0 }; }
+  const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+  const snapshot = () => JSON.stringify(S.st);
+  function pushUndo(before) { S.undo.push(before); if (S.undo.length > 60) S.undo.shift(); $('#undoBtn').disabled = false; }
+  function plugCenter(p) {
+    if (p.plug) { if (p.plug.to === 'USB') return { x: L.usb.x - 20, y: L.usb.y }; return Lab.headerCenter(p.plug.to); }
+    return p.plugPos || { x: p.x, y: p.y + 90 };
+  }
+
+  /* all terminal positions that a wire can attach to */
+  function terminals() {
+    const out = [];
+    const add = (id) => { const pos = Lab.termPos(id, S.st); if (pos) out.push({ id, pos }); };
+    Lab.DIG.forEach((n) => ['S', 'V', 'G'].forEach((t) => add('D' + n + '.' + t)));
+    Lab.ANA.forEach((n) => ['S', 'V', 'G'].forEach((t) => add('A' + n + '.' + t)));
+    ['GND', 'VCC', 'SDA', 'SCL'].forEach((t) => add('I2C.' + t)); add('EXT.P'); add('EXT.N');
+    const bb = bbPart();
+    if (bb) {
+      for (let c = 1; c <= L.bb.cols; c++) {
+        Lab.ROWS.forEach((r) => add(bb.id + '#' + c + r));
+        ['T+', 'T-', 'B+', 'B-'].forEach((rl) => add(bb.id + '#' + rl + c));
+      }
+    }
+    S.st.parts.forEach((p) => {
+      const def = PARTS[p.type];
+      if (def.terms) Object.keys(def.terms).forEach((t) => add(p.id + '.' + t));
+      if (def.legs && !p.seat) Object.keys(def.legs).forEach((t) => add(p.id + '.' + t));
+    });
+    return out;
+  }
+  function nearestTerm(pt, radius, skipId) {
+    let best = null;
+    terminals().forEach((t) => { if (t.id === skipId) return; const d = dist(pt, t.pos); if (d <= radius && (!best || d < best.d)) best = { id: t.id, pos: t.pos, d }; });
+    return best;
+  }
+  function nearestHeader(pt, radius) {
+    let best = null;
+    Lab.DIG.map((n) => 'D' + n).concat(Lab.ANA.map((n) => 'A' + n)).forEach((pin) => {
+      const c = Lab.headerCenter(pin), d = dist(pt, c); if (d <= radius && (!best || d < best.d)) best = { pin, c, d };
+    });
+    return best;
+  }
+
+  /* ---------- drawing: the board (drawn once) ---------- */
+  const PINCOL = { S: '#ffd93b', V: '#ff4d4d', G: '#2b2f4a' };
+  function termCircle(id, pos, fill, r, tip) {
+    return '<circle class="term" data-term="' + id + '" cx="' + pos.x + '" cy="' + pos.y + '" r="9" fill="rgba(0,0,0,0)"><title>' + esc(tip || id) + '</title></circle><circle cx="' + pos.x + '" cy="' + pos.y + '" r="' + (r || 4.5) + '" fill="' + fill + '" stroke="#0d0f1a" stroke-width="1.2" style="pointer-events:none"/>';
+  }
+  function headerStrip(pin, hdr) {
+    const x = Lab.boardTermPos(pin + '.S').x;
+    let s = '<rect x="' + (x - 11) + '" y="' + (hdr.yS - 12) + '" width="22" height="' + (hdr.yG - hdr.yS + 24) + '" rx="5" fill="#1d1f2b"/>';
+    ['S', 'V', 'G'].forEach((t) => { s += termCircle(pin + '.' + t, Lab.boardTermPos(pin + '.' + t), PINCOL[t], 4.5, pin + ' ' + { S: 'signal (S)', V: 'power (V)', G: 'ground (G)' }[t]); });
+    return s + '<text x="' + x + '" y="' + hdr.labelY + '" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">' + pin + '</text>';
+  }
+  function boardSVG() {
+    const b = L.board; let s = '';
+    s += '<rect x="' + b.x + '" y="' + b.y + '" width="' + b.w + '" height="' + b.h + '" rx="18" fill="#12875a" stroke="#0a5a3b" stroke-width="4"/>';
+    [[b.x + 16, b.y + 16], [b.x + b.w - 16, b.y + 16], [b.x + 16, b.y + b.h - 16], [b.x + b.w - 16, b.y + b.h - 16]].forEach((c) => { s += '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="6" fill="#0a5a3b"/><circle cx="' + c[0] + '" cy="' + c[1] + '" r="3" fill="#cfe9dc"/>'; });
+    s += '<rect x="250" y="320" width="270" height="116" rx="10" fill="#1f56b5" stroke="#173f86" stroke-width="3"/><rect x="290" y="338" width="60" height="60" rx="6" fill="#252a3d"/><text x="385" y="372" font-size="20" font-weight="900" fill="#fff" text-anchor="middle">Arduino Nano</text><text x="385" y="394" font-size="12" font-weight="800" fill="#bcd4ff" text-anchor="middle">on its IO shield</text><circle cx="480" cy="344" r="5" fill="#59c059"/>';
+    Lab.DIG.forEach((n) => { s += headerStrip('D' + n, L.dig); });
+    Lab.ANA.forEach((n) => { s += headerStrip('A' + n, L.ana); });
+    s += '<text x="' + (L.dig.x0 - 38) + '" y="' + (L.dig.yS + 4) + '" font-size="11" font-weight="900" fill="#ffd93b" text-anchor="middle">S</text><text x="' + (L.dig.x0 - 38) + '" y="' + (L.dig.yV + 4) + '" font-size="11" font-weight="900" fill="#ff8a8a" text-anchor="middle">V</text><text x="' + (L.dig.x0 - 38) + '" y="' + (L.dig.yG + 4) + '" font-size="11" font-weight="900" fill="#cfd6e8" text-anchor="middle">G</text>';
+    s += '<text x="' + (L.ana.x0 - 38) + '" y="' + (L.ana.yS + 4) + '" font-size="11" font-weight="900" fill="#ffd93b" text-anchor="middle">S</text><text x="' + (L.ana.x0 - 38) + '" y="' + (L.ana.yV + 4) + '" font-size="11" font-weight="900" fill="#ff8a8a" text-anchor="middle">V</text><text x="' + (L.ana.x0 - 38) + '" y="' + (L.ana.yG + 4) + '" font-size="11" font-weight="900" fill="#cfd6e8" text-anchor="middle">G</text>';
+    s += '<text x="' + (b.x + 330) + '" y="' + (b.y + 14) + '" font-size="11" font-weight="800" fill="#bff0d8" text-anchor="middle">S = signal (yellow)   V = power (red)   G = ground (black)</text>';
+    // I2C header
+    const i0 = L.i2c.x0 - 16; s += '<rect x="' + i0 + '" y="' + (L.i2c.y - 12) + '" width="' + (L.i2c.dx * 3 + 32) + '" height="24" rx="5" fill="#1d1f2b"/><text x="' + (L.i2c.x0 + 45) + '" y="' + (L.i2c.y - 20) + '" text-anchor="middle" font-size="12" font-weight="900" fill="#fff">I2C</text>';
+    L.i2c.order.forEach((t, i) => { const id = 'I2C.' + t, pos = Lab.boardTermPos(id); s += termCircle(id, pos, t === 'VCC' ? PINCOL.V : t === 'GND' ? PINCOL.G : PINCOL.S, 4.5, 'I2C ' + t) + '<text x="' + pos.x + '" y="' + (pos.y + 26) + '" text-anchor="middle" font-size="10.5" font-weight="900" fill="#fff">' + t + '</text>'; });
+    // external power
+    s += '<rect x="' + (L.ext.x - 26) + '" y="' + (L.ext.yP - 18) + '" width="52" height="' + (L.ext.yN - L.ext.yP + 36) + '" rx="6" fill="#2d6bd1" stroke="#1d4a99" stroke-width="2"/><text x="' + L.ext.x + '" y="' + (L.ext.yP - 26) + '" text-anchor="middle" font-size="11" font-weight="900" fill="#fff">EXT POWER</text>';
+    s += termCircle('EXT.P', Lab.boardTermPos('EXT.P'), '#ff4d4d', 7, 'External power +') + '<text x="' + (L.ext.x - 18) + '" y="' + (L.ext.yP + 4) + '" font-size="14" font-weight="900" fill="#fff" text-anchor="middle">+</text>';
+    s += termCircle('EXT.N', Lab.boardTermPos('EXT.N'), '#2b2f4a', 7, 'External power −') + '<text x="' + (L.ext.x - 18) + '" y="' + (L.ext.yN + 5) + '" font-size="16" font-weight="900" fill="#fff" text-anchor="middle">−</text>';
+    // USB
+    s += '<rect x="' + (L.usb.x - 6) + '" y="' + (L.usb.y - 18) + '" width="30" height="36" rx="5" fill="#9aa3b5" stroke="#6b7385" stroke-width="2"/><rect x="' + (L.usb.x + 2) + '" y="' + (L.usb.y - 9) + '" width="16" height="18" rx="2" fill="#2b2f4a"/><text x="' + (L.usb.x + 40) + '" y="' + (L.usb.y + 5) + '" font-size="12" font-weight="900" fill="#fff">USB</text>';
+    return s;
+  }
+
+  /* ---------- drawing: breadboard ---------- */
+  function bbSVG(bb) {
+    const B = L.bb, x = B.x, y = B.y; let s = '<g data-part="' + bb.id + '" class="part' + (S.sel && S.sel.id === bb.id ? ' sel' : '') + '">';
+    const eY = Lab.holeXY(1, 'e').y, fY = Lab.holeXY(1, 'f').y, tp = B.y + B.rails['T+'], tn = B.y + B.rails['T-'], bp = B.y + B.rails['B+'], bn = B.y + B.rails['B-'];
+    s += '<rect class="hl" x="' + (x - 6) + '" y="' + (y - 6) + '" width="' + (B.w + 12) + '" height="' + (B.h + 12) + '" rx="14"/>';
+    s += '<rect x="' + x + '" y="' + y + '" width="' + B.w + '" height="' + B.h + '" rx="12" fill="#f3efe4" stroke="#c9c2ae" stroke-width="3"/>';
+    const rx0 = x + 20, rw = B.w - 40;
+    s += '<rect x="' + rx0 + '" y="' + (tp - 11) + '" width="' + rw + '" height="3" fill="#e5484d"/><rect x="' + rx0 + '" y="' + (tn + 8) + '" width="' + rw + '" height="3" fill="#2d6bd1"/>';
+    s += '<rect x="' + rx0 + '" y="' + (bp - 11) + '" width="' + rw + '" height="3" fill="#e5484d"/><rect x="' + rx0 + '" y="' + (bn + 8) + '" width="' + rw + '" height="3" fill="#2d6bd1"/>';
+    s += '<rect x="' + (x + 16) + '" y="' + ((eY + fY) / 2 - 7) + '" width="' + (B.w - 32) + '" height="14" rx="3" fill="#ded8c6"/>';
+    for (let c = 1; c <= B.cols; c++) {
+      const hx = Lab.holeXY(c, 'a').x;
+      if (c === 1 || c % 5 === 0) s += '<text x="' + hx + '" y="' + (Lab.holeXY(c, 'a').y - 14) + '" text-anchor="middle" font-size="10.5" font-weight="900" fill="#8a8470">' + c + '</text>';
+      Lab.ROWS.forEach((r) => { const id = bb.id + '#' + c + r, p = Lab.holeXY(c, r); s += '<circle class="term" data-term="' + id + '" cx="' + p.x + '" cy="' + p.y + '" r="8" fill="rgba(0,0,0,0)"><title>column ' + c + ', row ' + r + '</title></circle><rect x="' + (p.x - 3.2) + '" y="' + (p.y - 3.2) + '" width="6.4" height="6.4" rx="1.2" fill="#6b6a62" style="pointer-events:none"/>'; });
+      ['T+', 'T-', 'B+', 'B-'].forEach((rl) => { const id = bb.id + '#' + rl + c, p = Lab.holePos(id); s += '<rect x="' + (p.x - 3.2) + '" y="' + (p.y - 3.2) + '" width="6.4" height="6.4" rx="1.2" fill="#6b6a62" style="pointer-events:none"/><circle class="term" data-term="' + id + '" cx="' + p.x + '" cy="' + p.y + '" r="8" fill="rgba(0,0,0,0)"><title>' + (rl[1] === '+' ? 'power rail (+)' : 'ground rail (−)') + '</title></circle>'; });
+    }
+    Lab.ROWS.forEach((r) => { const p = Lab.holeXY(1, r); s += '<text x="' + (p.x - 20) + '" y="' + (p.y + 4) + '" text-anchor="middle" font-size="10.5" font-weight="900" fill="#8a8470">' + r + '</text>'; });
+    [[tp, '+', '#e5484d'], [tn, '−', '#2d6bd1'], [bp, '+', '#e5484d'], [bn, '−', '#2d6bd1']].forEach((r) => { s += '<text x="' + (x + 12) + '" y="' + (r[0] + 5) + '" font-size="15" font-weight="900" fill="' + r[2] + '">' + r[1] + '</text>'; });
+    return s + '</g>';
+  }
+
+  /* ---------- drawing: parts ---------- */
+  function pinDot(id, pos, label, dy, up) {
+    return termCircle(id, pos, '#e2b93b', 4.5, label) + '<text x="' + pos.x + '" y="' + (pos.y + dy) + '" text-anchor="middle" font-size="9.5" font-weight="900" fill="' + (up ? '#fff' : '#fff') + '">' + label + '</text>';
+  }
+  function plugMarkup(p, def) {
+    const c = plugCenter(p); let s = '<g class="plugg" data-plug="' + p.id + '" style="cursor:grab" transform="translate(' + c.x + ',' + c.y + ')">';
+    if (def.kind === 'usb') {
+      s += '<rect x="-22" y="-12" width="36" height="24" rx="4" fill="#9aa3b5" stroke="#6b7385" stroke-width="2"/><rect x="-18" y="-6" width="24" height="12" rx="2" fill="#d9deea"/><rect x="-26" y="-18" width="52" height="36" fill="rgba(0,0,0,0)"/>';
+    } else {
+      const f = p.plug && p.plug.flip, top = f ? def.cable.g : def.cable.s, bot = f ? def.cable.s : def.cable.g;
+      s += '<rect x="-11" y="-29" width="22" height="58" rx="5" fill="#1d1f2b" stroke="#000" stroke-width="1.5"/>';
+      s += '<circle cx="0" cy="-16" r="5" fill="' + top + '" stroke="#fff" stroke-width="1"/><circle cx="0" cy="0" r="5" fill="' + def.cable.v + '" stroke="#fff" stroke-width="1"/><circle cx="0" cy="16" r="5" fill="' + bot + '" stroke="#fff" stroke-width="1"/>';
+      if (p.plug) s += '<title>Click to flip the plug</title>';
+    }
+    return s + '</g>';
+  }
+  function cableMarkup(p, def, o) {
+    const port = { x: o.x + def.port.x, y: o.y + def.port.y }, c = plugCenter(p);
+    let end, ctrl1, ctrl2;
+    if (def.kind === 'usb') { end = { x: c.x - 22, y: c.y }; ctrl1 = { x: port.x + 60, y: port.y }; ctrl2 = { x: end.x - 70, y: end.y }; }
+    else { end = { x: c.x, y: c.y - 30 }; ctrl1 = { x: port.x + (def.port.x < 0 ? -50 : 0), y: port.y + 60 }; ctrl2 = { x: end.x, y: end.y - 70 }; }
+    const d = 'M' + port.x + ' ' + port.y + ' C' + ctrl1.x + ' ' + ctrl1.y + ' ' + ctrl2.x + ' ' + ctrl2.y + ' ' + end.x + ' ' + end.y;
+    return '<path d="' + d + '" fill="none" stroke="#1d1f2b" stroke-width="8" stroke-linecap="round"/><path d="' + d + '" fill="none" stroke="' + (def.kind === 'usb' ? '#7d8599' : def.cable.s) + '" stroke-width="3" stroke-linecap="round" style="pointer-events:none"/>';
+  }
+  function labelFor(p) { const inv = Lab.invOf(S.proj, p.key); const l = (inv && inv.label) || ''; return l.replace(/^Servo: /, '').replace(/ \(bonus\)/, ''); }
+  function bandsSVG(ohms) { const b = BANDS[ohms] || BANDS[220]; return b.map((c, i) => '<rect x="' + (19 + i * 8) + '" y="-20" width="4.5" height="16" fill="' + c + '"/>').join('') + '<rect x="44" y="-20" width="3.5" height="16" fill="#d4af37"/>'; }
+  function partMarkup(p) {
+    const def = PARTS[p.type]; if (def.kind === 'breadboard') return '';
+    const o = Lab.partOrigin(p, S.st), sel = S.sel && S.sel.kind === 'part' && S.sel.id === p.id;
+    let s = '<g class="part' + (sel ? ' sel' : '') + '" data-part="' + p.id + '">';
+    if (def.kind === 'plug3' || def.kind === 'usb') s += cableMarkup(p, def, o);
+    s += '<g transform="translate(' + o.x + ',' + o.y + ')">';
+    const bound = (w, h, dx, dy) => '<rect class="hl" x="' + (-w / 2 - 8 + (dx || 0)) + '" y="' + (-h / 2 - 8 + (dy || 0)) + '" width="' + (w + 16) + '" height="' + (h + 16) + '" rx="10"/>';
+    switch (p.type) {
+      case 'servo':
+        s += bound(100, 60) + '<rect x="-52" y="-6" width="104" height="9" rx="2" fill="#2f6fa8"/><rect x="-43" y="-21" width="86" height="42" rx="6" fill="#3b82c4" stroke="#1f5b94" stroke-width="2"/><circle cx="22" cy="0" r="12" fill="#f3f4f8" stroke="#9aa3b5" stroke-width="2"/><g class="horn"><rect x="12" y="-3.5" width="26" height="7" rx="3.5" fill="#fff" stroke="#9aa3b5"/></g><text y="38" text-anchor="middle" font-size="12" font-weight="900" fill="#38406a">' + esc(labelFor(p)) + '</text>';
+        break;
+      case 'buzzer':
+        s += bound(46, 46) + '<circle r="23" fill="#2b2f4a" stroke="#0d0f1a" stroke-width="2"/><circle r="8" fill="#0d0f1a"/><circle r="15" fill="none" stroke="#3a3f5e" stroke-width="2"/><text x="-12" y="-11" font-size="12" font-weight="900" fill="#ff9a9a">+</text><text y="40" text-anchor="middle" font-size="12" font-weight="900" fill="#38406a">Buzzer</text>';
+        break;
+      case 'soil':
+        s += bound(56, 90, 0, 0) + '<rect x="-28" y="-44" width="56" height="42" rx="6" fill="#2fa86a" stroke="#1f7a4c" stroke-width="2"/><rect x="-18" y="-2" width="12" height="40" rx="3" fill="#d4af37" stroke="#9c8023"/><rect x="6" y="-2" width="12" height="40" rx="3" fill="#d4af37" stroke="#9c8023"/><circle cx="0" cy="-28" r="6" fill="#0d0f1a"/><text y="56" text-anchor="middle" font-size="12" font-weight="900" fill="#38406a">Soil sensor</text>';
+        break;
+      case 'usb':
+        s += bound(80, 46) + '<rect x="-40" y="-23" width="80" height="46" rx="8" fill="#e8eefc" stroke="#9aa3b5" stroke-width="2"/><rect x="-30" y="-15" width="60" height="30" rx="4" fill="#2b2f4a"/><text y="5" text-anchor="middle" font-size="12" font-weight="900" fill="#9fd8c6">LAPTOP</text>';
+        break;
+      case 'hcsr04':
+        s += bound(124, 62, 0, 4) + '<rect x="-62" y="-30" width="124" height="60" rx="6" fill="#1e6fbf" stroke="#154e87" stroke-width="2"/><circle cx="-30" cy="-6" r="19" fill="#d9deea" stroke="#7d8599" stroke-width="3"/><circle cx="-30" cy="-6" r="11" fill="#2b2f4a"/><circle cx="30" cy="-6" r="19" fill="#d9deea" stroke="#7d8599" stroke-width="3"/><circle cx="30" cy="-6" r="11" fill="#2b2f4a"/><ellipse class="sonar" cx="0" cy="-44" rx="40" ry="12" fill="none" stroke="#4C97FF" stroke-width="3"/>';
+        Object.keys(def.terms).forEach((t) => { const pos = Lab.termPos(p.id + '.' + t, S.st); s += '</g>' + pinDot(p.id + '.' + t, pos, def.labels[t], 22) + '<g transform="translate(' + o.x + ',' + o.y + ')">'; });
+        break;
+      case 'oled':
+        s += bound(100, 66) + '<rect x="-50" y="-33" width="100" height="66" rx="6" fill="#1b2236" stroke="#0d0f1a" stroke-width="2"/><rect x="-40" y="-20" width="80" height="46" rx="3" fill="#050b14"/><g class="eyes"><circle cx="-16" cy="2" r="9" fill="#e8f6ff"/><circle cx="16" cy="2" r="9" fill="#e8f6ff"/></g>';
+        Object.keys(def.terms).forEach((t) => { const pos = Lab.termPos(p.id + '.' + t, S.st); s += '</g>' + pinDot(p.id + '.' + t, pos, def.labels[t], -9) + '<g transform="translate(' + o.x + ',' + o.y + ')">'; });
+        break;
+      case 'battery':
+        s += bound(104, 48, 6, 0) + '<rect x="-52" y="-24" width="104" height="48" rx="8" fill="#2b2f4a" stroke="#0d0f1a" stroke-width="2"/><text x="-4" y="5" text-anchor="middle" font-size="14" font-weight="900" fill="#ffd93b">4 × AA</text><rect x="-44" y="-18" width="22" height="8" rx="3" fill="#59c059"/><path d="M52 -12 H64" stroke="#e5484d" stroke-width="4"/><path d="M52 12 H64" stroke="#111" stroke-width="4"/>';
+        Object.keys(def.terms).forEach((t) => { const pos = Lab.termPos(p.id + '.' + t, S.st); s += '</g>' + termCircle(p.id + '.' + t, pos, t === 'p' ? '#ff4d4d' : '#2b2f4a', 5.5, 'battery ' + def.labels[t]) + '<text x="' + (pos.x + 14) + '" y="' + (pos.y + 5) + '" font-size="15" font-weight="900" fill="#38406a" style="pointer-events:none">' + def.labels[t] + '</text><g transform="translate(' + o.x + ',' + o.y + ')">'; });
+        break;
+      case 'ldr': {
+        const m = P; // legs at 0 and 2P, body centred between them
+        s += bound(2 * P + 20, 48, m, -20) + '<path d="M0 0 V-14 M' + (2 * P) + ' 0 V-14" stroke="#9aa3b5" stroke-width="3" fill="none"/><circle cx="' + m + '" cy="-30" r="17" fill="#e9c98f" stroke="#a88548" stroke-width="2"/><path d="M' + (m - 10) + ' -30 l5 -7 l5 14 l5 -14 l5 7" stroke="#7a5a1f" stroke-width="2.4" fill="none"/><text x="' + m + '" y="-53" text-anchor="middle" font-size="11" font-weight="900" fill="#38406a">LDR</text>';
+        break; }
+      case 'resistor': {
+        const e = 4 * P;
+        s += bound(e + 14, 40, e / 2, -14) + '<path d="M0 0 V-12 H' + (P * 0.9) + ' M' + e + ' 0 V-12 H' + (e - P * 0.9) + '" stroke="#9aa3b5" stroke-width="3" fill="none"/><g transform="translate(' + (e / 2 - 32) + ',0)"><rect x="12" y="-20" width="40" height="16" rx="7" fill="#e8d3a8" stroke="#b39a63" stroke-width="1.5"/>' + bandsSVG(p.ohms) + '</g><text x="' + (e / 2) + '" y="-27" text-anchor="middle" font-size="13" font-weight="900" fill="#38406a">' + Lab.ohmLabel(p.ohms) + '</text>';
+        break; }
+      case 'rgb': {
+        const c = 1.5 * P;
+        s += bound(3 * P + 24, 60, c, -26) + '<path d="M0 0 V-12 M' + P + ' 0 V-20 M' + (2 * P) + ' 0 V-12 M' + (3 * P) + ' 0 V-12" stroke="#9aa3b5" stroke-width="3" fill="none"/><path d="M' + (c - 28) + ' -16 a28 28 0 1 1 56 0 z" fill="#f5f7ff" stroke="#9aa3b5" stroke-width="2"/><circle class="ledglow" cx="' + c + '" cy="-30" r="11"/>';
+        ['r', 'k', 'g', 'b'].forEach((t, i) => { s += '<text x="' + (i * P) + '" y="' + (i === 1 ? -23 : -17) + '" text-anchor="middle" font-size="10" font-weight="900" fill="' + ({ r: '#e5484d', k: '#2b2f4a', g: '#1e9e6b', b: '#2d6bd1' })[t] + '">' + t.toUpperCase() + '</text>'; });
+        break; }
+    }
+    s += '</g>';
+    if (def.kind === 'legs' && !p.seat) Object.keys(def.legs).forEach((t) => { const pos = Lab.termPos(p.id + '.' + t, S.st); s += termCircle(p.id + '.' + t, pos, '#c9ced9', 4, t); });
+    if (def.kind === 'plug3' || def.kind === 'usb') s += plugMarkup(p, def);
+    if (sel) { const legs = def.kind === 'legs', x = legs ? o.x + ({ resistor: 2 * P, ldr: 2 * P, rgb: 3 * P })[p.type] : o.x + (def.w || 60) / 2 + 6, y = legs ? o.y - ({ resistor: 52, ldr: 70, rgb: 76 })[p.type] : o.y - (def.h || 40) / 2 - 12; s += '<g class="xbtn" data-del="' + p.id + '" transform="translate(' + x + ',' + y + ')"><circle r="11" fill="#e5484d" stroke="#fff" stroke-width="2"/><text y="4.5" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">✕</text></g>'; }
+    return s + '</g>';
+  }
+
+  /* ---------- drawing: wires and overlay ---------- */
+  function wirePath(a, b) {
+    const d = dist(a, b), sag = Math.min(70, 14 + d * 0.22);
+    return 'M' + a.x + ' ' + a.y + ' C' + a.x + ' ' + (a.y + sag) + ' ' + b.x + ' ' + (b.y + sag) + ' ' + b.x + ' ' + b.y;
+  }
+  function wiresMarkup() {
+    const nets = Lab.buildNets(S.st), r5 = nets.root('NET:5V'), rg = nets.root('NET:GND'), re = nets.root('NET:VEXT'), hash = {};
+    let s = '';
+    S.st.wires.forEach((w) => {
+      const a = Lab.termPos(w.a, S.st), b = Lab.termPos(w.b, S.st); if (!a || !b) return;
+      const r = nets.root(w.a);
+      let col = r === r5 ? '#e5484d' : r === rg ? '#2b2f4a' : r === re ? '#e0832b' : (hash[r] = hash[r] || WIRE_COLORS[Object.keys(hash).length % WIRE_COLORS.length]);
+      const sel = S.sel && S.sel.kind === 'wire' && S.sel.id === w.id, d = wirePath(a, b);
+      s += '<g data-wire="' + w.id + '"><path class="wirehit" d="' + d + '"/><path class="wire' + (sel ? ' sel' : '') + '" d="' + d + '" stroke="' + col + '"/><circle cx="' + a.x + '" cy="' + a.y + '" r="4.5" fill="' + col + '"/><circle cx="' + b.x + '" cy="' + b.y + '" r="4.5" fill="' + col + '"/></g>';
+    });
+    return s;
+  }
+  function overlayMarkup() {
+    let s = '';
+    S.pulses.forEach((p) => { s += '<circle class="pulse" cx="' + p.x + '" cy="' + p.y + '" r="8"/>'; });
+    if (S.snap) s += '<circle class="snap" cx="' + S.snap.x + '" cy="' + S.snap.y + '" r="' + (S.snap.r || 16) + '"/>';
+    if (S.preview) s += '<path d="' + wirePath(S.preview.a, S.preview.b) + '" fill="none" stroke="#7c4dff" stroke-width="4" stroke-dasharray="7 6" stroke-linecap="round"/>';
+    return s;
+  }
+  let gBoard, gBB, gParts, gWires, gOver;
+  function initSvg() {
+    svg.innerHTML = '<g id="gBoard"></g><g id="gBB"></g><g id="gParts"></g><g id="gWires"></g><g id="gOver"></g>';
+    gBoard = $('#gBoard'); gBB = $('#gBB'); gParts = $('#gParts'); gWires = $('#gWires'); gOver = $('#gOver');
+    gBoard.innerHTML = boardSVG();
+  }
+  function render() {
+    const bb = bbPart();
+    gBB.innerHTML = bb ? bbSVG(bb) : '';
+    gParts.innerHTML = S.st.parts.map(partMarkup).join('');
+    gWires.innerHTML = wiresMarkup();
+    gOver.innerHTML = overlayMarkup();
+    renderBin(); renderCheck(); save();
+    $('#delBtn').disabled = !S.sel;
+    const sp = S.sel && S.sel.kind === 'part' ? getPart(S.sel.id) : null;
+    $('#flipBtn').hidden = !(sp && sp.plug && sp.plug.to !== 'USB');
+    $('#undoBtn').disabled = !S.undo.length;
+  }
+  function renderOver() { gOver.innerHTML = overlayMarkup(); }
+
+  /* ---------- bin ---------- */
+  function renderBin() {
+    const bin = $('#bin'); bin.innerHTML = '';
+    Lab.INV[S.proj].forEach((inv) => {
+      const used = S.st.parts.filter((p) => p.key === inv.key).length, left = inv.qty - used;
+      const c = el('div', 'chip' + (left <= 0 ? ' used' : ''), '<span class="em">' + EMOJI[inv.type] + '</span><span>' + esc(inv.label) + '<small>' + (left <= 0 ? 'on the board' : (inv.qty > 1 ? left + ' left' : PARTS[inv.type].name)) + '</small></span>');
+      c.style.setProperty('--cc', CHIPCOL[inv.type]); c.dataset.key = inv.key; c.title = PARTS[inv.type].note || '';
+      bin.appendChild(c);
+    });
+  }
+  const SPOTS = [[150, 110], [270, 110], [390, 110], [510, 110], [630, 110], [140, 650], [320, 650], [520, 650], [740, 640], [930, 620], [960, 700], [1080, 640]];
+  function defaultSpot(type) {
+    if (type === 'hcsr04' || type === 'oled') return type === 'oled' ? { x: 560, y: 650 } : { x: 700, y: 110 };
+    if (type === 'battery') return { x: 920, y: 650 };
+    if (Lab.legsKind(type)) { const n = S.st.parts.filter((p) => Lab.legsKind(p.type) && !p.seat).length; return { x: 790 + (n % 4) * 100, y: 650 + Math.floor(n / 4) * 60 }; }
+    const used = S.st.parts.filter((p) => !p.seat && PARTS[p.type].kind !== 'breadboard');
+    const free = SPOTS.find((sp) => used.every((p) => dist({ x: p.x, y: p.y }, { x: sp[0], y: sp[1] }) > 70)) || SPOTS[0];
+    return { x: free[0], y: free[1] };
+  }
+  function addFromBin(key, at) {
+    const before = snapshot(), inv = Lab.invOf(S.proj, key); if (!inv) return;
+    const pos = at || defaultSpot(inv.type);
+    const part = Lab.addPart(S.st, key, pos.x, pos.y); if (!part) return;
+    const def = PARTS[part.type];
+    if (def.kind === 'plug3' || def.kind === 'usb') part.plugPos = { x: Math.min(L.W - 40, Math.max(40, pos.x)), y: Math.min(L.H - 60, pos.y + 95) };
+    if (def.kind === 'breadboard') { part.x = L.bb.x; part.y = L.bb.y; }
+    if (Lab.legsKind(part.type)) { trySeat(part); }
+    S.sel = { kind: 'part', id: part.id }; pushUndo(before); render();
+  }
+  let binDrag = null;
+  $('#bin').addEventListener('pointerdown', (e) => {
+    const chip = e.target.closest('.chip'); if (!chip || chip.classList.contains('used')) return;
+    binDrag = { key: chip.dataset.key, sx: e.clientX, sy: e.clientY, active: false, ghost: null, label: chip.textContent };
+    e.preventDefault();
+  });
+
+  /* ---------- seating legs into breadboard holes ---------- */
+  function seatCandidate(part, at) {
+    const bb = bbPart(); if (!bb) return null;
+    const legs = PARTS[part.type].legs, offs = Object.keys(legs).map((t) => legs[t][0] / P), maxOff = Math.max.apply(null, offs);
+    let best = null;
+    for (let c = 1; c <= L.bb.cols; c++) Lab.ROWS.forEach((r) => { const h = Lab.holeXY(c, r), d = dist(at, h); if (d <= 18 && (!best || d < best.d)) best = { c, r, d, h }; });
+    if (!best || best.c + maxOff > L.bb.cols) return null;
+    const used = new Set(); S.st.parts.forEach((q) => { if (q.id !== part.id && q.seat) { const h = Lab.legHoles(q); Object.keys(h).forEach((t) => used.add(h[t])); } });
+    if (offs.some((o) => used.has(bb.id + '#' + (best.c + o) + best.r))) return null;
+    return { bb: bb.id, col: best.c, row: best.r, pos: best.h };
+  }
+  function trySeat(part) {
+    const cand = seatCandidate(part, { x: part.x, y: part.y });
+    if (cand) { part.seat = { bb: cand.bb, col: cand.col, row: cand.row }; return true; }
+    part.seat = null; return false;
+  }
+
+  /* ---------- pointer interaction ---------- */
+  let drag = null;
+  function select(kind, id) { S.sel = id ? { kind, id } : null; }
+  svg.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    const pt = toSvg(e), before = snapshot();
+    const del = e.target.closest('[data-del]'); if (del) { removePart(del.dataset.del); return; }
+    const plug = e.target.closest('[data-plug]');
+    if (plug) { const p = getPart(plug.dataset.plug); select('part', p.id); drag = { kind: 'plug', part: p, moved: false, sx: e.clientX, sy: e.clientY, before }; e.preventDefault(); return; }
+    const termEl = e.target.closest('.term');
+    const startWire = (id) => { const pos = Lab.termPos(id, S.st); if (!pos) return false; drag = { kind: 'wire', from: id, fromPos: pos, before, sx: e.clientX, sy: e.clientY, moved: false }; S.preview = { a: pos, b: pt }; renderOver(); e.preventDefault(); return true; };
+    if (termEl && termEl.dataset.term && startWire(termEl.dataset.term)) return;
+    const pb = e.target.closest('[data-part]'), pbPart = pb && getPart(pb.dataset.part);
+    if (pbPart && pbPart.type !== 'breadboard') {
+      select('part', pbPart.id); const o = Lab.partOrigin(pbPart, S.st);
+      drag = { kind: 'part', part: pbPart, ox: pt.x - o.x, oy: pt.y - o.y, moved: false, sx: e.clientX, sy: e.clientY, before };
+      e.preventDefault(); return;
+    }
+    const near = nearestTerm(pt, 10);
+    if (near && startWire(near.id)) return;
+    if (pbPart) { select('part', pbPart.id); render(); e.preventDefault(); return; }
+    const wr = e.target.closest('[data-wire]'); if (wr) { select('wire', wr.dataset.wire); render(); return; }
+    select(null); render();
+  });
+  window.addEventListener('pointermove', (e) => {
+    if (binDrag) {
+      if (!binDrag.active && Math.hypot(e.clientX - binDrag.sx, e.clientY - binDrag.sy) > 6) { binDrag.active = true; binDrag.ghost = el('div', 'chipghost', esc(binDrag.label)); document.body.appendChild(binDrag.ghost); }
+      if (binDrag.ghost) { binDrag.ghost.style.left = (e.clientX + 8) + 'px'; binDrag.ghost.style.top = (e.clientY + 8) + 'px'; }
+      return;
+    }
+    if (!drag) return;
+    const pt = toSvg(e);
+    if (drag.kind === 'wire') { if (Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) > 6) drag.moved = true; if (!drag.moved) return; const n = nearestTerm(pt, 14, drag.from); S.preview = { a: drag.fromPos, b: n ? n.pos : pt }; S.snap = n ? { x: n.pos.x, y: n.pos.y, r: 11 } : null; renderOver(); return; }
+    if (Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) > 4) drag.moved = true;
+    if (!drag.moved) return;
+    if (drag.kind === 'plug') {
+      drag.part.plug = null; drag.part.plugPos = { x: pt.x, y: pt.y };
+      if (drag.part.type === 'usb') { const d = dist(pt, { x: L.usb.x - 20, y: L.usb.y }); S.snap = d < 46 ? { x: L.usb.x, y: L.usb.y, r: 22 } : null; }
+      else { const h = nearestHeader(pt, 34); S.snap = h ? { x: h.c.x, y: h.c.y, r: 30 } : null; }
+      render(); S.snap && renderOver();
+    } else if (drag.kind === 'part') {
+      const p = drag.part; p.seat = null; p.x = pt.x - drag.ox; p.y = pt.y - drag.oy;
+      if (Lab.legsKind(p.type)) { const c = seatCandidate(p, { x: p.x, y: p.y }); S.snap = c ? { x: c.pos.x, y: c.pos.y, r: 12 } : null; } else S.snap = null;
+      render(); S.snap && renderOver();
+    }
+  });
+  window.addEventListener('pointerup', (e) => {
+    if (binDrag) {
+      const b = binDrag; binDrag = null; if (b.ghost) b.ghost.remove();
+      if (!b.active) { addFromBin(b.key); return; }
+      const wrap = $('#svgwrap').getBoundingClientRect();
+      if (e.clientX >= wrap.left && e.clientX <= wrap.right && e.clientY >= wrap.top && e.clientY <= wrap.bottom) addFromBin(b.key, toSvg(e)); else toast('Drop it on the board');
+      return;
+    }
+    if (!drag) return;
+    const d = drag, pt = toSvg(e); drag = null; S.snap = null; S.preview = null;
+    if (d.kind === 'wire') {
+      const n = d.moved ? nearestTerm(pt, 14, d.from) : null;
+      if (n) { const w = Lab.addWire(S.st, d.from, n.id); if (w) pushUndo(d.before); }
+    } else if (d.kind === 'plug') {
+      const p = d.part;
+      if (!d.moved && p.plug && p.type !== 'usb') { p.plug.flip = !p.plug.flip; pushUndo(d.before); }
+      if (d.moved) {
+        if (p.type === 'usb') { p.plug = dist(pt, { x: L.usb.x - 20, y: L.usb.y }) < 46 ? { to: 'USB', flip: false } : null; }
+        else { const h = nearestHeader(pt, 34); p.plug = h ? { to: h.pin, flip: false } : null; }
+        if (!p.plug) p.plugPos = { x: pt.x, y: pt.y };
+        pushUndo(d.before);
+      }
+    } else if (d.kind === 'part') {
+      const p = d.part;
+      if (!d.moved && p.type === 'resistor') { p.ohms = Lab.OHMS[(Lab.OHMS.indexOf(p.ohms) + 1) % Lab.OHMS.length]; pushUndo(d.before); }
+      if (d.moved) { if (Lab.legsKind(p.type)) trySeat(p); else p.seat = null; pushUndo(d.before); }
+    }
+    render();
+  });
+  function removePart(id) {
+    const before = snapshot(), p = getPart(id); if (!p) return;
+    S.st.parts = S.st.parts.filter((q) => q.id !== id);
+    S.st.wires = S.st.wires.filter((w) => !w.a.startsWith(id + '.') && !w.b.startsWith(id + '#') && !w.a.startsWith(id + '#') && !w.b.startsWith(id + '.'));
+    if (p.type === 'breadboard') S.st.parts.forEach((q) => { if (q.seat && q.seat.bb === id) q.seat = null; });
+    S.sel = null; pushUndo(before); render();
+  }
+  function deleteSelection() {
+    if (!S.sel) return;
+    if (S.sel.kind === 'part') removePart(S.sel.id);
+    else { const before = snapshot(); S.st.wires = S.st.wires.filter((w) => w.id !== S.sel.id); S.sel = null; pushUndo(before); render(); }
+  }
+  window.addEventListener('keydown', (e) => { if ((e.key === 'Delete' || e.key === 'Backspace') && !/INPUT|TEXTAREA|SELECT/.test((e.target || {}).tagName || '')) { e.preventDefault(); deleteSelection(); } });
+  $('#delBtn').onclick = deleteSelection;
+  $('#flipBtn').onclick = () => { const p = S.sel && getPart(S.sel.id); if (p && p.plug) { const b = snapshot(); p.plug.flip = !p.plug.flip; pushUndo(b); render(); } };
+  $('#undoBtn').onclick = () => { const prev = S.undo.pop(); if (!prev) return; S.st = sanitize(S.proj, JSON.parse(prev)); S.sel = null; render(); };
+
+  /* ---------- the checklist, hints and power-on ---------- */
+  let lastResult = null, wasComplete = false;
+  function renderCheck() {
+    const r = lastResult = Lab.check(S.proj, S.st);
+    $('#barfill').style.width = (r.total ? (r.done / r.total * 100) : 0) + '%'; $('#progtext').textContent = r.done + ' of ' + r.total;
+    const pr = $('#problems'); pr.innerHTML = r.problems.map((p) => '<div class="problem">' + esc(p.msg) + '</div>').join('');
+    const firstTodo = r.items.find((i) => i.status === 'todo' && !i.optional);
+    const box = $('#checklist'); box.innerHTML = '';
+    if (r.complete) box.appendChild(el('div', 'celebrate', '🎉 Everything is wired correctly! Press <b>⚡ Power on!</b>' + '<br><a class="btn small go" href="blocks.html" style="text-decoration:none">Next: build the code ➜</a>'));
+    let group = null;
+    r.items.forEach((it) => {
+      if (it.group !== group) { group = it.group; box.appendChild(el('div', 'grp', esc(group))); }
+      const cls = it.status === 'optional' ? 'opt' : it.status;
+      const c = el('div', 'citem ' + cls, '<span class="ic">' + (it.status === 'ok' ? '✓' : it.status === 'bad' ? '!' : it.status === 'optional' ? '★' : '') + '</span><span>' + esc(it.text) + (it.status === 'bad' || (it === firstTodo && it.msg) ? '<span class="why">' + esc(it.msg) + '</span>' : '') + '</span>');
+      c.onclick = () => showHint(it);
+      box.appendChild(c);
+    });
+    if (r.complete && !wasComplete) { wasComplete = true; ChipCamp.circuitDone(S.proj); }
+    if (!r.complete) wasComplete = false;
+  }
+  function pulseFor(it) {
+    S.pulses = []; $$('.chip.pulse').forEach((c) => c.classList.remove('pulse'));
+    (it.focus || []).forEach((f) => {
+      if (f.indexOf('bin:') === 0) { const c = $('.chip[data-key="' + f.slice(4) + '"]'); if (c) c.classList.add('pulse'); }
+      else if (f.indexOf('header:') === 0) { const pos = Lab.headerCenter(f.slice(7)); if (pos) S.pulses.push(pos); }
+      else { const pos = Lab.termPos(f, S.st); if (pos) S.pulses.push(pos); }
+    });
+    renderOver(); clearTimeout(S.hintT); S.hintT = setTimeout(() => { S.pulses = []; renderOver(); $$('.chip.pulse').forEach((c) => c.classList.remove('pulse')); }, 4200);
+  }
+  function showHint(it) {
+    const h = $('#hintline'); h.className = 'hintline' + (it.status === 'bad' ? ' bad' : ''); h.textContent = (it.status === 'ok' ? '✓ ' : '💡 ') + (it.msg || it.text);
+    pulseFor(it);
+  }
+  $('#hintBtn').onclick = () => {
+    const r = lastResult || Lab.check(S.proj, S.st);
+    if (r.problems.length) { const h = $('#hintline'); h.className = 'hintline bad'; h.textContent = r.problems[0].msg; return; }
+    const it = r.items.find((i) => i.status === 'bad') || r.items.find((i) => i.status === 'todo' && !i.optional);
+    if (!it) { const h = $('#hintline'); h.className = 'hintline good'; h.textContent = '✓ Nothing left to fix. Press Power on!'; return; }
+    showHint(it);
+  };
+  $('#powerBtn').onclick = (e) => {
+    const r = Lab.check(S.proj, S.st), h = $('#hintline');
+    if (r.complete) {
+      h.className = 'hintline good'; h.textContent = '⚡ It’s alive! Your circuit is wired correctly. Now go and teach it what to do in the Code Builder.';
+      svg.classList.add('alive'); const b = e.currentTarget.getBoundingClientRect(); confetti(b.left + 40, b.top);
+      ChipCamp.circuitDone(S.proj); setTimeout(() => svg.classList.remove('alive'), 7000);
+    } else if (r.problems.length) { h.className = 'hintline bad'; h.textContent = r.problems[0].msg; }
+    else {
+      const it = r.items.find((i) => i.status === 'bad') || r.items.find((i) => i.status === 'todo' && !i.optional);
+      h.className = 'hintline bad'; h.textContent = '🔌 Not quite yet. ' + (it ? (it.msg || it.text) : ''); if (it) pulseFor(it);
+    }
+  };
+  (function () { const b = $('#solveBtn'); let armed = false, t = 0; b.onclick = () => { if (!armed) { armed = true; b.textContent = 'Replace the board? Click again'; t = setTimeout(() => { armed = false; b.textContent = '🎓 Show finished circuit'; }, 3000); return; } clearTimeout(t); armed = false; b.textContent = '🎓 Show finished circuit'; const before = snapshot(); S.st = sanitize(S.proj, Lab.solution(S.proj)); pushUndo(before); S.sel = null; render(); toast('Here is a finished circuit. Compare it with yours.'); }; })();
+  (function () { const b = $('#clearBtn'); let armed = false, t = 0; b.onclick = () => { if (!armed) { armed = true; b.textContent = 'Clear everything? Click again'; t = setTimeout(() => { armed = false; b.textContent = '🧹 Clear board'; }, 3000); return; } clearTimeout(t); armed = false; b.textContent = '🧹 Clear board'; const before = snapshot(); S.st = Lab.newState(S.proj); pushUndo(before); S.sel = null; $('#hintline').className = 'hintline'; $('#hintline').textContent = ''; render(); }; })();
+
+  /* ---------- zoom ---------- */
+  function setZoom(z) { S.zoom = Math.min(2.4, Math.max(0.8, z)); svg.style.width = (S.zoom * 100) + '%'; }
+  $('#zoomIn').onclick = () => setZoom(S.zoom + 0.25); $('#zoomOut').onclick = () => setZoom(S.zoom - 0.25); $('#zoomFit').onclick = () => setZoom(1);
+
+  /* ---------- robot tabs ---------- */
+  function renderTabs() {
+    const nav = $('#ptabs'); nav.innerHTML = '';
+    ROBOTS.forEach((r) => {
+      const b = el('button', 'ptab', '<span>' + r[1] + '</span>' + r[2]); b.style.setProperty('--pc', r[3]); b.setAttribute('aria-selected', r[0] === S.proj ? 'true' : 'false');
+      b.onclick = () => { if (r[0] === S.proj) return; S.proj = r[0]; ChipCamp.setRobot(r[0]); S.st = load(S.proj); S.sel = null; S.undo = []; S.pulses = []; $('#hintline').className = 'hintline'; $('#hintline').textContent = ''; renderTabs(); render(); };
+      nav.appendChild(b);
+    });
+  }
+
+  initSvg(); renderTabs(); render();
+  window.__lab = { S, Lab, render, toSvg };
+})();
+
+</script>
+</body>
+</html>

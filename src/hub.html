@@ -1,0 +1,53 @@
+<div class="hub">
+  <header class="hub-top">
+    <img class="logo-m" src="assets/micron-logo.png" alt="Micron" width="226" height="53">
+    <img class="logo-l" src="assets/lah-logo.png" alt="Lend A Hand India. Building a skilled tomorrow." width="312" height="81">
+  </header>
+
+  <main class="hub-main">
+    <section class="hub-hero">
+      <p class="hub-welcome">Welcome, innovator</p>
+      <h1 class="hub-title">Micron<br>Chip Camp</h1>
+      <label class="hub-name">
+        <span>What should we call you?</span>
+        <input id="hubName" type="text" maxlength="16" placeholder="Type your name" autocomplete="off" spellcheck="false">
+      </label>
+    </section>
+
+    <section class="hub-panel" aria-label="Start here">
+      <h2 class="hub-h">1 · Which robot are you building?</h2>
+      <div class="robots" id="robots" role="radiogroup" aria-label="Choose your robot">
+        <button class="robot" role="radio" aria-checked="false" data-robot="chipbot" style="--rc:#2bb3a3"><span class="rem">🤖</span><b>Chip Bot</b><small>The mover</small></button>
+        <button class="robot" role="radio" aria-checked="false" data-robot="peeko" style="--rc:#ff6b5e"><span class="rem">👀</span><b>Peeko</b><small>The face</small></button>
+        <button class="robot" role="radio" aria-checked="false" data-robot="jarvis" style="--rc:#8b7fe8"><span class="rem">🌱</span><b>Jarvis</b><small>The living world</small></button>
+      </div>
+
+      <h2 class="hub-h">2 · Pick where to go</h2>
+      <nav class="tiles" aria-label="Chip Camp tools">
+        <a class="tile" id="tLogic" href="logic.html" style="--tc:#4C97FF">
+          <span class="ico" aria-hidden="true">
+            <svg viewBox="0 0 40 40" width="40" height="40"><rect x="3" y="24" width="12" height="12" rx="3" fill="#4C97FF"/><rect x="14" y="14" width="12" height="12" rx="3" fill="#FFAB19"/><rect x="25" y="4" width="12" height="12" rx="3" fill="#59C059"/></svg>
+          </span>
+          <span class="tt"><b>The CHIP Challenge</b><small>10 levels. Give exact instructions and learn how machines think.</small></span>
+          <span class="prog" id="pgLogic">0 of 10</span>
+        </a>
+        <a class="tile" id="tCircuit" href="circuits.html" style="--tc:#FFAB19">
+          <span class="ico" aria-hidden="true">
+            <svg viewBox="0 0 40 40" width="40" height="40"><rect x="10" y="10" width="20" height="20" rx="4" fill="#FFAB19"/><g stroke="#FFAB19" stroke-width="3" stroke-linecap="round"><path d="M16 10V4M24 10V4M16 36v-6M24 36v-6M10 16H4M10 24H4M36 16h-6M36 24h-6"/></g><circle cx="20" cy="20" r="3.5" fill="#fff"/></svg>
+          </span>
+          <span class="tt"><b>Circuit Lab</b><small id="sCircuit">Drag parts together and wire up your robot.</small></span>
+          <span class="prog" id="pgCircuit">Not yet</span>
+        </a>
+        <a class="tile" id="tCode" href="blocks.html" style="--tc:#CF63CF">
+          <span class="ico" aria-hidden="true">
+            <svg viewBox="0 0 40 40" width="40" height="40"><rect x="4" y="4" width="14" height="14" rx="4" fill="#FFBF00"/><rect x="22" y="4" width="14" height="14" rx="4" fill="#4C97FF"/><rect x="4" y="22" width="14" height="14" rx="4" fill="#CF63CF"/><rect x="22" y="22" width="14" height="14" rx="4" fill="#59C059"/></svg>
+          </span>
+          <span class="tt"><b>Code Builder</b><small id="sCode">Build the logic with blocks, then copy your code.</small></span>
+          <span class="prog" id="pgCode">Not yet</span>
+        </a>
+      </nav>
+    </section>
+  </main>
+
+  <footer class="hub-foot">Innovator Kit</footer>
+</div>

@@ -1,0 +1,42 @@
+<header class="topbar">
+  <a class="homebtn" href="index.html" title="Back to the Chip Camp welcome screen" aria-label="Home">🏠</a>
+  <div class="brand"><span class="logo" aria-hidden="true"><i style="background:#FFAB19"></i><i style="background:#4C97FF"></i><i style="background:#59C059"></i><i style="background:#e5484d"></i></span>Circuit Lab</div>
+  <nav class="ptabs" id="ptabs" aria-label="Choose a robot"></nav>
+  <div class="spacer"></div>
+  <button class="btn small" id="undoBtn" title="Undo the last change">↶ Undo</button>
+</header>
+
+<main class="lab">
+  <section class="card binrow" aria-label="Your kit">
+    <div class="binhead"><b>Your kit</b><span>Drag parts onto the board, or tap them.</span></div>
+    <div class="bin" id="bin"></div>
+  </section>
+
+  <section class="card canvascard" aria-label="Circuit board">
+    <div class="toolrow">
+      <button class="btn small" id="hintBtn">💡 Hint</button>
+      <button class="btn small" id="delBtn" disabled>🗑 Delete</button>
+      <button class="btn small" id="flipBtn" hidden>⟲ Flip plug</button>
+      <span class="spacer"></span>
+      <button class="btn small" id="zoomOut" aria-label="Zoom out">−</button>
+      <button class="btn small" id="zoomFit" aria-label="Fit to screen">Fit</button>
+      <button class="btn small" id="zoomIn" aria-label="Zoom in">＋</button>
+      <button class="btn go" id="powerBtn">⚡ Power on!</button>
+    </div>
+    <div class="hintline" id="hintline" role="status" aria-live="polite"></div>
+    <div class="svgwrap" id="svgwrap"><svg id="svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Circuit board canvas"></svg></div>
+  </section>
+
+  <aside class="card checkcard" aria-label="Build checklist">
+    <h2 class="cardh">Build checklist</h2>
+    <div class="prog"><div class="bar"><i id="barfill"></i></div><span id="progtext"></span></div>
+    <div id="problems"></div>
+    <div id="checklist"></div>
+    <details class="facil">
+      <summary>For facilitators</summary>
+      <p>Show the finished wiring to compare, or clear the board.</p>
+      <div class="facilbtns"><button class="btn small" id="solveBtn">🎓 Show finished circuit</button><button class="btn small" id="clearBtn">🧹 Clear board</button></div>
+    </details>
+  </aside>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>

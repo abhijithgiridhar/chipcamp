@@ -1,0 +1,46 @@
+<header class="topbar">
+  <a class="homebtn" href="index.html" title="Back to the Chip Camp welcome screen" aria-label="Home">🏠</a>
+  <div class="brand"><span class="logo" aria-hidden="true"><i style="background:#4C97FF"></i><i style="background:#FFAB19"></i><i style="background:#59C059"></i><i style="background:#CF63CF"></i></span>The CHIP Challenge</div>
+  <nav class="lvls" id="lvls" aria-label="Levels"></nav>
+  <div class="spacer"></div>
+  <nav class="skinsel" id="skinsel" aria-label="Choose your robot"></nav>
+</header>
+
+<main class="game">
+  <aside class="card toolcard" aria-label="Blocks">
+    <h2 class="cardh">Blocks</h2>
+    <div id="toolbox"></div>
+    <div class="trash" id="trash">🗑 Drag a block here to throw it away</div>
+  </aside>
+
+  <section class="card workcard" aria-label="Your program">
+    <div class="intro" id="intro"></div>
+    <div class="wsbox" id="wsbox">
+      <div class="hat"><span class="flag">▶</span><span>when <b>Run</b> is clicked</span></div>
+      <div class="dz lane" id="program"></div>
+    </div>
+    <div class="wsfoot">
+      <span class="counter" id="counter"></span>
+      <button class="btn small" id="clearBtn">🧹 Clear</button>
+      <button class="btn small" id="hintBtn">💡 Hint</button>
+    </div>
+    <div class="hintbox" id="hintbox" hidden></div>
+  </section>
+
+  <section class="card stagecard" aria-label="The maze">
+    <div class="mazewrap"><div class="maze" id="maze"></div></div>
+    <div class="msg" id="msg" role="status" aria-live="polite"></div>
+    <div class="runrow">
+      <button class="btn go big" id="runBtn">▶ Run</button>
+      <button class="btn big" id="resetBtn">↺ Reset</button>
+      <div class="speedsel" id="speedsel" aria-label="Speed"><button data-sp="1" aria-pressed="true">1×</button><button data-sp="2" aria-pressed="false">2×</button><button data-sp="4" aria-pressed="false">4×</button></div>
+    </div>
+    <div class="nextrow" id="nextrow" hidden></div>
+    <details class="codeview" id="codeDetails">
+      <summary>See it as real robot code</summary>
+      <p class="codenote">Your blocks turn into code like this. The real robots run code just like it.</p>
+      <pre id="codePre"></pre>
+    </details>
+  </section>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>

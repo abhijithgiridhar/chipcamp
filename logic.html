@@ -1,0 +1,860 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The CHIP Challenge · Chip Camp</title>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Nunito:wght@600;800;900&family=JetBrains+Mono:wght@400;700&display=swap");
+:root{
+  --ink:#2b2f4a; --ink-soft:#69709a; --bg:#e8f0ff; --card:#ffffff; --line:#d3def6; --line-soft:#e6edfb;
+  --purple:#7c4dff; --blue:#4c97ff; --green:#3fb950; --green-d:#2c8f3b; --events:#FFBF00;
+  --font-d:"Fredoka","Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;
+  --font-b:"Nunito","Segoe UI","Trebuchet MS",system-ui,sans-serif;
+  --font-m:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --nh:6px; --nx:16px; --nw:26px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-b);font-size:15px;line-height:1.4;-webkit-font-smoothing:antialiased;}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+[hidden]{display:none!important}
+
+/* ---------- top bar ---------- */
+.topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 18px;background:linear-gradient(90deg,#7c4dff,#4c97ff);color:#fff;box-shadow:0 3px 0 rgba(0,0,0,.12);}
+.brand{font-family:var(--font-d);font-size:24px;font-weight:600;letter-spacing:.2px;display:flex;align-items:center;gap:8px;margin-right:6px}
+.brand .logo{display:inline-grid;grid-template-columns:repeat(2,12px);gap:3px;transform:rotate(-8deg)}
+.brand .logo i{width:12px;height:12px;border-radius:4px;display:block}
+.ptabs{display:flex;gap:8px;flex-wrap:wrap}
+.ptab{border:0;cursor:pointer;font-family:var(--font-d);font-size:17px;font-weight:500;padding:8px 16px;border-radius:16px;background:rgba(255,255,255,.2);color:#fff;display:flex;align-items:center;gap:7px;transition:transform .12s, background .15s;}
+.ptab:hover{background:rgba(255,255,255,.32);transform:translateY(-1px)}
+.ptab[aria-selected="true"]{background:#fff;color:var(--pc);box-shadow:0 4px 0 rgba(0,0,0,.18);transform:translateY(-1px)}
+.ptab .em{font-size:20px}
+.spacer{flex:1}
+.viewtabs{display:flex;background:rgba(0,0,0,.18);border-radius:18px;padding:4px;gap:4px}
+.vtab{border:0;cursor:pointer;font-family:var(--font-d);font-size:17px;padding:8px 18px;border-radius:14px;background:transparent;color:#fff;display:flex;align-items:center;gap:6px}
+.vtab[aria-selected="true"]{background:#fff;color:var(--purple);box-shadow:0 3px 0 rgba(0,0,0,.18)}
+
+.btn{border:0;cursor:pointer;font-family:var(--font-d);font-weight:500;font-size:15px;padding:8px 14px;border-radius:14px;background:#fff;color:var(--ink);box-shadow:0 3px 0 #c9d6f2;border:2px solid #d3def6;display:inline-flex;align-items:center;gap:6px;transition:transform .08s, box-shadow .08s;white-space:nowrap}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 0 #c9d6f2}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 #c9d6f2}
+.btn.go{background:var(--green);border-color:var(--green-d);color:#fff;box-shadow:0 4px 0 var(--green-d)}
+.btn.go:hover{box-shadow:0 5px 0 var(--green-d)}
+.btn.go:active{box-shadow:0 1px 0 var(--green-d)}
+.btn.stop{background:#ff6680;border-color:#d94a63;color:#fff;box-shadow:0 4px 0 #d94a63}
+.btn.big{font-size:19px;padding:12px 22px;border-radius:18px}
+.btn.small{font-size:13px;padding:5px 10px;border-radius:11px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* ---------- blocks ---------- */
+.blk{--c:#9966FF;position:relative;filter:drop-shadow(0 2px 0 rgba(0,0,0,.2));user-select:none;touch-action:none}
+.dz>.blk+.blk,.blk+.blk{margin-top:calc(var(--nh) * -1)}
+.blk>.row,.blk>.foot{background:var(--c);color:#fff;font-family:var(--font-d);font-weight:500;font-size:15px;text-shadow:0 1px 0 rgba(0,0,0,.18)}
+.blk>.row{display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-height:46px;padding:8px 10px calc(8px + var(--nh)) 12px;
+  clip-path:polygon(0 0,var(--nx) 0,calc(var(--nx) + 4px) var(--nh),calc(var(--nx) + var(--nw) - 4px) var(--nh),calc(var(--nx) + var(--nw)) 0,100% 0,100% calc(100% - var(--nh)),calc(var(--nx) + var(--nw)) calc(100% - var(--nh)),calc(var(--nx) + var(--nw) - 4px) 100%,calc(var(--nx) + 4px) 100%,var(--nx) calc(100% - var(--nh)),0 calc(100% - var(--nh)));
+  cursor:grab}
+.blk.c>.row{clip-path:polygon(0 0,var(--nx) 0,calc(var(--nx) + 4px) var(--nh),calc(var(--nx) + var(--nw) - 4px) var(--nh),calc(var(--nx) + var(--nw)) 0,100% 0,100% 100%,0 100%);padding-bottom:8px;border-radius:12px 12px 0 0}
+.blk.c>.row.else{clip-path:none;border-radius:0;min-height:34px;padding-top:6px;padding-bottom:6px}
+.blk:not(.c)>.row{border-radius:12px 12px 12px 12px}
+.blk>.foot{height:calc(26px + var(--nh));border-radius:0 0 12px 12px;display:flex;align-items:center;padding:0 12px var(--nh) 12px;gap:8px;
+  clip-path:polygon(0 0,100% 0,100% calc(100% - var(--nh)),calc(var(--nx) + var(--nw)) calc(100% - var(--nh)),calc(var(--nx) + var(--nw) - 4px) 100%,calc(var(--nx) + 4px) 100%,var(--nx) calc(100% - var(--nh)),0 calc(100% - var(--nh)))}
+.cslot{display:flex;background:var(--c)}
+.cslot::before{content:"";width:16px;flex:none;background:var(--c)}
+.cslot>.dz{flex:1;background:#f7f9ff;border-radius:10px 0 0 10px;min-height:44px;margin:0;box-shadow:inset 0 3px 0 rgba(0,0,0,.08)}
+.blk .x{margin-left:auto;border:0;background:rgba(255,255,255,.28);color:#fff;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:12px;line-height:1;padding:0;opacity:.0;transition:opacity .12s}
+.blk:hover>.row .x,.blk>.row .x:focus-visible{opacity:1}
+.blk .x:hover{background:rgba(255,255,255,.5)}
+.blk .tag{font-size:11px;font-weight:700;background:rgba(0,0,0,.16);border-radius:10px;padding:2px 8px;font-family:var(--font-b);text-shadow:none}
+.elsebtn{border:0;cursor:pointer;background:rgba(255,255,255,.28);color:#fff;font-family:var(--font-d);font-size:13px;border-radius:10px;padding:3px 10px}
+.elsebtn:hover{background:rgba(255,255,255,.45)}
+.blk.running>.row,.blk.running>.foot{animation:glow .6s ease-in-out infinite alternate}
+@keyframes glow{from{filter:brightness(1)}to{filter:brightness(1.35) saturate(1.2)}}
+.blk.pop{animation:pop .38s cubic-bezier(.3,1.7,.5,1)}
+@keyframes pop{0%{transform:scale(.6) rotate(-4deg);opacity:.2}100%{transform:scale(1) rotate(0);opacity:1}}
+.blk.lifting{opacity:.3}
+.ghost{position:fixed;z-index:1000;pointer-events:none;transform:rotate(2deg) scale(1.04);filter:drop-shadow(0 10px 12px rgba(40,40,80,.35));opacity:.96}
+.ghost .x{display:none}
+
+/* parameter fields (Scratch style) */
+.pill{display:inline-flex;align-items:center;border-radius:16px;background:#fff;color:var(--ink);text-shadow:none;font-family:var(--font-b);font-weight:800;font-size:14px;padding:0;overflow:hidden;box-shadow:inset 0 -2px 0 rgba(0,0,0,.1)}
+.pill input{border:0;background:transparent;outline:0;font-weight:800;color:var(--ink);padding:3px 9px;min-width:0;text-align:center;font-family:var(--font-b)}
+.pill input[type=number]{width:58px;-moz-appearance:textfield}
+.pill input[type=number]::-webkit-outer-spin-button,.pill input[type=number]::-webkit-inner-spin-button{opacity:.55}
+.pill input[type=text]{width:116px}
+.pill:focus-within{outline:3px solid rgba(255,255,255,.75);outline-offset:1px}
+.drop{display:inline-flex;align-items:center;border-radius:14px;background:rgba(0,0,0,.2);color:#fff;font-family:var(--font-b);font-weight:800;font-size:14px;text-shadow:none;padding:0;position:relative}
+.drop select{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:#fff;font-weight:800;padding:4px 24px 4px 10px;cursor:pointer;outline:0;border-radius:14px;font-family:var(--font-b)}
+.drop select option{color:var(--ink);background:#fff}
+.drop::after{content:"▾";position:absolute;right:9px;pointer-events:none;font-size:12px}
+.drop:focus-within{outline:3px solid rgba(255,255,255,.75);outline-offset:1px}
+.static{display:inline-flex;align-items:center;border-radius:14px;padding:2px 9px;font-weight:800;font-size:13px;font-family:var(--font-b);text-shadow:none}
+.static.p{background:#fff;color:var(--ink)}
+.static.d{background:rgba(0,0,0,.2);color:#fff}
+.palette-blk{margin-bottom:10px;cursor:grab}
+.palette-blk>.row{cursor:grab}
+.palette-blk.c>.foot{height:calc(18px + var(--nh))}
+
+.dz{display:flex;flex-direction:column;min-height:40px;position:relative}
+.dz.over{outline:3px dashed var(--purple);outline-offset:-3px;border-radius:12px;background:rgba(124,77,255,.07)}
+.dz:empty::before,.dz.empty::before{content:"drop blocks here";display:flex;align-items:center;justify-content:center;min-height:44px;color:#9aa4c7;font-weight:800;font-size:13px;border-radius:10px;border:2px dashed #cfd9f3;margin:4px}
+.dropline{height:0;position:relative;z-index:5}
+.dropline::after{content:"";position:absolute;left:-2px;right:-2px;top:-3px;height:6px;border-radius:4px;background:var(--purple);box-shadow:0 0 0 2px #fff}
+/* ---------- misc ---------- */
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#2b2f4a;color:#fff;font-family:var(--font-d);padding:10px 18px;border-radius:16px;opacity:0;pointer-events:none;transition:all .25s;z-index:3000;box-shadow:0 8px 20px rgba(0,0,0,.25)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.modalback{position:fixed;inset:0;background:rgba(43,47,74,.5);display:grid;place-items:center;z-index:2000;padding:16px}
+.modal{background:#fff;border-radius:22px;width:min(560px,100%);max-height:86vh;overflow:auto;padding:18px 20px;box-shadow:0 20px 50px rgba(0,0,0,.3);border:3px solid var(--line)}
+.modal h2{font-family:var(--font-d);font-weight:500;margin:0 0 10px;font-size:22px}
+.modal textarea{width:100%;height:120px;border:2px solid var(--line);border-radius:12px;padding:8px;font-family:var(--font-m);font-size:12px}
+.saverow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:2px solid var(--line-soft)}
+.saverow .who{flex:1;font-weight:800}
+.saverow .who small{display:block;font-weight:600;color:var(--ink-soft)}
+.conf{position:fixed;z-index:2500;font-size:26px;pointer-events:none;animation:conf 1.1s ease-out forwards}
+@keyframes conf{0%{transform:translate(0,0) rotate(0) scale(.6);opacity:1}100%{transform:translate(var(--dx),var(--dy)) rotate(var(--r)) scale(1.2);opacity:0}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+.homebtn{display:inline-grid;place-items:center;width:42px;height:42px;border-radius:14px;background:rgba(255,255,255,.22);color:#fff;text-decoration:none;font-size:21px;box-shadow:0 3px 0 rgba(0,0,0,.14);transition:transform .12s,background .15s;flex:none}
+.homebtn:hover{background:rgba(255,255,255,.36);transform:translateY(-1px)}
+.homebtn:focus-visible{outline:3px solid #fff;outline-offset:2px}
+
+/* The CHIP Challenge */
+:root{--cell:48px;--floor:#dff5e7;--wall:#1f3a52;--wall2:#2c5273;--hero:#2bb3a3}
+body{background:var(--bg);margin:0}
+.lvls{display:flex;gap:6px;flex-wrap:wrap}
+.lvl{border:0;cursor:pointer;width:42px;height:42px;border-radius:14px;background:rgba(255,255,255,.2);color:#fff;font-family:var(--font-d);font-size:18px;font-weight:500;display:grid;place-items:center;position:relative;transition:transform .12s,background .15s}
+.lvl:hover{background:rgba(255,255,255,.34);transform:translateY(-1px)}
+.lvl[aria-current="true"]{background:#fff;color:var(--purple);box-shadow:0 4px 0 rgba(0,0,0,.18);transform:translateY(-1px)}
+.lvl.done::after{content:"★";position:absolute;right:-3px;top:-6px;font-size:15px;color:#ffd93b;text-shadow:0 1px 0 rgba(0,0,0,.35)}
+.skinsel{display:flex;gap:6px;background:rgba(0,0,0,.18);border-radius:16px;padding:4px}
+.skinsel button{border:0;cursor:pointer;background:transparent;color:#fff;font-family:var(--font-d);font-size:15px;padding:6px 12px;border-radius:12px;display:flex;align-items:center;gap:6px}
+.skinsel button[aria-pressed="true"]{background:#fff;color:var(--sk);box-shadow:0 3px 0 rgba(0,0,0,.18)}
+
+.game{display:grid;grid-template-columns:210px minmax(380px,1fr) 470px;gap:14px;padding:14px 18px 36px;max-width:1700px;margin:0 auto;align-items:start}
+@media (max-width:1250px){.game{grid-template-columns:200px 1fr}.stagecard{grid-column:1/-1}}
+@media (max-width:760px){.game{grid-template-columns:1fr;padding:10px}}
+.cardh{margin:0 0 10px;font-family:var(--font-d);font-weight:500;font-size:18px}
+.toolcard{padding:14px;position:sticky;top:12px}
+.workcard{padding:14px;min-height:560px;background:radial-gradient(#d2dcf3 1.1px,transparent 1.1px) 0 0/22px 22px,#fbfdff}
+.intro{background:#fff;border:2px solid var(--line);border-radius:18px;padding:12px 14px;margin-bottom:14px;box-shadow:0 3px 0 var(--line)}
+.intro .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.intro .num{font-family:var(--font-d);font-size:15px;background:var(--purple);color:#fff;border-radius:12px;padding:2px 10px}
+.intro h1{font-family:var(--font-d);font-weight:500;font-size:24px;margin:0}
+.intro .concept{font-size:12px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;background:#ffefa8;color:#6a5600;border-radius:10px;padding:3px 9px}
+.intro p{margin:8px 0 0;font-size:15.5px;font-weight:700;color:#38406a}
+.wsbox{display:flex;flex-direction:column;align-items:flex-start}
+.wsbox>*{width:min(100%,520px)}
+.hat{position:relative;background:#FFBF00;color:#4a3a00;font-family:var(--font-d);font-weight:500;font-size:17px;padding:20px 14px 14px;border-radius:60px 60px 12px 12px/34px 34px 12px 12px;display:flex;align-items:center;gap:8px;filter:drop-shadow(0 2px 0 rgba(0,0,0,.2));margin-top:4px}
+.hat .flag{font-size:16px;background:#59C059;color:#fff;border-radius:7px;padding:1px 7px}
+.hat b{background:#fff;border-radius:12px;padding:1px 9px;color:var(--ink);font-weight:500}
+.lane{min-height:260px;margin-top:calc(var(--nh) * -1)}
+.wsfoot{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
+.counter{font-family:var(--font-d);font-size:16px;background:#fff;border:2px solid var(--line);border-radius:14px;padding:4px 12px;margin-right:auto}
+.counter.over{background:#fff0f3;border-color:#ff6680;color:#c1304a}
+.hintbox{margin-top:10px;background:#f0ebff;border:2px solid #d9ccff;border-radius:16px;padding:10px 14px;font-weight:700;color:#3b2a7a}
+.toolcard .palette-blk{margin-bottom:10px}
+.trash{border:2px dashed var(--line);border-radius:14px;padding:10px;text-align:center;color:var(--ink-soft);font-size:12.5px;margin-top:14px}
+body.dragging-move .trash{border-color:#ff6680;color:#d94a63;background:#fff0f3}
+body.over-trash .trash{background:#ff6680;color:#fff;border-color:#d94a63}
+
+/* maze */
+.stagecard{padding:14px;position:sticky;top:12px}
+.mazewrap{display:grid;place-items:center;padding:12px;border-radius:18px;background:var(--stagebg,#eaf6ff);border:2px solid var(--line);min-height:300px}
+.maze{position:relative;display:grid;grid-template-columns:repeat(var(--w),var(--cell));grid-auto-rows:var(--cell);border-radius:14px;overflow:hidden;box-shadow:0 6px 0 rgba(0,0,0,.14)}
+.cell{position:relative;display:grid;place-items:center}
+.cell.floor{background:var(--floor)}
+.cell.wall{background:var(--wall);box-shadow:inset 0 -4px 0 rgba(0,0,0,.25),inset 0 4px 0 rgba(255,255,255,.12)}
+.cell.goal{background:var(--floor)}
+.goalico{font-size:calc(var(--cell) * .62);line-height:1;animation:bob 1.6s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-3px) scale(1.06)}}
+.hero{position:absolute;left:0;top:0;width:var(--cell);height:var(--cell);transition:transform .3s cubic-bezier(.4,.1,.3,1);display:grid;place-items:center;z-index:3;will-change:transform}
+.hero .rot{position:absolute;inset:0;transition:transform .26s cubic-bezier(.3,1.4,.5,1);display:grid;place-items:center}
+.hero .nub{position:absolute;top:2px;left:50%;width:0;height:0;margin-left:-6px;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:9px solid var(--hero);filter:drop-shadow(0 1px 0 rgba(0,0,0,.3))}
+.hero .face{font-size:calc(var(--cell) * .66);line-height:1;transition:transform .26s cubic-bezier(.3,1.4,.5,1);filter:drop-shadow(0 3px 0 rgba(0,0,0,.2))}
+.hero.crash{animation:shake .5s}
+@keyframes shake{0%,100%{margin-left:0}20%{margin-left:-7px}40%{margin-left:7px}60%{margin-left:-5px}80%{margin-left:5px}}
+.maze.win .goal .goalico{animation:win .7s ease-in-out 2}
+@keyframes win{50%{transform:scale(1.5) rotate(10deg)}}
+.skin-chipbot{--floor:#cdeedb;--wall:#17374f;--hero:#2bb3a3;--stagebg:#e3f7f2}
+.skin-chipbot .cell.floor{background:linear-gradient(90deg,transparent 47%,rgba(31,143,95,.22) 47% 53%,transparent 53%) ,var(--floor)}
+.skin-peeko{--floor:#ffe6e0;--wall:#ff8a7d;--hero:#ff6b5e;--stagebg:#fff0ec}
+.skin-jarvis{--floor:#ecdcc0;--wall:#7b9a6c;--hero:#6d63d6;--stagebg:#efeafc}
+.chipsvg{width:calc(var(--cell) * .7);height:calc(var(--cell) * .7)}
+.msg{margin:12px 0;min-height:64px;border-radius:16px;padding:10px 14px;font-weight:800;font-size:15.5px;background:#f2f6ff;border:2px solid var(--line);color:#38406a;display:flex;align-items:center}
+.msg.win{background:#effbf1;border-color:#9bdca4;color:#1d6b2b}
+.msg.bad{background:#fff6e5;border-color:#ffd48a;color:#7a4b00}
+.msg.warn{background:#fff0f3;border-color:#ffb3c0;color:#a62a45}
+.runrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.speedsel{display:flex;border-radius:12px;overflow:hidden;border:2px solid var(--line);margin-left:auto}
+.speedsel button{border:0;background:#fff;padding:5px 11px;font-weight:800;font-size:13px;cursor:pointer;color:var(--ink-soft)}
+.speedsel button[aria-pressed="true"]{background:var(--purple);color:#fff}
+.nextrow{margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.stars{font-size:28px;letter-spacing:2px;color:#ffc400;text-shadow:0 2px 0 rgba(0,0,0,.15)}
+.stars .off{color:#d6dcee;text-shadow:none}
+.codeview{margin-top:14px;border:2px solid var(--line);border-radius:16px;background:#fffdf6;overflow:hidden}
+.codeview summary{cursor:pointer;padding:10px 14px;font-family:var(--font-d);font-size:16px;background:#fff9e3;list-style:none}
+.codeview summary::before{content:"▸ "}
+.codeview[open] summary::before{content:"▾ "}
+.codenote{margin:8px 14px 0;font-size:13px;color:var(--ink-soft);font-weight:700}
+.codeview pre{margin:8px 0 0;padding:10px 14px 14px;font-family:var(--font-m);font-size:13px;line-height:1.6;color:#2d3556;overflow:auto;max-height:260px}
+
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="homebtn" href="index.html" title="Back to the Chip Camp welcome screen" aria-label="Home">🏠</a>
+  <div class="brand"><span class="logo" aria-hidden="true"><i style="background:#4C97FF"></i><i style="background:#FFAB19"></i><i style="background:#59C059"></i><i style="background:#CF63CF"></i></span>The CHIP Challenge</div>
+  <nav class="lvls" id="lvls" aria-label="Levels"></nav>
+  <div class="spacer"></div>
+  <nav class="skinsel" id="skinsel" aria-label="Choose your robot"></nav>
+</header>
+
+<main class="game">
+  <aside class="card toolcard" aria-label="Blocks">
+    <h2 class="cardh">Blocks</h2>
+    <div id="toolbox"></div>
+    <div class="trash" id="trash">🗑 Drag a block here to throw it away</div>
+  </aside>
+
+  <section class="card workcard" aria-label="Your program">
+    <div class="intro" id="intro"></div>
+    <div class="wsbox" id="wsbox">
+      <div class="hat"><span class="flag">▶</span><span>when <b>Run</b> is clicked</span></div>
+      <div class="dz lane" id="program"></div>
+    </div>
+    <div class="wsfoot">
+      <span class="counter" id="counter"></span>
+      <button class="btn small" id="clearBtn">🧹 Clear</button>
+      <button class="btn small" id="hintBtn">💡 Hint</button>
+    </div>
+    <div class="hintbox" id="hintbox" hidden></div>
+  </section>
+
+  <section class="card stagecard" aria-label="The maze">
+    <div class="mazewrap"><div class="maze" id="maze"></div></div>
+    <div class="msg" id="msg" role="status" aria-live="polite"></div>
+    <div class="runrow">
+      <button class="btn go big" id="runBtn">▶ Run</button>
+      <button class="btn big" id="resetBtn">↺ Reset</button>
+      <div class="speedsel" id="speedsel" aria-label="Speed"><button data-sp="1" aria-pressed="true">1×</button><button data-sp="2" aria-pressed="false">2×</button><button data-sp="4" aria-pressed="false">4×</button></div>
+    </div>
+    <div class="nextrow" id="nextrow" hidden></div>
+    <details class="codeview" id="codeDetails">
+      <summary>See it as real robot code</summary>
+      <p class="codenote">Your blocks turn into code like this. The real robots run code just like it.</p>
+      <pre id="codePre"></pre>
+    </details>
+  </section>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* Chip Camp: what each student has chosen and finished, shared by every page (kept in this browser only). */
+(function (root) {
+  'use strict';
+  const KEY = 'chipcamp.v1';
+  const ROBOTS = ['chipbot', 'peeko', 'jarvis'];
+  function read() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
+  function write(d) { try { localStorage.setItem(KEY, JSON.stringify(d)); } catch (e) { /* private window: just don't remember */ } }
+  function clean(s) { return String(s == null ? '' : s).replace(/[^A-Za-z0-9 .,!?'_-]/g, '').replace(/\s+/g, ' ').trim().slice(0, 16); }
+
+  root.ChipCamp = {
+    ROBOTS,
+    get() {
+      const d = read();
+      return { name: clean(d.name), robot: ROBOTS.indexOf(d.robot) >= 0 ? d.robot : null, levels: d.levels || {}, circuits: d.circuits || {}, code: d.code || {} };
+    },
+    robotOrDefault() { return this.get().robot || 'chipbot'; },
+    setName(n) { const d = read(); d.name = clean(n); write(d); },
+    setRobot(r) { if (ROBOTS.indexOf(r) < 0) return; const d = read(); d.robot = r; write(d); },
+    levelDone(level, stars) { const d = read(); d.levels = d.levels || {}; d.levels[level] = Math.max(d.levels[level] || 0, stars || 1); write(d); },
+    circuitDone(robot) { const d = read(); d.circuits = d.circuits || {}; d.circuits[robot] = true; write(d); },
+    codeBlocks(robot, n) { const d = read(); d.code = d.code || {}; d.code[robot] = n; write(d); },
+    levelsCompleted() { const l = this.get().levels; return Object.keys(l).filter((k) => l[k] > 0).length; }
+  };
+})(typeof self !== 'undefined' ? self : this);
+
+</script>
+<script>
+/* The CHIP Challenge: levels + engine. No DOM here so Node can prove every level is solvable. */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.LogicCore = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  /* ---------- skins: the same puzzles, themed for each robot's room ---------- */
+  const SKINS = {
+    chipbot: {
+      id: 'chipbot', name: 'Chip Bot', hero: '🤖', goal: 'chip', goalName: 'microchip', color: '#2bb3a3',
+      crash: ['💥 BONK! You said “move forward” and Chip Bot did exactly that. Straight into a wall.', '💥 Chip Bot walked into the wall. It only does what you tell it, not what you meant.'],
+      loop: ['🌀 Chip Bot is still going… you never told it when to stop. Machines don’t guess!', '🌀 Round and round! Chip Bot will keep following those instructions forever.'],
+      end: ['😴 Chip Bot did everything you asked, then stopped. The microchip is still over there.', '🤷 Program finished, but Chip Bot isn’t at the chip. It can’t do anything you didn’t say.'],
+      win: ['⚡ Chip Bot got the microchip! Exact instructions work.', '⚡ Chip installed. Chip Bot says thanks!']
+    },
+    peeko: {
+      id: 'peeko', name: 'Peeko', hero: '👀', goal: 'smile', goalName: 'smile', color: '#ff6b5e',
+      crash: ['😳 Peeko’s eyes slid right off the edge! It does exactly what you say and nothing more.', '😳 Oops, Peeko looked straight into a wall. It trusted your instructions completely.'],
+      loop: ['🌀 Peeko is still looking around… you never told it when to stop looking!', '🌀 Peeko will keep doing this forever. Machines don’t get bored or guess.'],
+      end: ['😴 Peeko finished your instructions and stopped. The smile is still over there.', '🤷 Peeko did everything you said. It just didn’t say enough to get there.'],
+      win: ['😊 Peeko found the smile! Exact instructions work.', '😊 Peeko is happy. Great instructions!']
+    },
+    jarvis: {
+      id: 'jarvis', name: 'Jarvis', hero: '💧', goal: 'plant', goalName: 'thirsty plant', color: '#8b7fe8',
+      crash: ['💦 SPLAT! The water drop hit a stone. It does exactly what you tell it.', '💦 Splat! The drop followed your instructions right into a wall.'],
+      loop: ['🌀 The drop keeps rolling… you never told it when to stop. Machines don’t guess!', '🌀 Round and round it goes. It will do that forever unless you say otherwise.'],
+      end: ['😴 The drop did everything you asked and stopped. The plant is still thirsty.', '🤷 Your program ended, but the plant didn’t get its water.'],
+      win: ['🌱 The plant got its water! Exact instructions work.', '🌱 Glug glug. One happy plant!']
+    }
+  };
+
+  /* ---------- program tree helpers ---------- */
+  let uidN = 0;
+  const uid = () => 'p' + (++uidN) + Math.random().toString(36).slice(2, 5);
+  const n = (type, p, kids, els) => {
+    const node = { id: uid(), type, p: Object.assign({}, p || {}) };
+    if (BLOCKS[type].shape === 'c') { node.kids = kids || []; if (els) node.els = els; }
+    return node;
+  };
+
+  const choice = (id, d, opts) => ({ id, t: 'choice', d, opts });
+  const num = (id, d, min, max) => ({ id, t: 'num', d, min, max });
+  const COND_LABEL = { ahead: 'path ahead', left: 'path to the left', right: 'path to the right', '!ahead': 'no path ahead', '!left': 'no path to the left', '!right': 'no path to the right' };
+  const condOpts = (list) => list.map((c) => [c, COND_LABEL[c]]);
+
+  const CATS = {
+    move: { id: 'move', label: 'Move', color: '#4C97FF' },
+    loops: { id: 'loops', label: 'Loops', color: '#FFAB19' },
+    logic: { id: 'logic', label: 'Logic', color: '#59C059' }
+  };
+  const BLOCKS = {
+    forward: { type: 'forward', cat: 'move', shape: 'stack', parts: ['move forward'], params: [] },
+    turn: { type: 'turn', cat: 'move', shape: 'stack', parts: ['turn ', choice('dir', 'left', [['left', 'left ⟲'], ['right', 'right ⟳']])] },
+    repeat: { type: 'repeat', cat: 'loops', shape: 'c', parts: ['repeat ', num('times', 3, 2, 12), ' times'] },
+    until: { type: 'until', cat: 'loops', shape: 'c', parts: ['repeat until at the ', { id: '_goal', t: 'goal' }] },
+    if: { type: 'if', cat: 'logic', shape: 'c', canElse: true, parts: ['if ', choice('cond', 'ahead', condOpts(['ahead', 'left', 'right']))] }
+  };
+  Object.keys(BLOCKS).forEach((k) => { BLOCKS[k].params = BLOCKS[k].parts.filter((x) => typeof x === 'object' && x.t !== 'goal'); });
+
+  function normParams(type, p, level) {
+    const def = BLOCKS[type], out = {};
+    def.params.forEach((prm) => {
+      let v = p ? p[prm.id] : undefined;
+      if (prm.t === 'num') { v = Math.round(Number(v)); if (!isFinite(v)) v = prm.d; v = Math.min(prm.max, Math.max(prm.min, v)); }
+      else {
+        const opts = (type === 'if' && level && level.conds) ? level.conds : prm.opts.map((o) => o[0]);
+        if (opts.indexOf(v) < 0) v = prm.d;
+      }
+      out[prm.id] = v;
+    });
+    return out;
+  }
+  function count(list) { let c = 0; (list || []).forEach((x) => { c++; c += count(x.kids) + count(x.els); }); return c; }
+
+  /* ---------- levels ---------- */
+  // dir: 0 up, 1 right, 2 down, 3 left.  # wall  . floor  S start  G goal
+  const LEVELS = [
+    {
+      id: 1, title: 'Say it exactly', concept: 'Sequence', max: 6, blocks: ['forward'],
+      map: ['######', '#S..G#', '######'], dir: 1,
+      mission: 'Machines do exactly what you tell them, and only that. Snap blocks under “when Run is clicked” so {hero} reaches the {goal}.',
+      hint: 'Each block is one instruction. {hero} needs to move forward 3 times.',
+      ref: () => [n('forward'), n('forward'), n('forward')]
+    },
+    {
+      id: 2, title: 'Turn the corner', concept: 'Sequence + turning', max: 8, blocks: ['forward', 'turn'],
+      map: ['######', '#S...#', '####.#', '####G#', '######'], dir: 1,
+      mission: 'The {goal} is around the corner. Turning is an instruction too, and order matters!',
+      hint: 'Forward 3 times, then turn right, then forward 2 more times.',
+      ref: () => [n('forward'), n('forward'), n('forward'), n('turn', { dir: 'right' }), n('forward'), n('forward')]
+    },
+    {
+      id: 3, title: 'Don’t repeat yourself', concept: 'Loops', max: 3, blocks: ['forward', 'turn', 'repeat'],
+      map: ['##########', '#S......G#', '##########'], dir: 1,
+      mission: 'This corridor is long, and you only get 3 blocks! A loop repeats instructions so you don’t have to.',
+      hint: 'Put one “move forward” inside a “repeat” block, and change how many times it repeats.',
+      ref: () => [n('repeat', { times: 7 }, [n('forward')])]
+    },
+    {
+      id: 4, title: 'Climb the stairs', concept: 'Loops with several blocks', max: 6, blocks: ['forward', 'turn', 'repeat'],
+      map: ['#######', '#####G#', '####..#', '###..##', '##..###', '#S.####', '#######'], dir: 1,
+      mission: 'A loop can repeat more than one block. Find the pattern in the stairs.',
+      hint: 'Each stair is the same: forward, turn left, forward, turn right. How many stairs?',
+      ref: () => [n('repeat', { times: 4 }, [n('forward'), n('turn', { dir: 'left' }), n('forward'), n('turn', { dir: 'right' })])]
+    },
+    {
+      id: 5, title: 'A loop inside a loop', concept: 'Nested loops', max: 5, blocks: ['forward', 'turn', 'repeat'],
+      map: ['######', '#S...#', '####.#', '#G##.#', '#....#', '######'], dir: 1,
+      mission: 'Walk around the block! Each side is the same, so you can put a loop inside a loop.',
+      hint: 'Each side: forward 3 times, then turn right. Repeat that 3 times, then step forward once.',
+      ref: () => [n('repeat', { times: 3 }, [n('repeat', { times: 3 }, [n('forward')]), n('turn', { dir: 'right' })]), n('forward')]
+    },
+    {
+      id: 6, title: 'Are we there yet?', concept: 'Repeat until', max: 3, blocks: ['forward', 'until'],
+      map: ['############', '#S........G#', '############'], dir: 1,
+      mission: 'Counting is boring. “Repeat until” keeps going until {hero} arrives, however far it is.',
+      hint: 'Put “move forward” inside “repeat until at the goal”.',
+      ref: () => [n('until', {}, [n('forward')])]
+    },
+    {
+      id: 7, title: 'Look before you leap', concept: 'If', max: 5, blocks: ['forward', 'turn', 'repeat', 'until', 'if'], conds: ['left', 'ahead', 'right'],
+      map: ['#######', '##G..##', '####.##', '#S...##', '#######'], dir: 1,
+      mission: '{hero} can look around! An “if” block only runs when the answer is yes. Here, whenever there is a path on the left, turn left.',
+      hint: 'Repeat until the goal: if path to the left, turn left. Then move forward.',
+      ref: () => [n('until', {}, [n('if', { cond: 'left' }, [n('turn', { dir: 'left' })]), n('forward')])]
+    },
+    {
+      id: 8, title: 'If this, otherwise that', concept: 'If / else', max: 5, blocks: ['forward', 'turn', 'repeat', 'until', 'if'], conds: ['ahead', 'left', 'right'],
+      map: ['#######', '#S....#', '#####.#', '#..G#.#', '#.###.#', '#.....#', '#######'], dir: 1,
+      mission: 'This path spirals inward. Teach {hero} one rule: if there is a path ahead, go forward. Otherwise, turn right.',
+      hint: 'Use the “+ add else” button on the if block.',
+      ref: () => [n('until', {}, [n('if', { cond: 'ahead' }, [n('forward')], [n('turn', { dir: 'right' })])])]
+    },
+    {
+      id: 9, title: 'Bug hunt', concept: 'Debugging', max: 5, blocks: ['forward', 'turn', 'repeat', 'until', 'if'], conds: ['ahead', 'left', 'right'],
+      map: ['#######', '#....S#', '#.#####', '#.#G..#', '#.###.#', '#.....#', '#######'], dir: 3,
+      mission: 'Someone wrote this program but it doesn’t work. Run it, watch what goes wrong, and fix the bug.',
+      hint: 'Which way does this path turn? Look at the turn block.',
+      preset: () => [n('until', {}, [n('if', { cond: 'ahead' }, [n('forward')], [n('turn', { dir: 'right' })])])],
+      ref: () => [n('until', {}, [n('if', { cond: 'ahead' }, [n('forward')], [n('turn', { dir: 'left' })])])]
+    },
+    {
+      id: 10, title: 'The wall follower', concept: 'Everything together', max: 8, blocks: ['forward', 'turn', 'repeat', 'until', 'if'], conds: ['ahead', 'left', 'right', '!ahead'],
+      map: ['#########', '#S....#.#', '#####.#.#', '#...#...#', '#.#.###.#', '#G#.....#', '#########'], dir: 1,
+      mission: 'Real robots solve mazes with the right-hand rule: keep your right hand on the wall. If there is a path on the right, take it. Otherwise go ahead. Dead end? Turn around.',
+      hint: 'Repeat until the goal: if path to the right, turn right and go forward. Otherwise, if path ahead, go forward, otherwise turn left.',
+      ref: () => [n('until', {}, [n('if', { cond: 'right' }, [n('turn', { dir: 'right' }), n('forward')], [n('if', { cond: 'ahead' }, [n('forward')], [n('turn', { dir: 'left' })])])])]
+    }
+  ];
+
+  const DX = [0, 1, 0, -1], DY = [-1, 0, 1, 0];
+  function parseMap(level) {
+    const rows = level.map, cells = rows.map((r) => r.split(''));
+    let start = null, goal = null;
+    cells.forEach((r, y) => r.forEach((c, x) => { if (c === 'S') { start = { x, y }; r[x] = '.'; } if (c === 'G') { goal = { x, y }; r[x] = '.'; } }));
+    return { w: rows[0].length, h: rows.length, cells, start, goal };
+  }
+  const MAX_EVENTS = 1400, MAX_ITER = 400;
+
+  /* ---------- the engine ---------- */
+  function run(level, program) {
+    const m = parseMap(level), events = [];
+    let x = m.start.x, y = m.start.y, d = level.dir, result = null, iter = 0;
+    const open = (px, py) => py >= 0 && py < m.h && px >= 0 && px < m.w && m.cells[py][px] === '.';
+    const atGoal = () => x === m.goal.x && y === m.goal.y;
+    const look = (cond) => {
+      const neg = cond.charAt(0) === '!', k = neg ? cond.slice(1) : cond;
+      const dd = k === 'ahead' ? d : k === 'left' ? (d + 3) % 4 : (d + 1) % 4;
+      const v = open(x + DX[dd], y + DY[dd]);
+      return neg ? !v : v;
+    };
+    const fin = (r) => { result = result || r; };
+    function exec(list) {
+      for (let i = 0; i < list.length && !result; i++) {
+        const node = list[i], def = BLOCKS[node.type]; if (!def) continue;
+        if (events.length > MAX_EVENTS) { fin('loop'); return; }
+        const p = normParams(node.type, node.p, level);
+        events.push({ t: 'enter', node: node.id });
+        if (node.type === 'forward') {
+          const nx = x + DX[d], ny = y + DY[d];
+          if (!open(nx, ny)) { events.push({ t: 'crash', x, y, d, node: node.id }); fin('crash'); return; }
+          events.push({ t: 'move', from: { x, y }, to: { x: nx, y: ny }, d, node: node.id }); x = nx; y = ny;
+          if (atGoal()) { fin('goal'); return; }
+        } else if (node.type === 'turn') {
+          d = p.dir === 'left' ? (d + 3) % 4 : (d + 1) % 4; events.push({ t: 'turn', d, node: node.id });
+        } else if (node.type === 'repeat') {
+          for (let k = 0; k < p.times && !result; k++) { exec(node.kids || []); if (events.length > MAX_EVENTS) fin('loop'); }
+        } else if (node.type === 'until') {
+          let guard = 0;
+          while (!atGoal() && !result) {
+            if (++guard > MAX_ITER || events.length > MAX_EVENTS) { fin('loop'); return; }
+            events.push({ t: 'loopcheck', node: node.id });
+            exec(node.kids || []);
+          }
+          if (!result && atGoal()) { fin('goal'); return; }
+        } else if (node.type === 'if') {
+          const v = look(p.cond); events.push({ t: 'check', node: node.id, v });
+          if (v) exec(node.kids || []); else if (node.els) exec(node.els);
+        }
+      }
+    }
+    exec(program);
+    if (!result) result = atGoal() ? 'goal' : 'end';
+    events.push({ t: 'end', r: result });
+    return { ok: result === 'goal', reason: result, events, blocks: count(program), end: { x, y, d } };
+  }
+
+  function stars(level, blocks) {
+    const par = count(level.ref());
+    return blocks <= par ? 3 : blocks <= par + 1 ? 2 : 1;
+  }
+
+  /* ---------- show it as the real robot's code ---------- */
+  function toCode(program) {
+    const lines = [], vars = ['i', 'j', 'k'];
+    function go(list, depth, loopDepth) {
+      const pad = '  '.repeat(depth);
+      (list || []).forEach((node) => {
+        const p = node.p || {};
+        if (node.type === 'forward') lines.push(pad + 'moveForward();');
+        else if (node.type === 'turn') lines.push(pad + (p.dir === 'right' ? 'turnRight();' : 'turnLeft();'));
+        else if (node.type === 'repeat') {
+          const v = vars[loopDepth] || 'n' + loopDepth, t = Math.min(12, Math.max(2, Math.round(Number(p.times)) || 3));
+          lines.push(pad + 'for (int ' + v + ' = 0; ' + v + ' < ' + t + '; ' + v + '++) {'); go(node.kids, depth + 1, loopDepth + 1); lines.push(pad + '}');
+        } else if (node.type === 'until') {
+          lines.push(pad + 'while (!atGoal()) {'); go(node.kids, depth + 1, loopDepth); lines.push(pad + '}');
+        } else if (node.type === 'if') {
+          const c = p.cond || 'ahead', neg = c.charAt(0) === '!', k = neg ? c.slice(1) : c;
+          const fn = 'path' + k.charAt(0).toUpperCase() + k.slice(1) + '()';
+          lines.push(pad + 'if (' + (neg ? '!' : '') + fn + ') {'); go(node.kids, depth + 1, loopDepth);
+          if (node.els) { lines.push(pad + '} else {'); go(node.els, depth + 1, loopDepth); }
+          lines.push(pad + '}');
+        }
+      });
+    }
+    go(program, 1, 0);
+    return 'void loop() {\n' + (lines.length ? lines.join('\n') : '  // add blocks to see code here') + '\n}';
+  }
+
+  const fill = (s, skin) => s.replace(/\{hero\}/g, skin.name).replace(/\{goal\}/g, skin.goalName);
+
+  return { SKINS, LEVELS, BLOCKS, CATS, COND_LABEL, DX, DY, n, uid, normParams, count, parseMap, run, stars, toCode, fill, MAX_EVENTS };
+});
+
+</script>
+<script>
+/* The CHIP Challenge UI */
+(function () {
+  'use strict';
+  const LC = LogicCore, $ = (s, r) => (r || document).querySelector(s), $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+  const SKEY = 'chipcamp.logic.v1';
+  const lsGet = (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
+  const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* ignore */ } };
+
+  const saved = lsGet(SKEY) || {};
+  const S = {
+    level: Math.min(10, Math.max(1, saved.level || (ChipCamp.levelsCompleted() + 1))),
+    programs: saved.programs || {}, program: [], skin: ChipCamp.robotOrDefault(),
+    speed: 1, running: false, stop: false, fails: 0, usedSolution: false, rot: 0
+  };
+  const level = () => LC.LEVELS[S.level - 1];
+  const skin = () => LC.SKINS[S.skin];
+  const persist = () => { S.programs[S.level] = S.program; lsSet(SKEY, { level: S.level, programs: S.programs }); };
+  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+  let toastT = 0;
+  function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2200); }
+  function confetti(x, y) {
+    const em = ['🎉', '✨', '⭐', '💜', '💙', '🟡', '🟢'];
+    for (let i = 0; i < 18; i++) {
+      const s = el('span', 'conf', em[i % em.length]); s.style.left = x + 'px'; s.style.top = y + 'px';
+      s.style.setProperty('--dx', (Math.random() * 300 - 150) + 'px'); s.style.setProperty('--dy', (Math.random() * -240 - 20) + 'px'); s.style.setProperty('--r', (Math.random() * 360 - 180) + 'deg');
+      document.body.appendChild(s); setTimeout(() => s.remove(), 1200);
+    }
+  }
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  /* ---------- header: level bubbles + robot skin ---------- */
+  function renderHeader() {
+    const lv = $('#lvls'); lv.innerHTML = '';
+    const done = ChipCamp.get().levels;
+    LC.LEVELS.forEach((L) => {
+      const b = el('button', 'lvl' + (done[L.id] ? ' done' : ''), String(L.id));
+      b.setAttribute('aria-label', 'Level ' + L.id + ': ' + L.title + (done[L.id] ? ', completed' : ''));
+      if (L.id === S.level) b.setAttribute('aria-current', 'true');
+      b.onclick = () => { stopRun(); S.level = L.id; loadLevel(); };
+      lv.appendChild(b);
+    });
+    const sk = $('#skinsel'); sk.innerHTML = '';
+    Object.keys(LC.SKINS).forEach((id) => {
+      const s = LC.SKINS[id], b = el('button', null, '<span>' + s.hero + '</span>' + esc(s.name));
+      b.style.setProperty('--sk', s.color); b.setAttribute('aria-pressed', id === S.skin ? 'true' : 'false');
+      b.onclick = () => { S.skin = id; ChipCamp.setRobot(id); renderHeader(); renderAll(); };
+      sk.appendChild(b);
+    });
+  }
+
+  /* ---------- blocks ---------- */
+  function paramEls(def, node, interactive) {
+    const out = [], L = level();
+    def.parts.forEach((part) => {
+      if (typeof part === 'string') { const s = el('span'); s.textContent = part; out.push(s); return; }
+      if (part.t === 'goal') { const s = el('span', 'static p', goalGlyph(true) + ' ' + esc(skin().goalName)); out.push(s); return; }
+      if (!interactive) {
+        const s = el('span', 'static ' + (part.t === 'choice' ? 'd' : 'p'));
+        const d = part.t === 'choice' && def.type === 'if' ? L.conds[0] : part.d;
+        s.textContent = part.t === 'choice' ? ((part.opts.find((o) => o[0] === d) || [])[1] || d) : part.d;
+        out.push(s); return;
+      }
+      if (part.t === 'num') {
+        const w = el('span', 'pill'), i = el('input'); i.type = 'number'; i.min = part.min; i.max = part.max; i.step = 1; i.value = node.p[part.id];
+        i.setAttribute('aria-label', 'times');
+        i.oninput = () => { const v = Number(i.value); if (isFinite(v)) { node.p[part.id] = v; changed(); } };
+        i.onchange = () => { const v = LC.normParams(def.type, { [part.id]: i.value }, L)[part.id]; node.p[part.id] = v; i.value = v; changed(); };
+        w.appendChild(i); out.push(w);
+      } else {
+        const w = el('span', 'drop'), sel = el('select');
+        const opts = def.type === 'if' ? part.opts.filter((o) => L.conds.indexOf(o[0]) >= 0) : part.opts;
+        opts.forEach((o) => { const op = el('option'); op.value = o[0]; op.textContent = o[1]; sel.appendChild(op); });
+        sel.value = node.p[part.id]; sel.setAttribute('aria-label', part.id);
+        sel.onchange = () => { node.p[part.id] = sel.value; changed(); };
+        w.appendChild(sel); out.push(w);
+      }
+    });
+    return out;
+  }
+  const goalGlyph = (small) => ({ chip: '🔲', smile: '🙂', plant: '🌱' }[skin().goal]);
+
+  function renderToolbox() {
+    const tb = $('#toolbox'); tb.innerHTML = '';
+    const L = level();
+    ['move', 'loops', 'logic'].forEach((cid) => {
+      const types = L.blocks.filter((t) => LC.BLOCKS[t].cat === cid);
+      if (!types.length) return;
+      const cat = LC.CATS[cid];
+      const h = el('div', 'cat-h', esc(cat.label)); h.style.cssText = 'font-family:var(--font-d);font-size:15px;margin:10px 0 6px;color:' + cat.color + ';display:flex;align-items:center;gap:6px';
+      h.innerHTML = '<span style="width:11px;height:11px;border-radius:50%;background:' + cat.color + ';display:inline-block"></span>' + esc(cat.label);
+      tb.appendChild(h);
+      types.forEach((t) => {
+        const def = LC.BLOCKS[t], blk = el('div', 'blk palette-blk' + (def.shape === 'c' ? ' c' : '')); blk.style.setProperty('--c', cat.color); blk.dataset.type = t;
+        const row = el('div', 'row'); paramEls(def, null, false).forEach((x) => row.appendChild(x)); blk.appendChild(row);
+        if (def.shape === 'c') blk.appendChild(el('div', 'foot'));
+        tb.appendChild(blk);
+      });
+    });
+  }
+  function makeDz(list, isRoot) {
+    const dz = el('div', 'dz' + (list.length ? '' : ' empty')); dz.__list = list; if (isRoot) dz.classList.add('lane');
+    list.forEach((n) => { const b = nodeEl(n, list); if (b) dz.appendChild(b); });
+    return dz;
+  }
+  function nodeEl(node, list) {
+    const def = LC.BLOCKS[node.type]; if (!def) return null;
+    const cat = LC.CATS[def.cat];
+    const blk = el('div', 'blk' + (def.shape === 'c' ? ' c' : '')); blk.style.setProperty('--c', cat.color);
+    blk.dataset.nid = node.id; blk.__node = node; blk.__list = list;
+    const row = el('div', 'row'); paramEls(def, node, true).forEach((x) => row.appendChild(x));
+    const x = el('button', 'x', '✕'); x.title = 'Remove this block'; x.setAttribute('aria-label', 'Remove block');
+    x.onclick = (e) => { e.stopPropagation(); const i = list.indexOf(node); if (i > -1) list.splice(i, 1); renderProgram(); changed(); };
+    row.appendChild(x); blk.appendChild(row);
+    if (def.shape === 'c') {
+      const slot = el('div', 'cslot'); slot.appendChild(makeDz(node.kids, false)); blk.appendChild(slot);
+      if (def.canElse && node.els) { blk.appendChild(el('div', 'row else', 'else')); const s2 = el('div', 'cslot'); s2.appendChild(makeDz(node.els, false)); blk.appendChild(s2); }
+      const foot = el('div', 'foot');
+      if (def.canElse) {
+        const eb = el('button', 'elsebtn', node.els ? '− take away else' : '+ add else');
+        eb.onclick = (e) => { e.stopPropagation(); if (node.els) delete node.els; else node.els = []; renderProgram(); changed(); };
+        foot.appendChild(eb);
+      }
+      blk.appendChild(foot);
+    }
+    return blk;
+  }
+  function renderProgram() {
+    const box = $('#program'); const fresh = makeDz(S.program, true); fresh.id = 'program';
+    box.replaceWith(fresh);
+  }
+
+  /* ---------- drag and drop ---------- */
+  let drag = null;
+  document.addEventListener('pointerdown', (e) => {
+    if (S.running) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (e.target.closest('input,select,textarea,button,.pill,.drop')) return;
+    const pal = e.target.closest('.palette-blk');
+    const blk = !pal && e.target.closest('.blk[data-nid]');
+    if (!pal && !blk) return;
+    if (blk && !e.target.closest('.blk[data-nid] > .row')) return;
+    const src = pal || blk, r = src.getBoundingClientRect();
+    drag = { kind: pal ? 'new' : 'move', type: pal && pal.dataset.type, el: src, node: blk && blk.__node, list: blk && blk.__list, sx: e.clientX, sy: e.clientY, ox: e.clientX - r.left, oy: e.clientY - r.top, w: r.width, active: false, ghost: null, target: null, idx: 0, line: null };
+    e.preventDefault();
+  });
+  document.addEventListener('pointermove', (e) => {
+    if (!drag) return;
+    if (!drag.active) {
+      if (Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) < 6) return;
+      drag.active = true;
+      const g = drag.el.cloneNode(true); g.classList.add('ghost'); g.classList.remove('lifting', 'pop'); g.style.width = drag.w + 'px'; document.body.appendChild(g); drag.ghost = g;
+      document.body.classList.add('dragging', 'dragging-' + drag.kind);
+      if (drag.kind === 'move') drag.el.classList.add('lifting');
+    }
+    drag.ghost.style.left = (e.clientX - drag.ox) + 'px'; drag.ghost.style.top = (e.clientY - drag.oy) + 'px';
+    const stack = document.elementsFromPoint(e.clientX, e.clientY);
+    let dz = stack.find((x) => x.classList && x.classList.contains('dz') && !(drag.kind === 'move' && drag.el.contains(x)));
+    if (!dz && stack.some((x) => x.classList && x.classList.contains('workcard'))) dz = $('#program');
+    const overTool = !dz && stack.some((x) => x.classList && x.classList.contains('toolcard'));
+    document.body.classList.toggle('over-trash', !!(overTool && drag.kind === 'move'));
+    if (drag.target && drag.target !== dz) drag.target.classList.remove('over');
+    if (drag.line) { drag.line.remove(); drag.line = null; }
+    drag.target = dz || null;
+    if (dz) {
+      dz.classList.add('over');
+      const kids = Array.from(dz.children).filter((c) => c.classList.contains('blk') && c !== drag.el);
+      let idx = kids.length;
+      for (let i = 0; i < kids.length; i++) { const r = kids[i].getBoundingClientRect(); if (e.clientY < r.top + r.height / 2) { idx = i; break; } }
+      drag.idx = idx; drag.line = el('div', 'dropline');
+      if (idx < kids.length) dz.insertBefore(drag.line, kids[idx]); else dz.appendChild(drag.line);
+    }
+  });
+  function endDrag(e, cancel) {
+    if (!drag) return;
+    const d = drag; drag = null;
+    document.body.classList.remove('dragging', 'dragging-new', 'dragging-move', 'over-trash');
+    if (d.ghost) d.ghost.remove(); if (d.line) d.line.remove(); if (d.target) d.target.classList.remove('over'); d.el.classList.remove('lifting');
+    if (cancel) return;
+    if (!d.active) { if (d.kind === 'new') { const n = newNode(d.type); S.program.push(n); afterDrop(n.id); } return; }
+    if (d.target) {
+      const list = d.target.__list;
+      if (d.kind === 'new') { const n = newNode(d.type); list.splice(d.idx, 0, n); afterDrop(n.id); }
+      else { const i = d.list.indexOf(d.node); if (i > -1) d.list.splice(i, 1); list.splice(Math.min(d.idx, list.length), 0, d.node); afterDrop(d.node.id); }
+    } else if (d.kind === 'move' && document.elementsFromPoint(e.clientX, e.clientY).some((x) => x.classList && x.classList.contains('toolcard'))) {
+      const i = d.list.indexOf(d.node); if (i > -1) d.list.splice(i, 1); renderProgram(); changed();
+    }
+  }
+  document.addEventListener('pointerup', (e) => endDrag(e, false));
+  document.addEventListener('pointercancel', (e) => endDrag(e, true));
+  function newNode(type) {
+    const L = level(), n = LC.n(type, type === 'if' ? { cond: L.conds[0] } : type === 'repeat' ? { times: 3 } : type === 'turn' ? { dir: 'left' } : {});
+    return n;
+  }
+  function afterDrop(id) {
+    renderProgram(); changed();
+    const b = $('.blk[data-nid="' + id + '"]'); if (b) { b.classList.add('pop'); setTimeout(() => b.classList.remove('pop'), 500); }
+  }
+
+  /* ---------- level + maze ---------- */
+  function changed() { persist(); updateCounter(); updateCode(); }
+  function updateCounter() {
+    const n = LC.count(S.program), max = level().max, c = $('#counter');
+    c.textContent = 'Blocks: ' + n + ' / ' + max; c.classList.toggle('over', n > max);
+  }
+  function updateCode() { $('#codePre').textContent = LC.toCode(S.program); }
+
+  function renderIntro() {
+    const L = level(), sk = skin();
+    $('#intro').innerHTML = '<div class="top"><span class="num">Level ' + L.id + '</span><h1>' + esc(L.title) + '</h1><span class="concept">' + esc(L.concept) + '</span></div><p>' + esc(LC.fill(L.mission, sk)) + '</p>';
+    const hb = $('#hintbox'); hb.hidden = true; hb.textContent = '💡 ' + LC.fill(L.hint, sk);
+  }
+  let heroEl = null, mazeInfo = null;
+  function renderMaze() {
+    const L = level(), sk = skin(), m = LC.parseMap(L), maze = $('#maze');
+    const cell = Math.max(26, Math.min(58, Math.floor(430 / m.w), Math.floor(430 / m.h)));
+    maze.className = 'maze skin-' + sk.id; maze.style.setProperty('--w', m.w); maze.style.setProperty('--cell', cell + 'px'); maze.innerHTML = '';
+    $('.mazewrap').className = 'mazewrap skin-' + sk.id;
+    for (let y = 0; y < m.h; y++) for (let x = 0; x < m.w; x++) {
+      const isGoal = x === m.goal.x && y === m.goal.y, wall = m.cells[y][x] === '#';
+      const c = el('div', 'cell ' + (wall ? 'wall' : isGoal ? 'goal' : 'floor'));
+      if (isGoal) c.innerHTML = '<span class="goalico">' + (sk.goal === 'chip' ? chipSvg() : goalGlyph()) + '</span>';
+      maze.appendChild(c);
+    }
+    heroEl = el('div', 'hero', '<div class="rot"><i class="nub"></i><span class="face">' + sk.hero + '</span></div>');
+    maze.appendChild(heroEl); mazeInfo = { m, cell };
+    placeHero(m.start.x, m.start.y, L.dir, true);
+  }
+  const chipSvg = () => '<svg class="chipsvg" viewBox="0 0 40 40"><g stroke="#e2b93b" stroke-width="3" stroke-linecap="round"><path d="M12 4v6M20 4v6M28 4v6M12 30v6M20 30v6M28 30v6M4 12h6M4 20h6M4 28h6M30 12h6M30 20h6M30 28h6"/></g><rect x="9" y="9" width="22" height="22" rx="4" fill="#243b53"/><circle cx="15" cy="15" r="2.2" fill="#e2b93b"/><text x="20" y="27" font-size="9" font-family="monospace" fill="#9fd8c6" text-anchor="middle">CHIP</text></svg>';
+  function placeHero(x, y, d, instant) {
+    const { cell } = mazeInfo; S.hx = x; S.hy = y;
+    if (instant) { heroEl.style.transition = 'none'; heroEl.querySelector('.rot').style.transition = 'none'; heroEl.querySelector('.face').style.transition = 'none'; S.rot = d * 90; }
+    heroEl.style.transform = 'translate(' + (x * cell) + 'px,' + (y * cell) + 'px)';
+    heroEl.querySelector('.rot').style.transform = 'rotate(' + S.rot + 'deg)';
+    heroEl.querySelector('.face').style.transform = 'rotate(' + (-S.rot) + 'deg)';
+    if (instant) { void heroEl.offsetWidth; heroEl.style.transition = ''; heroEl.querySelector('.rot').style.transition = ''; heroEl.querySelector('.face').style.transition = ''; }
+  }
+  function turnTo(d) { const cur = ((Math.round(S.rot / 90) % 4) + 4) % 4; let delta = ((d - cur + 2 + 4) % 4) - 2; S.rot += delta * 90; }
+
+  function setMsg(kind, text) { const m = $('#msg'); m.className = 'msg' + (kind ? ' ' + kind : ''); m.textContent = text; }
+  function loadLevel() {
+    const L = level();
+    S.fails = 0; S.usedSolution = false; $('#nextrow').hidden = true; $('#codeDetails').open = false;
+    S.program = S.programs[S.level] ? cloneProg(S.programs[S.level]) : (L.preset ? L.preset() : []);
+    renderHeader(); renderIntro(); renderToolbox(); renderProgram(); renderMaze(); updateCounter(); updateCode();
+    setMsg('', 'Drag blocks into the workspace, then press Run. ' + (L.preset ? 'This program already exists: find the bug!' : ''));
+    persist();
+  }
+  const cloneProg = (p) => JSON.parse(JSON.stringify(p));
+  function renderAll() { renderIntro(); renderToolbox(); renderMaze(); updateCode(); setMsg('', 'Drag blocks into the workspace, then press Run.'); $('#nextrow').hidden = true; renderProgram(); updateCounter(); }
+
+  /* ---------- running ---------- */
+  function clearHighlights() { $$('.blk.running').forEach((b) => b.classList.remove('running')); $$('.badge').forEach((b) => b.remove()); }
+  function stopRun() { if (S.running) S.stop = true; }
+  async function resetRun() {
+    if (S.running) { S.stop = true; while (S.running) await sleep(20); S.stop = false; }
+    clearHighlights(); renderMaze(); $('#maze').classList.remove('win'); $('#nextrow').hidden = true;
+    setMsg('', 'Ready. Press Run when you want to try it.');
+  }
+  function badge(nodeId, v) {
+    const b = $('.blk[data-nid="' + nodeId + '"] > .row'); if (!b) return;
+    $$('.badge', b).forEach((x) => x.remove());
+    const t = el('span', 'tag badge', v ? '✓ yes' : '✗ no'); t.style.background = v ? '#2c8f3b' : '#c1304a'; t.style.color = '#fff'; b.insertBefore(t, b.querySelector('.x')); setTimeout(() => t.remove(), 900);
+  }
+  async function run() {
+    if (S.running) { S.stop = true; return; }
+    const L = level(), sk = skin(), n = LC.count(S.program);
+    $('#nextrow').hidden = true; clearHighlights();
+    if (n === 0) { setMsg('bad', '🤔 Nothing to run yet! Drag some blocks under “when Run is clicked”.'); return; }
+    if (n > L.max) { setMsg('warn', '📏 You used ' + n + ' blocks but this level allows ' + L.max + '. ' + (L.id >= 3 ? 'A loop can do the repeating for you.' : 'Try fewer blocks.')); fail(); return; }
+    renderMaze(); $('#maze').classList.remove('win');
+    const res = LC.run(L, S.program);
+    S.running = true; S.stop = false; $('#runBtn').textContent = '■ Stop'; $('#runBtn').classList.add('stop'); $('#runBtn').classList.remove('go');
+    setMsg('', '🏃 Running your instructions exactly as written…');
+    const sp = S.speed, T = (ms) => sleep(ms / sp);
+    let lastNode = null;
+    for (const ev of res.events) {
+      if (S.stop) break;
+      if (ev.t === 'enter') { if (lastNode) lastNode.classList.remove('running'); lastNode = $('.blk[data-nid="' + ev.node + '"]'); if (lastNode) lastNode.classList.add('running'); await T(140); }
+      else if (ev.t === 'move') { placeHero(ev.to.x, ev.to.y, ev.d); await T(360); }
+      else if (ev.t === 'turn') { turnTo(ev.d); placeHero(S.hx, S.hy, ev.d); await T(300); }
+      else if (ev.t === 'check') { badge(ev.node, ev.v); await T(300); }
+      else if (ev.t === 'loopcheck') { await T(60); }
+      else if (ev.t === 'crash') { heroEl.classList.add('crash'); await T(520); heroEl.classList.remove('crash'); }
+    }
+    if (lastNode) lastNode.classList.remove('running');
+    S.running = false; $('#runBtn').textContent = '▶ Run'; $('#runBtn').classList.remove('stop'); $('#runBtn').classList.add('go');
+    if (S.stop) { S.stop = false; setMsg('', 'Stopped. Press Reset to start over.'); return; }
+    if (res.ok) win(res); else { setMsg('bad', pick(sk[res.reason === 'goal' ? 'end' : res.reason])); fail(); }
+  }
+  function fail() {
+    S.fails++;
+    if (S.fails >= 2 && !$('#showSol')) {
+      const row = $('#nextrow'); row.hidden = false; row.innerHTML = '<span style="font-weight:800;color:#69709a">Stuck?</span>';
+      const b = el('button', 'btn small', '🧩 Show me a solution'); b.id = 'showSol';
+      b.onclick = () => { S.usedSolution = true; S.program = level().ref(); renderProgram(); changed(); resetMazeOnly(); setMsg('', 'Here is one way to do it. Study it, then press Run.'); row.hidden = true; };
+      row.appendChild(b);
+    }
+  }
+  function resetMazeOnly() { clearHighlights(); renderMaze(); }
+  function win(res) {
+    const L = level(), sk = skin();
+    let st = LC.stars(L, res.blocks); if (S.usedSolution) st = 1;
+    ChipCamp.levelDone(L.id, st);
+    $('#maze').classList.add('win');
+    setMsg('win', pick(sk.win) + (S.usedSolution ? '' : ''));
+    const r = $('#runBtn').getBoundingClientRect(); confetti(r.left + 40, r.top);
+    const row = $('#nextrow'); row.hidden = false; row.innerHTML = '';
+    row.appendChild(el('span', 'stars', '★'.repeat(st) + '<span class="off">' + '★'.repeat(3 - st) + '</span>'));
+    if (L.id < 10) { const nb = el('button', 'btn go big', 'Next level ▶'); nb.onclick = () => { S.level = L.id + 1; loadLevel(); window.scrollTo(0, 0); }; row.appendChild(nb); }
+    else {
+      const all = ChipCamp.levelsCompleted() >= 10;
+      row.appendChild(el('span', null, '<b style="font-family:var(--font-d);font-size:18px">' + (all ? '🎉 You finished all 10 levels!' : '🎉 Level 10 done! Go back and try the levels you skipped.') + '</b>'));
+      if (all) { const a = el('a', 'btn go big', 'Go wire your robot ➜'); a.href = 'circuits.html'; a.style.textDecoration = 'none'; row.appendChild(a); }
+    }
+    if (S.usedSolution) row.appendChild(el('span', null, '<small style="color:#69709a;font-weight:700">You peeked at a solution, so try this level again on your own for 3 stars!</small>'));
+    renderHeader();
+  }
+
+  /* ---------- buttons ---------- */
+  $('#runBtn').onclick = run;
+  $('#resetBtn').onclick = resetRun;
+  $('#hintBtn').onclick = () => { const h = $('#hintbox'); h.hidden = !h.hidden; };
+  (function () { const b = $('#clearBtn'); let armed = false, t = 0; b.onclick = () => { if (!armed) { armed = true; b.textContent = 'Clear all? Click again'; t = setTimeout(() => { armed = false; b.textContent = '🧹 Clear'; }, 2500); return; } clearTimeout(t); armed = false; b.textContent = '🧹 Clear'; S.program = []; S.usedSolution = false; renderProgram(); changed(); resetMazeOnly(); }; })();
+  $$('#speedsel button').forEach((b) => { b.onclick = () => { S.speed = Number(b.dataset.sp); $$('#speedsel button').forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false')); }; });
+
+  loadLevel();
+  window.__logic = { S, LC, loadLevel, run };
+})();
+
+</script>
+</body>
+</html>
