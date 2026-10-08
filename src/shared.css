@@ -109,3 +109,4 @@ button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .homebtn{display:inline-grid;place-items:center;width:42px;height:42px;border-radius:14px;background:rgba(255,255,255,.22);color:#fff;text-decoration:none;font-size:21px;box-shadow:0 3px 0 rgba(0,0,0,.14);transition:transform .12s,background .15s;flex:none}
 .homebtn:hover{background:rgba(255,255,255,.36);transform:translateY(-1px)}
 .homebtn:focus-visible{outline:3px solid #fff;outline-offset:2px}
+a.btn{text-decoration:none}

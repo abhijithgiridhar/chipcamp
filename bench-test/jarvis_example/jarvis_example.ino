@@ -4,7 +4,7 @@
 //  Made with Camp Blocks · 14 Oct 2026
 // ============================================================
 /*
-  JARVIS  —  terrarium buddy, Arduino Nano + IO shield
+  JARVIS  —  terrarium buddy, Arduino Uno
   ----------------------------------------------------
     A0  soil moisture sensor
     A1  light sensor (LDR with a 10k resistor)

@@ -1,0 +1,41 @@
+/* Facilitator area */
+.card{background:var(--card);border:2px solid var(--line);border-radius:20px;box-shadow:0 4px 0 var(--line)}
+.lock{display:grid;place-items:center;padding:40px 16px}
+.lockcard{width:min(420px,100%);padding:26px 24px 22px;text-align:center}
+.lockico{font-size:44px}
+.lockcard h1{font-family:var(--font-d);font-weight:500;font-size:26px;margin:6px 0 4px}
+.lockcard p{margin:0 0 14px;color:var(--ink-soft);font-weight:700}
+.lockcard label{display:block;text-align:left;font-weight:800;font-size:12px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.lockcard input{width:100%;border:3px solid var(--line);border-radius:14px;padding:11px 14px;font-size:22px;font-weight:800;letter-spacing:.3em;text-align:center;margin-bottom:14px}
+.lockcard input:focus{outline:3px solid rgba(124,77,255,.35);border-color:var(--purple)}
+.lockmsg{min-height:22px;margin-top:10px;font-weight:800;color:#d94a63}
+.shake{animation:shake .35s}
+@keyframes shake{20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+
+.plans{display:grid;grid-template-columns:240px minmax(0,1fr);gap:14px;padding:14px 18px 50px;max-width:1300px;margin:0 auto;align-items:start}
+.plannav{position:sticky;top:12px;padding:10px;display:flex;flex-direction:column;gap:4px}
+.plannav a{display:block;text-decoration:none;color:var(--ink);font-family:var(--font-d);font-size:16px;padding:8px 12px;border-radius:12px}
+.plannav a:hover{background:#f0f4ff}
+.plannav a[aria-current="true"]{background:var(--purple);color:#fff;box-shadow:0 3px 0 rgba(0,0,0,.15)}
+.plannav .sep{font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);padding:8px 12px 2px}
+.planbody{padding:22px 26px 30px;font-size:16px;line-height:1.55;min-width:0}
+.planbody h1{font-family:var(--font-d);font-weight:500;font-size:32px;margin:0 0 8px}
+.planbody h2{font-family:var(--font-d);font-weight:500;font-size:23px;margin:26px 0 8px;padding-bottom:4px;border-bottom:3px solid var(--line-soft)}
+.planbody h3{font-family:var(--font-d);font-weight:500;font-size:19px;margin:20px 0 6px;color:#4b3fb5}
+.planbody p{margin:8px 0}
+.planbody ul,.planbody ol{margin:8px 0;padding-left:24px}
+.planbody li{margin:3px 0}
+.planbody li.todo{list-style:none;margin-left:-20px}
+.planbody a{color:#4b3fb5;font-weight:800}
+.planbody code{font-family:var(--font-m);font-size:.88em;background:#f1f4ff;border-radius:6px;padding:1px 6px}
+.planbody pre{background:#f6f8ff;border:2px solid var(--line-soft);border-radius:12px;padding:12px;overflow:auto}
+.planbody pre code{background:none;padding:0}
+.planbody blockquote{margin:12px 0;padding:10px 16px;border-left:6px solid var(--purple);background:#f4f1ff;border-radius:0 12px 12px 0;font-weight:700}
+.planbody hr{border:0;border-top:3px solid var(--line-soft);margin:22px 0}
+.tw{overflow-x:auto;margin:10px 0}
+.planbody table{border-collapse:collapse;width:100%;font-size:14.5px}
+.planbody th{background:#eef2ff;text-align:left;font-family:var(--font-d);font-weight:500;padding:8px 10px;border:2px solid var(--line)}
+.planbody td{padding:7px 10px;border:2px solid var(--line-soft);vertical-align:top}
+.planbody tbody tr:nth-child(even){background:#fafbff}
+@media (max-width:820px){.plans{grid-template-columns:1fr;padding:10px}.plannav{position:static;flex-direction:row;flex-wrap:wrap}.planbody{padding:16px}}
+@media print{.topbar,.plannav{display:none!important}.plans{display:block;padding:0}.planbody{border:0;box-shadow:0}body{background:#fff}}

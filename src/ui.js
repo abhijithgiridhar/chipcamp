@@ -1,7 +1,7 @@
 /* Camp Blocks UI: blocks, drag and drop, stage, code view. */
 (function () {
   'use strict';
-  const Core = CampCore, Runtime = CampRuntime, Stages = CampStages;
+  const Core = CampCore, Runtime = CampRuntime, Stages = CampStages, Studio = CampStudio;
   const PROJECTS = Core.PROJECTS, ORDER = ['peeko', 'chipbot', 'jarvis'];
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
@@ -280,9 +280,16 @@
     const mk = (html, fn, cls) => { const b = el('button', 'btn small ' + (cls || ''), html); b.onclick = fn; bar.appendChild(b); return b; };
     const ex = mk('✨ Show me an example', () => {}); twoClick(ex, 'Replace my blocks? Click again', () => { const old = state(); const e = Core.exampleState(S.proj); e.builder = old.builder; e.robot = old.robot; e.date = old.date; e.settings = old.settings; S.states[S.proj] = e; renderScript(); renderNamebar(); changed(); toast('Here is an example. Change anything you like!'); });
     const cl = mk('🧹 Clear', () => {}); twoClick(cl, 'Clear everything? Click again', () => { const st = state(); st.wake = []; st.forever = []; renderScript(); changed(); });
+    if (ChipCamp.design(S.proj)) { const dg = mk('🎨 Load my design', () => {}); twoClick(dg, 'Replace my blocks? Click again', () => { applyDesign(); }); }
+    const st = el('a', 'btn small', '🎨 ' + ({ peeko: 'Face', chipbot: 'Dance', jarvis: 'Light' }[S.proj]) + ' Studio'); st.href = 'studio.html'; bar.appendChild(st);
     mk('💾 Save', saveSlot);
     mk('📂 My saves', openSaves);
     mk('🔗 Share', openShare);
+  }
+  function applyDesign() {
+    const old = state();
+    S.states[S.proj] = Studio.toState(S.proj, ChipCamp.design(S.proj) || Studio.defaults(S.proj), old);
+    renderScript(); renderNamebar(); changed(); toast('Your design is in the blocks. Change anything you like!');
   }
   function saveSlot() {
     const st = state(), saves = lsGet(SAVES) || [];
@@ -444,6 +451,7 @@
     }
     const libs = { peeko: 'Libraries needed (Tools → Manage Libraries): <b>Adafruit GFX Library</b> and <b>Adafruit SH110X</b> (say yes to installing BusIO too). Servo is already built in.', chipbot: 'Servo is built into the Arduino IDE, so there is nothing extra to install.', jarvis: 'No extra libraries needed.' };
     $('#libNote').innerHTML = libs[S.proj];
+    $('#boardStep').innerHTML = S.proj === 'chipbot' ? '<b>Tools → Board → Arduino Nano.</b> If the upload fails, set <b>Processor → ATmega328P (Old Bootloader)</b>.' : '<b>Tools → Board → Arduino Uno.</b>';
     renderFacil();
   }
   function renderFacil() {
@@ -469,5 +477,6 @@
   /* ---------- boot ---------- */
   function renderAll() { renderTabs(); renderPalette(); renderNamebar(); renderToolbar(); renderScript(); renderStory(); mountStage(); if (S.view === 'code') renderCode(); }
   renderAll();
+  if (location.hash === '#design') { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* fine */ } applyDesign(); }
   window.__camp = { S, state, Core, renderAll, setView, sensors, runIt };
 })();

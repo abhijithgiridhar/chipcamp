@@ -1,0 +1,23 @@
+<header class="topbar">
+  <a class="homebtn" href="index.html" title="Back to the Chip Camp welcome screen" aria-label="Home">🏠</a>
+  <div class="brand"><span class="logo" aria-hidden="true"><i style="background:#FFBF00"></i><i style="background:#4C97FF"></i><i style="background:#CF63CF"></i><i style="background:#59C059"></i></span>Facilitators</div>
+  <div class="spacer"></div>
+  <button class="btn small" id="lockBtn" hidden>🔒 Lock</button>
+</header>
+
+<main class="lock" id="lockView">
+  <form class="lockcard card" id="lockForm" autocomplete="off">
+    <div class="lockico" aria-hidden="true">🔒</div>
+    <h1>Facilitator area</h1>
+    <p>Session plans and presentations for the camp team.</p>
+    <label for="pin">Password</label>
+    <input id="pin" type="password" inputmode="numeric" autocomplete="off" autofocus>
+    <button class="btn go big" type="submit">Unlock</button>
+    <div class="lockmsg" id="lockMsg" role="status" aria-live="polite"></div>
+  </form>
+</main>
+
+<div class="plans" id="plansView" hidden>
+  <nav class="plannav card" id="planNav" aria-label="Documents"></nav>
+  <article class="planbody card" id="planBody"></article>
+</div>

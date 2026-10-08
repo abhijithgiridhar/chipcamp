@@ -1,7 +1,7 @@
 // node tests/run_tests.js [--no-compile]
 // 1. Generates sketches for every robot (empty / example / every block / hostile inputs)
 // 2. Checks the tested base code is untouched
-// 3. Compiles each sketch for a real Arduino Nano with the Arduino IDE's own toolchain
+// 3. Compiles each sketch for its real board (Chip Bot: Nano, Peeko and Jarvis: Uno) with the Arduino IDE's own toolchain
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
@@ -50,6 +50,17 @@ const cases = [];
   cases.push([id + '_example', id, exampleOf(id)]);
   cases.push([id + '_every_block', id, stressState(id)]);
   cases.push([id + '_hostile', id, hostileState(id)]);
+});
+
+// designs made in the Face / Dance / Light studios (a full one per robot) must compile too
+const Studio = require('../src/studiocore.js');
+['peeko', 'chipbot', 'jarvis'].forEach((id) => {
+  const full = id === 'peeko'
+    ? { moments: Studio.FACES.map((f, i) => ({ face: f, look: ['none', 'left', 'right'][i % 3], words: 'Hi ' + i, note: Studio.NOTE_IDS[i + 1], wait: 1 + i })) }
+    : id === 'chipbot'
+      ? { safe: true, safeCm: 20, moves: ['walk', 'turn', 'dance', 'stand', 'dance', 'walk', 'turn', 'dance'].map((k, i) => ({ kind: k, dir: k === 'turn' ? 'right' : 'back', n: 2 + i, move: String(i + 2), beep: Studio.NOTE_IDS[i + 1] })) }
+      : { dryPct: 55, dryColor: 'purple', dryAlarm: true, darkPct: 20, darkColor: 'cyan', okColor: 'white', checkSecs: 3 };
+  cases.push([id + '_studio_design', id, Studio.toState(id, full, { builder: 'Aarav', robot: 'Zippy', date: '14 Oct 2026' })]);
 });
 
 fs.rmSync(OUT, { recursive: true, force: true });
@@ -121,7 +132,7 @@ const pendingHeadless = (async function headless() {
 if (compile) {
   results.forEach((r) => {
     const t0 = Date.now();
-    const args = ['compile', '--fqbn', 'arduino:avr:nano:cpu=atmega328', '--warnings', 'default',
+    const args = ['compile', '--fqbn', r.id === 'chipbot' ? 'arduino:avr:nano:cpu=atmega328' : 'arduino:avr:uno', '--warnings', 'default',
       '--build-cache-path', '/tmp/cb_cache', '--build-path', '/tmp/cb_build_' + r.name];
     LIBS.forEach((l) => args.push('--libraries', l));
     args.push(r.dir);

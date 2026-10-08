@@ -6,7 +6,7 @@
 <title>Micron Chip Camp</title>
 <style>
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
-/* Welcome screen: follows "Option 2" of the Micron Chip Camp sticker (purple-to-black diagonal, stacked title, logos in the corners, Innovator Kit at the bottom). */
+/* Welcome screen: follows "Option 2" of the Micron Chip Camp sticker (purple-to-black diagonal, stacked title, logos in the corners). */
 :root{
   --hub-font:"Inter","Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;
   color-scheme:dark;
@@ -52,8 +52,11 @@ body{font-family:var(--hub-font);color:#fff;background:#0d0d10;-webkit-font-smoo
 .tile .prog{font-size:13px;font-weight:600;white-space:nowrap;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.8)}
 .tile .prog.done{background:rgba(89,192,89,.24);color:#9df59d}
 @media (max-width:560px){.tile{grid-template-columns:auto 1fr}.tile .prog{grid-column:1/-1;justify-self:start}}
-.hub-foot{padding:0 clamp(22px,5.6vw,80px) clamp(22px,4vw,52px);font-size:clamp(20px,2.4vw,32px);font-weight:600;letter-spacing:-.01em}
+.hub-main{padding-bottom:clamp(28px,5vw,64px)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.hub-fac{align-self:flex-start;margin:0 clamp(22px,5.6vw,80px) clamp(18px,3vw,36px);font-size:13px;font-weight:600;color:rgba(255,255,255,.45);text-decoration:none;padding:6px 10px;border-radius:999px}
+.hub-fac:hover,.hub-fac:focus-visible{color:#fff;background:rgba(255,255,255,.12);outline:none}
 
 </style>
 </head>
@@ -98,6 +101,13 @@ body{font-family:var(--hub-font);color:#fff;background:#0d0d10;-webkit-font-smoo
           <span class="tt"><b>Circuit Lab</b><small id="sCircuit">Drag parts together and wire up your robot.</small></span>
           <span class="prog" id="pgCircuit">Not yet</span>
         </a>
+        <a class="tile" id="tStudio" href="studio.html" style="--tc:#FF6680">
+          <span class="ico" aria-hidden="true">
+            <svg viewBox="0 0 40 40" width="40" height="40"><circle cx="14" cy="15" r="8" fill="#FF6680"/><circle cx="26" cy="15" r="8" fill="#FFAB19"/><circle cx="20" cy="26" r="8" fill="#59C059"/></svg>
+          </span>
+          <span class="tt"><b id="nStudio">Studio</b><small id="sStudio">Design how your robot looks, moves or lights up.</small></span>
+          <span class="prog" id="pgStudio">Not yet</span>
+        </a>
         <a class="tile" id="tCode" href="blocks.html" style="--tc:#CF63CF">
           <span class="ico" aria-hidden="true">
             <svg viewBox="0 0 40 40" width="40" height="40"><rect x="4" y="4" width="14" height="14" rx="4" fill="#FFBF00"/><rect x="22" y="4" width="14" height="14" rx="4" fill="#4C97FF"/><rect x="4" y="22" width="14" height="14" rx="4" fill="#CF63CF"/><rect x="22" y="22" width="14" height="14" rx="4" fill="#59C059"/></svg>
@@ -109,7 +119,8 @@ body{font-family:var(--hub-font);color:#fff;background:#0d0d10;-webkit-font-smoo
     </section>
   </main>
 
-  <footer class="hub-foot">Innovator Kit</footer>
+  <a class="hub-fac" href="plans.html">🔒 Facilitators</a>
+
 </div>
 
 <script>
@@ -128,6 +139,8 @@ body{font-family:var(--hub-font);color:#fff;background:#0d0d10;-webkit-font-smoo
       const d = read();
       return { name: clean(d.name), robot: ROBOTS.indexOf(d.robot) >= 0 ? d.robot : null, levels: d.levels || {}, circuits: d.circuits || {}, code: d.code || {} };
     },
+    design(robot) { const d = read(); return (d.designs && d.designs[robot]) || null; },
+    setDesign(robot, design) { if (ROBOTS.indexOf(robot) < 0) return; const d = read(); d.designs = d.designs || {}; d.designs[robot] = design; write(d); },
     robotOrDefault() { return this.get().robot || 'chipbot'; },
     setName(n) { const d = read(); d.name = clean(n); write(d); },
     setRobot(r) { if (ROBOTS.indexOf(r) < 0) return; const d = read(); d.robot = r; write(d); },
@@ -161,6 +174,10 @@ body{font-family:var(--hub-font);color:#fff;background:#0d0d10;-webkit-font-smoo
     $('#sCircuit').textContent = r ? 'Drag parts together and wire up ' + label + '.' : 'Drag parts together and wire up your robot.';
     const pc = $('#pgCircuit'); const cDone = r && p.circuits[r];
     pc.textContent = cDone ? 'Wired ✓' : 'Not yet'; pc.classList.toggle('done', !!cDone);
+
+    const SN = { chipbot: ['Dance Studio', 'Choose the moves for ' + label + '.'], peeko: ['Face Studio', 'Choose the faces for ' + label + '.'], jarvis: ['Light Studio', 'Choose the lights for ' + label + '.'] };
+    $('#nStudio').textContent = r ? SN[r][0] : 'Studio'; $('#sStudio').textContent = r ? SN[r][1] : 'Design how your robot looks, moves or lights up.';
+    const dz = r && ChipCamp.design(r); const ps = $('#pgStudio'); ps.textContent = dz ? 'Designed ✓' : 'Not yet'; ps.classList.toggle('done', !!dz);
 
     $('#sCode').textContent = r ? 'Build ' + label + "'s logic with blocks, then copy the code." : 'Build the logic with blocks, then copy your code.';
     const pk = $('#pgCode'); const n = r ? p.code[r] || 0 : 0;

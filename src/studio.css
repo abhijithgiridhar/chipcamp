@@ -1,0 +1,50 @@
+/* Face / Dance / Light Studio */
+.card{background:var(--card);border:2px solid var(--line);border-radius:20px;box-shadow:0 4px 0 var(--line)}
+.studio{display:grid;grid-template-columns:minmax(420px,1fr) 372px;gap:14px;padding:14px 18px 40px;align-items:start;max-width:1500px;margin:0 auto}
+@media (max-width:1000px){.studio{grid-template-columns:1fr}.stagecard{position:static}}
+@media (max-width:760px){.studio{padding:10px}}
+.edcard{padding:16px 16px 18px}
+.edhead h1{font-family:var(--font-d);font-weight:500;font-size:26px;margin:0}
+.edhead p{margin:4px 0 14px;font-weight:700;color:#38406a;font-size:15.5px}
+.cta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px}
+.cta .note{color:var(--ink-soft);font-weight:800;font-size:13px}
+
+/* one card per moment / move / rule */
+.stack{display:flex;flex-direction:column;gap:12px}
+.mom{--c:#9966FF;background:#fbfaff;border:3px solid var(--c);border-radius:18px;overflow:hidden;box-shadow:0 3px 0 rgba(0,0,0,.08)}
+.momhead{display:flex;align-items:center;gap:8px;background:var(--c);color:#fff;font-family:var(--font-d);font-weight:500;padding:6px 8px 6px 10px;text-shadow:0 1px 0 rgba(0,0,0,.18)}
+.momhead .num{background:#fff;color:var(--c);border-radius:11px;min-width:26px;text-align:center;padding:0 7px;font-size:15px;text-shadow:none}
+.momhead .sp{flex:1}
+.momhead button{border:0;cursor:pointer;background:rgba(255,255,255,.28);color:#fff;border-radius:10px;padding:2px 9px;font-family:var(--font-d);font-size:14px;line-height:1.5}
+.momhead button:hover:not(:disabled){background:rgba(255,255,255,.5)}
+.momhead button:disabled{opacity:.35;cursor:default}
+.mombody{padding:10px 12px 12px;display:flex;flex-direction:column;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{border:3px solid var(--line);background:#fff;border-radius:16px;cursor:pointer;padding:5px 11px;font-family:var(--font-d);font-size:15px;display:inline-flex;align-items:center;gap:6px;transition:transform .08s}
+.chip:hover{transform:translateY(-1px);border-color:var(--c)}
+.chip[aria-pressed="true"]{background:var(--c);border-color:var(--c);color:#fff;box-shadow:0 3px 0 rgba(0,0,0,.18);transform:translateY(-1px)}
+.chip .e{font-size:20px;line-height:1}
+.swatch{width:46px;height:46px;border-radius:50%;padding:0;border:4px solid #fff;box-shadow:0 0 0 3px var(--line),0 3px 0 rgba(0,0,0,.15);cursor:pointer;position:relative}
+.swatch[aria-pressed="true"]{box-shadow:0 0 0 4px var(--c),0 3px 0 rgba(0,0,0,.2);transform:scale(1.1)}
+.swatch.off{background-image:repeating-linear-gradient(45deg,#6b7280 0 6px,#59606e 6px 12px)}
+.swatches{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.swlabel{font-size:12px;font-weight:800;color:var(--ink-soft);margin:-4px 0 0 4px}
+.fields{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end}
+.fields label{display:flex;flex-direction:column;gap:3px;font-weight:800;font-size:12px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em}
+.fields input,.fields select{border:2px solid var(--line);background:#fff;border-radius:12px;padding:6px 10px;font-weight:800;font-size:15px;color:var(--ink);text-transform:none;letter-spacing:0;font-family:var(--font-b)}
+.fields input[type=number]{width:76px}
+.fields input[type=text]{width:190px}
+.fields select{padding-right:6px}
+.fields input:focus,.fields select:focus{outline:3px solid rgba(124,77,255,.35);border-color:var(--purple)}
+.check{display:flex;align-items:center;gap:10px;font-weight:800;font-size:15px;flex-wrap:wrap}
+.check input[type=checkbox]{width:22px;height:22px;accent-color:var(--purple)}
+.check input[type=number]{width:70px;border:2px solid var(--line);border-radius:12px;padding:5px 8px;font-weight:800;font-size:15px}
+.addrow{display:flex;align-items:center;gap:10px;margin-top:2px}
+.addrow .note{font-weight:800;font-size:13px;color:var(--ink-soft)}
+.guard{--c:#4C97FF}
+.rule{--c:#FFAB19}
+.rule .momhead b{font-weight:500}
+.rule.r2{--c:#3FB8DE}
+.rule.r3{--c:#59C059}
+.flow{text-align:center;font-family:var(--font-d);color:var(--ink-soft);font-size:14px;margin:8px 0}
+.step.run{outline:3px solid #ffd93b}

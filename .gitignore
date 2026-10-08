@@ -1,3 +1,5 @@
 .DS_Store
 tests/out/
 artifact.html
+session-plan/
+.plans-pin

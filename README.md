@@ -19,16 +19,18 @@ Failures are deliberately funny and reinforce "machines do exactly what you tell
 "Show me a solution" button appears; peeking caps the stars at 1. A "See it as real robot code" panel shows the
 Arduino-style code the blocks would become.
 
-## Circuit Lab — what it assumes about the kit
-Arduino **Nano on an IO sensor shield** (the decision in the project notes). Header pins are S (signal, yellow),
-V (power, red), G (ground, black). 3-pin parts (servo, buzzer, soil sensor) plug onto a header; **click a plug to flip it** —
-a reversed plug is a classic real-life mistake and the checker explains it. 4-pin parts (HC-SR04, OLED) are wired with
-jumpers. Jarvis uses a breadboard for the LDR divider (10 kΩ) and the RGB LED (three 220 Ω resistors).
+## Circuit Lab — boards and power
+**Every robot runs from the laptop's USB cable. There is no battery anywhere.**
 
-Pins are the ones in the real firmware: Chip Bot servos D2/D3/D4/D5, TRIG D8, ECHO D9, buzzer D13, servo battery on the
-EXT terminal; Peeko OLED on I2C (A4/A5), head servo D9, buzzer D8; Jarvis soil A0, LDR A1, RGB D9/D10/D11, buzzer D8.
-Bonus parts (the buzzers on Chip Bot and Peeko) are optional but must be right if placed.
-Facilitators have a **"Show finished circuit"** button to compare against.
+| Robot | Board | How parts connect |
+|---|---|---|
+| Chip Bot | Arduino **Nano on an IO sensor shield** | Header pins are S (signal, yellow), V (power, red), G (ground, black). The 4 servos and the buzzer have 3-pin plugs that go onto a header (**click a plug to flip it**; a reversed plug is a classic real-life mistake and the checker explains it). The HC-SR04 is wired with jumpers. |
+| Peeko | Plain **Arduino Uno** | No shield. Every connection is a jumper wire (or a breadboard power rail): the servo and buzzer each have 3 pins (S, V, G), the OLED has 4. A breadboard is optional but is the tidy way to share 5V and GND. |
+| Jarvis | Plain **Arduino Uno** | Same, plus a required breadboard for the LDR divider (10 kΩ) and the RGB LED (three 220 Ω resistors). |
+
+Pins are the ones in the real firmware: Chip Bot servos D2/D3/D4/D5, TRIG D8, ECHO D9, buzzer D13; Peeko OLED on A4/A5 (SDA/SCL),
+head servo D9, buzzer D8; Jarvis soil A0, LDR A1, RGB D9/D10/D11, buzzer D8. Bonus parts (the buzzers on Chip Bot and Peeko) are
+optional but must be right if placed. Facilitators have a **"Show finished circuit"** button to compare against.
 
 ## Code Builder — why the code can be trusted
 The tool never writes a robot's code from scratch. Each robot has a **tested base sketch** in `firmware/*.base.ino` and
@@ -39,13 +41,14 @@ only, choices from fixed lists).
 |---|---|---|
 | Peeko | your bench-tested `~/Documents/Arduino/AT/AT.ino` (v2) | the 9-line serial loop moved into `pollSerial()` (same code) + small hooks. All 9 serial commands still work, so Teachable Machine can still send `happy`, `sad`, … |
 | Chip Bot | Otto walk/turn/dance + servo + distance code from `chipbot/firmware/chipbot/chipbot.ino`, verbatim | Studio's USB/EEPROM-program machinery left out. Servo trims saved by Chip Bot Studio are still read. |
-| Jarvis | written fresh (small) | **not bench-tested yet** |
+| Jarvis | written fresh (small), for an Arduino Uno | **not bench-tested yet** |
 
 ## Before camp: put the examples on real hardware
-`bench-test/` has one finished, compile-verified sketch per robot (Arduino IDE, **Board: Arduino Nano**; if upload
-fails, **Processor: ATmega328P (Old Bootloader)**).
+`bench-test/` has one finished, compile-verified sketch per robot. In the Arduino IDE use **Board: Arduino Uno** for Peeko and
+Jarvis, and **Board: Arduino Nano** for Chip Bot (if its upload fails, **Processor: ATmega328P (Old Bootloader)**).
 - **Peeko** — says its name, then a coin flip shows a happy or sad face every 3 s. Serial Monitor (9600, Newline): type `celebrate`.
-- **Chip Bot** — beeps twice, walks forward, turns left when something is closer than 15 cm. Servo power from the 4×AA pack.
+- **Chip Bot** — beeps twice, walks forward, turns left when something is closer than 15 cm. All four servos run from the laptop USB cable, so
+  test the full walk on the bench: four SG90s can pull more than a USB port gives and brown the board out.
   *Flashing this replaces the Chip Bot Studio firmware; re-flash `chipbot/firmware/chipbot/chipbot.ino` to go back.*
 - **Jarvis** — calibrate first with a `print sensor readings` block, then enter the raw dry/wet soil numbers under
   *Facilitator: bench settings* on the Code tab (also LED common-anode and light direction).
@@ -53,7 +56,7 @@ fails, **Processor: ATmega328P (Old Bootloader)**).
 ## Checks that have been run (laptop only, no robots)
 `node tests/run_all.js` (needs Node; the sketch compile also needs the Arduino IDE app, and the base files from your
 Arduino folder, so on another machine use `--no-compile`)
-- **Code Builder (198)** — 12 generated sketches compile for a Nano with the Arduino IDE's own toolchain; Peeko base differs
+- **Code Builder (198)** — 12 generated sketches compile for their real board (Chip Bot: Nano, Peeko and Jarvis: Uno) with the Arduino IDE's own toolchain; Peeko base differs
   from `AT.ino` only by the moved serial loop; hostile text (quotes, emoji, `"; system(...)`) cannot reach the code.
 - **CHIP Challenge (143)** — every level solvable inside its block limit; the flat solution never fits levels 3–10; the
   level-9 bug really fails; the level-10 maze defeats the simpler programs.
@@ -63,8 +66,13 @@ Arduino folder, so on another machine use `--no-compile`)
 - In a real browser: mouse drag-and-drop for blocks (including nested), plugs onto headers, wires, seating parts in the
   breadboard, and no horizontal scrolling down to phone width.
 
-**Not tested yet:** any of this on physical Nano / servos / OLED / sensors, or on a touch screen.
+**Not tested yet:** any of this on physical Nano / Uno / servos / OLED / sensors, or on a touch screen.
 
 ## Rebuilding
 `node build.js` bundles `src/` + `firmware/` into the four HTML files. Brand assets are in `assets/` (the Micron and Lend A
 Hand India logos were cut from the sticker artwork as white-on-transparent PNGs).
+
+## Studio, bring-up sketches and the session plan
+- `studio.html` is the **Face / Dance / Light Studio**: students design a show (Peeko), a routine (Chip Bot) or light rules (Jarvis) with the on-screen robot, then press **Use this in the Code Builder**. A design can only pick from the tested faces, moves, colours and notes, so every design makes a sketch that compiles (`node tests/studio_tests.js`).
+- `firmware/bringup/` has one pre-flash sketch per robot (compile-checked by `node tests/bringup_tests.js`). `tools/preflash.sh` flashes many boards in a row (not tested on real boards yet).
+- `session-plan/` (kept out of this public repo) is the two-day plan. `node build.js` encrypts it into `plans.html`, the password-protected facilitator area. The password comes from the `PLANS_PIN` environment variable or a local `.plans-pin` file, and neither is committed.

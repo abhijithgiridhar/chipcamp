@@ -13,6 +13,8 @@
       const d = read();
       return { name: clean(d.name), robot: ROBOTS.indexOf(d.robot) >= 0 ? d.robot : null, levels: d.levels || {}, circuits: d.circuits || {}, code: d.code || {} };
     },
+    design(robot) { const d = read(); return (d.designs && d.designs[robot]) || null; },
+    setDesign(robot, design) { if (ROBOTS.indexOf(robot) < 0) return; const d = read(); d.designs = d.designs || {}; d.designs[robot] = design; write(d); },
     robotOrDefault() { return this.get().robot || 'chipbot'; },
     setName(n) { const d = read(); d.name = clean(n); write(d); },
     setRobot(r) { if (ROBOTS.indexOf(r) < 0) return; const d = read(); d.robot = r; write(d); },

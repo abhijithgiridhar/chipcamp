@@ -1,0 +1,75 @@
+/* ---------- stage ---------- */
+.stagecard{overflow:hidden;position:sticky;top:12px}
+.stagehead{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:2px solid var(--line-soft);background:#f6f9ff;flex-wrap:wrap}
+.stagehead h2{font-family:var(--font-d);font-size:17px;font-weight:500;margin:0;margin-right:auto}
+.speedsel{display:flex;border-radius:12px;overflow:hidden;border:2px solid var(--line)}
+.speedsel button{border:0;background:#fff;padding:3px 9px;font-weight:800;font-size:12px;cursor:pointer;color:var(--ink-soft)}
+.speedsel button[aria-pressed="true"]{background:var(--purple);color:#fff}
+.scene{position:relative;overflow:hidden}
+.sliders{padding:10px 14px;display:flex;flex-direction:column;gap:8px;border-top:2px solid var(--line-soft)}
+.slider{display:grid;grid-template-columns:1fr auto;gap:2px 8px;font-weight:800;font-size:13px}
+.slider input{grid-column:1/-1;accent-color:var(--purple);width:100%}
+.slider output{font-family:var(--font-m);color:var(--purple);grid-row:1;grid-column:2}
+.serial{margin:0 14px 14px;border:2px dashed var(--line);border-radius:14px;background:#fcfdff;font-family:var(--font-m);font-size:12px;padding:8px 10px;height:94px;overflow:auto;color:#3d4668}
+.serial b{font-family:var(--font-b);color:var(--ink-soft);font-size:11px;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:3px}
+.serial div{white-space:pre-wrap}
+.notes{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.fnote{position:absolute;bottom:26%;font-size:30px;font-weight:900;animation:floatup 1.3s ease-out forwards;text-shadow:0 2px 0 rgba(255,255,255,.7)}
+@keyframes floatup{0%{transform:translateY(0) scale(.6);opacity:0}15%{opacity:1}100%{transform:translateY(-130px) scale(1.15) rotate(12deg);opacity:0}}
+
+/* Peeko */
+.pk-scene{position:relative;height:292px;display:grid;place-items:end center;background:linear-gradient(#ffe9d6,#ffd1e0);padding-bottom:26px}
+.pk-bot{--tilt:0deg;transform:rotate(var(--tilt));transform-origin:50% 100%;transition:transform .22s cubic-bezier(.3,1.5,.5,1)}
+.pk-antenna{width:8px;height:30px;background:#d94c40;margin:0 auto -2px;border-radius:4px;position:relative}
+.pk-antenna::after{content:"";position:absolute;top:-12px;left:-8px;width:24px;height:24px;border-radius:50%;background:#ffd93b;border:4px solid #e0a800}
+.pk-head{width:262px;height:176px;border-radius:58px;background:linear-gradient(#ff8c80,#ff6b5e);border:7px solid #d94c40;box-shadow:0 8px 0 #b73c32,0 18px 24px rgba(120,40,40,.25);display:grid;place-items:center}
+.pk-screen{width:210px;height:106px;border-radius:20px;background:#050b14;border:6px solid #1b2236;overflow:hidden;box-shadow:inset 0 0 18px rgba(130,200,255,.18)}
+.pk-screen canvas{width:100%;height:100%;display:block}
+
+/* Chip Bot */
+.cb-scene{--T:1s;position:relative;height:292px;background:linear-gradient(#bfe6ff,#e9f8ff 70%)}
+.cb-sun{position:absolute;right:26px;top:22px;width:54px;height:54px;border-radius:50%;background:#ffd93b;box-shadow:0 0 0 10px rgba(255,217,59,.3)}
+.cb-ground{position:absolute;left:0;right:0;bottom:0;height:76px;background:#7bd389;border-top:6px solid #5cbf6e;overflow:hidden}
+.cb-track{position:absolute;inset:auto 0 18px 0;height:8px;background:repeating-linear-gradient(90deg,#fff 0 28px,transparent 28px 60px);opacity:.85;background-size:60px 8px}
+.moving-f .cb-track{animation:trackf var(--T) linear infinite}
+.moving-b .cb-track{animation:trackb var(--T) linear infinite}
+@keyframes trackf{to{background-position:-60px 0}}
+@keyframes trackb{to{background-position:60px 0}}
+.cb-obstacle{position:absolute;bottom:70px;font-size:50px;transition:left .35s ease;transform:translateX(-50%)}
+.cb-bot{position:absolute;left:17%;bottom:58px;width:92px;display:flex;flex-direction:column;align-items:center;transform-origin:50% 100%}
+.cb-body{width:88px;height:78px;border-radius:26px;background:linear-gradient(#3fd0bf,#2bb3a3);border:5px solid #1e8e80;box-shadow:0 5px 0 #17756a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.cb-eyes{display:flex;gap:14px}
+.cb-eyes i{width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid #17756a;display:block;position:relative}
+.cb-eyes i::after{content:"";position:absolute;width:8px;height:8px;border-radius:50%;background:#17302d;left:5px;top:5px}
+.cb-mouth{width:26px;height:8px;border-radius:0 0 14px 14px;border:3px solid #17756a;border-top:0}
+.cb-legs{display:flex;gap:18px;margin-top:-2px}
+.cb-leg{width:20px;height:26px;border-radius:8px 8px 12px 12px;background:#1e8e80;display:block;transform-origin:50% 0}
+.walking .cb-leg.l{animation:legL var(--T) ease-in-out infinite}
+.walking .cb-leg.r{animation:legR var(--T) ease-in-out infinite}
+.moving-b .walking .cb-leg.l{animation-direction:reverse}
+@keyframes legL{0%,100%{transform:rotate(22deg)}50%{transform:rotate(-22deg)}}
+@keyframes legR{0%,100%{transform:rotate(-22deg)}50%{transform:rotate(22deg)}}
+.walking .cb-body{animation:bob calc(var(--T) / 2) ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-6px)}}
+.turn-l{animation:turnl var(--T) ease-in-out infinite}
+.turn-r{animation:turnr var(--T) ease-in-out infinite}
+@keyframes turnl{0%,100%{transform:rotate(0)}50%{transform:rotate(-14deg) scaleX(.82)}}
+@keyframes turnr{0%,100%{transform:rotate(0)}50%{transform:rotate(14deg) scaleX(.82)}}
+.dancing .cb-body{animation:dance0 var(--T) ease-in-out infinite}
+.dancing.dance-1 .cb-body{animation-name:dance1}
+.dancing.dance-2 .cb-body{animation-name:dance2}
+.dancing.dance-3 .cb-body{animation-name:dance3}
+.dancing .cb-leg.l{animation:legL calc(var(--T) / 2) ease-in-out infinite}
+.dancing .cb-leg.r{animation:legR calc(var(--T) / 2) ease-in-out infinite}
+@keyframes dance0{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+@keyframes dance1{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@keyframes dance2{0%,100%{transform:rotate(-10deg) translateX(-6px)}50%{transform:rotate(10deg) translateX(6px)}}
+@keyframes dance3{0%,100%{transform:scale(1)}25%{transform:scale(1.08,.92)}75%{transform:scale(.94,1.06)}}
+.cb-dist{position:absolute;left:12px;top:12px;background:#fff;border:2px solid #cfe6f7;border-radius:14px;padding:3px 10px;font-weight:800;font-size:13px}
+
+/* Jarvis */
+.jv-scene{position:relative;height:292px;background:linear-gradient(#d9f4ff,#fff6d6)}
+.jv-scene svg{width:100%;height:100%;display:block}
+.jv-scene .plant{transition:transform .5s ease}
+.jv-scene .soil{transition:fill .5s ease}
+.jv-scene .jv-sun{transition:opacity .4s, transform .4s}

@@ -14,25 +14,43 @@
     dig: { x0: 160, dx: 44, yS: 262, yV: 278, yG: 294, labelY: 247 },
     ana: { x0: 160, dx: 44, yS: 470, yV: 486, yG: 502, labelY: 455 },
     i2c: { x0: 480, dx: 30, y: 486, order: ['GND', 'VCC', 'SDA', 'SCL'] },
-    ext: { x: 668, yP: 470, yN: 500 },
     usb: { x: 60, y: 390 },
+    unoUsb: { x: 60, y: 340 },
+    uno: { x: 60, y: 230, w: 640, h: 300 },
     bb: { x: 745, y: 214, cols: 20, pitch: 20, xOff: 36, rowTop: 74, rowBot: 194, rails: { 'T+': 26, 'T-': 46, 'B+': 306, 'B-': 326 }, w: 452, h: 354 }
   };
   const ROWS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
 
-  function boardTermPos(id) {
+  // The plain Arduino Uno (Peeko, Jarvis) has single pin sockets, no S/V/G triples. Labels run as printed on the board.
+  const UNO_PINS = [];
+  (function () {
+    const top = [['I2C.SCL', 'SCL'], ['I2C.SDA', 'SDA'], [null, 'AREF'], ['PWR.GND3', 'GND']];
+    for (let n = 13; n >= 8; n--) top.push(['D' + n + '.S', String(n)]);
+    let x = 130; top.forEach((t) => { UNO_PINS.push({ id: t[0], label: t[1], x, y: 262 }); x += 26; });
+    x += 20;
+    for (let n = 7; n >= 0; n--) { UNO_PINS.push({ id: 'D' + n + '.S', label: String(n), x, y: 262 }); x += 26; }
+    const bot = [[null, 'IOREF'], [null, 'RESET'], ['PWR.3V3', '3V3'], ['PWR.5V', '5V'], ['PWR.GND1', 'GND'], ['PWR.GND2', 'GND'], ['PWR.VIN', 'VIN']];
+    x = 200; bot.forEach((t) => { UNO_PINS.push({ id: t[0], label: t[1], x, y: 498 }); x += 26; });
+    x = 410; for (let n = 0; n <= 5; n++) { UNO_PINS.push({ id: 'A' + n + '.S', label: 'A' + n, x, y: 498 }); x += 26; }
+  })();
+  function boardTermPos(id, kind) {
+    if (kind === 'uno') {
+      if (id === 'USB') return { x: L.unoUsb.x, y: L.unoUsb.y };
+      const pin = UNO_PINS.find((q) => q.id === id); return pin ? { x: pin.x, y: pin.y } : null;
+    }
     let m = /^D(\d+)\.([SVG])$/.exec(id);
     if (m) return { x: L.dig.x0 + (Number(m[1]) - 2) * L.dig.dx, y: L.dig['y' + m[2]] };
     m = /^A(\d)\.([SVG])$/.exec(id);
     if (m) return { x: L.ana.x0 + Number(m[1]) * L.ana.dx, y: L.ana['y' + m[2]] };
     m = /^I2C\.(GND|VCC|SDA|SCL)$/.exec(id);
     if (m) return { x: L.i2c.x0 + L.i2c.order.indexOf(m[1]) * L.i2c.dx, y: L.i2c.y };
-    if (id === 'EXT.P') return { x: L.ext.x, y: L.ext.yP };
-    if (id === 'EXT.N') return { x: L.ext.x, y: L.ext.yN };
     if (id === 'USB') return { x: L.usb.x, y: L.usb.y };
     return null;
   }
-  function headerCenter(pin) { const p = boardTermPos(pin + '.V'); return p; }
+  const BOARD = { chipbot: 'shield', peeko: 'uno', jarvis: 'uno' };
+  const boardKind = (proj) => BOARD[proj] || 'shield';
+  const usbPos = (kind) => (kind === 'uno' ? L.unoUsb : L.usb);
+  function headerCenter(pin) { const p = boardTermPos(pin + '.V', 'shield'); return p; }
   function holeXY(col, row) {
     const i = ROWS.indexOf(row);
     return { x: L.bb.x + L.bb.xOff + (col - 1) * L.bb.pitch, y: L.bb.y + (i < 5 ? L.bb.rowTop + i * L.bb.pitch : L.bb.rowBot + (i - 5) * L.bb.pitch) };
@@ -48,13 +66,12 @@
   /* ---------- parts ---------- */
   const P = L.bb.pitch;
   const PARTS = {
-    servo: { name: 'Servo motor', kind: 'plug3', w: 86, h: 42, port: { x: -43, y: 10 }, cable: { s: '#ff9f1a', v: '#e5484d', g: '#6b4423' }, note: 'SG90. Orange = signal, red = power, brown = ground.' },
-    buzzer: { name: 'Buzzer module', kind: 'plug3', w: 46, h: 46, port: { x: 0, y: 23 }, cable: { s: '#ffd93b', v: '#e5484d', g: '#2b2f4a' }, note: 'Beeps when the pin is switched on.' },
-    soil: { name: 'Soil moisture sensor', kind: 'plug3', w: 56, h: 84, port: { x: 28, y: -14 }, cable: { s: '#59c059', v: '#e5484d', g: '#2b2f4a' }, note: 'Two metal probes go in the soil.' },
-    usb: { name: 'USB cable', kind: 'usb', w: 80, h: 46, port: { x: 40, y: 0 }, note: 'Powers the Nano and carries your code to it.' },
+    servo: { name: 'Servo motor', kind: 'plug3', w: 86, h: 42, port: { x: -43, y: 10 }, cable: { s: '#ff9f1a', v: '#e5484d', g: '#6b4423' }, unoTerms: { s: [-92, -14], v: [-92, 0], g: [-92, 14] }, note: 'SG90. Orange = signal, red = power, brown = ground.' },
+    buzzer: { name: 'Buzzer module', kind: 'plug3', w: 46, h: 46, port: { x: 0, y: 23 }, cable: { s: '#ffd93b', v: '#e5484d', g: '#2b2f4a' }, unoTerms: { s: [-16, 38], v: [0, 38], g: [16, 38] }, note: 'Beeps when the pin is switched on.' },
+    soil: { name: 'Soil moisture sensor', kind: 'plug3', w: 56, h: 84, port: { x: 28, y: -14 }, cable: { s: '#59c059', v: '#e5484d', g: '#2b2f4a' }, unoTerms: { s: [-16, -58], v: [0, -58], g: [16, -58] }, note: 'Two metal probes go in the soil.' },
+    usb: { name: 'USB cable', kind: 'usb', w: 80, h: 46, port: { x: 40, y: 0 }, note: 'Powers the board and carries your code to it. Every robot runs from this cable.' },
     hcsr04: { name: 'Ultrasonic sensor (HC-SR04)', kind: 'pins', w: 124, h: 60, terms: { vcc: [-42, 32], trig: [-14, 32], echo: [14, 32], gnd: [42, 32] }, labels: { vcc: 'VCC', trig: 'TRIG', echo: 'ECHO', gnd: 'GND' }, note: 'Chip Bot\'s eyes. It measures distance with sound.' },
     oled: { name: 'OLED screen', kind: 'pins', w: 100, h: 66, terms: { gnd: [-36, -37], vcc: [-12, -37], scl: [12, -37], sda: [36, -37] }, labels: { gnd: 'GND', vcc: 'VCC', scl: 'SCL', sda: 'SDA' }, note: 'Peeko\'s eyes live on this little screen.' },
-    battery: { name: '4×AA battery pack', kind: 'leads', w: 104, h: 48, terms: { p: [64, -12], n: [64, 12] }, labels: { p: '+', n: '−' }, note: 'Powers the servos. Do not run servos from USB.' },
     ldr: { name: 'Light sensor (LDR)', kind: 'legs', w: 40, h: 30, legs: { a: [0, 0], b: [2 * P, 0] }, seatPitch: 2, note: 'Its resistance changes with light. It needs a partner resistor.' },
     resistor: { name: 'Resistor', kind: 'legs', w: 66, h: 14, legs: { a: [0, 0], b: [4 * P, 0] }, seatPitch: 4, note: 'Click it to change its value.' },
     rgb: { name: 'RGB LED', kind: 'legs', w: 56, h: 50, legs: { r: [0, 0], k: [P, 0], g: [2 * P, 0], b: [3 * P, 0] }, seatPitch: 1, note: 'Red, green, blue and one shared ground (the long leg, K).' },
@@ -63,6 +80,12 @@
   const OHMS = [100, 220, 1000, 10000, 100000];
   const ohmLabel = (o) => (o >= 1000 ? (o / 1000) + 'kΩ' : o + 'Ω');
   const legsKind = (type) => PARTS[type].kind === 'legs';
+  // On a plain Uno there is no shield to plug onto, so the 3-pin modules are wired pin by pin
+  function defFor(part, state) {
+    const def = PARTS[part.type];
+    if (def.kind === 'plug3' && boardKind(state.proj) === 'uno') return Object.assign({}, def, { kind: 'pins3', terms: def.unoTerms, labels: { s: 'S', v: 'V', g: 'G' } });
+    return def;
+  }
 
   /* ---------- what is in each kit ---------- */
   const INV = {
@@ -73,14 +96,14 @@
       { key: 'lfoot', type: 'servo', role: 'lfoot', label: 'Servo: left foot', qty: 1 },
       { key: 'rfoot', type: 'servo', role: 'rfoot', label: 'Servo: right foot', qty: 1 },
       { key: 'hcsr04', type: 'hcsr04', label: 'Ultrasonic sensor', qty: 1 },
-      { key: 'battery', type: 'battery', label: '4×AA battery pack', qty: 1 },
       { key: 'buzzer', type: 'buzzer', label: 'Buzzer (bonus)', qty: 1, optional: true }
     ],
     peeko: [
       { key: 'usb', type: 'usb', label: 'USB cable', qty: 1 },
       { key: 'oled', type: 'oled', label: 'OLED screen', qty: 1 },
       { key: 'head', type: 'servo', role: 'head', label: 'Servo: head', qty: 1 },
-      { key: 'buzzer', type: 'buzzer', label: 'Buzzer (bonus)', qty: 1, optional: true }
+      { key: 'buzzer', type: 'buzzer', label: 'Buzzer (bonus)', qty: 1, optional: true },
+      { key: 'breadboard', type: 'breadboard', label: 'Breadboard (power rails)', qty: 1, optional: true }
     ],
     jarvis: [
       { key: 'usb', type: 'usb', label: 'USB cable', qty: 1 },
@@ -117,6 +140,7 @@
     return id;
   };
   const SIGNAL = DIG.map((n) => 'D' + n).concat(ANA.map((n) => 'A' + n));
+  const signalList = (kind) => (kind === 'uno' ? ['D0', 'D1'].concat(SIGNAL) : SIGNAL);
   function legHoles(part, state) {
     if (!part.seat) return null;
     const out = {}; const base = part.seat;
@@ -127,12 +151,18 @@
     const parent = new Map();
     const find = (x) => { if (!parent.has(x)) parent.set(x, x); let r = x; while (parent.get(r) !== r) r = parent.get(r); let c = x; while (parent.get(c) !== r) { const n = parent.get(c); parent.set(c, r); c = n; } return r; };
     const union = (a, b) => { const ra = find(canon(a)), rb = find(canon(b)); if (ra !== rb) parent.set(ra, rb); };
-    SIGNAL.forEach((p) => { union(p + '.V', 'NET:5V'); union(p + '.G', 'NET:GND'); });
-    union('I2C.VCC', 'NET:5V'); union('I2C.GND', 'NET:GND'); union('EXT.N', 'NET:GND');
-    union('I2C.SDA', 'A4.S'); union('I2C.SCL', 'A5.S'); union('EXT.P', 'NET:VEXT');
+    const kind = boardKind(state.proj);
+    if (kind === 'uno') {
+      union('PWR.5V', 'NET:5V'); ['PWR.GND1', 'PWR.GND2', 'PWR.GND3'].forEach((g) => union(g, 'NET:GND'));
+      union('PWR.3V3', 'NET:3V3'); union('PWR.VIN', 'NET:VIN');
+    } else {
+      SIGNAL.forEach((p) => { union(p + '.V', 'NET:5V'); union(p + '.G', 'NET:GND'); });
+      union('I2C.VCC', 'NET:5V'); union('I2C.GND', 'NET:GND');
+    }
+    union('I2C.SDA', 'A4.S'); union('I2C.SCL', 'A5.S');
     state.parts.forEach((p) => {
       const def = PARTS[p.type];
-      if (def.kind === 'plug3' && p.plug && boardTermPos(p.plug.to + '.V')) {
+      if (def.kind === 'plug3' && kind === 'shield' && p.plug && boardTermPos(p.plug.to + '.V', 'shield')) {
         const f = !!p.plug.flip;
         union(p.id + '.s', p.plug.to + (f ? '.G' : '.S')); union(p.id + '.v', p.plug.to + '.V'); union(p.id + '.g', p.plug.to + (f ? '.S' : '.G'));
       }
@@ -147,17 +177,18 @@
   }
 
   /* ---------- checking ---------- */
-  const NAMES = { 'NET:5V': '5V power', 'NET:GND': 'ground (GND)', 'NET:VEXT': 'the battery +' };
+  const NAMES = { 'NET:5V': '5V power', 'NET:GND': 'ground (GND)' };
   function makeCtx(proj, state) {
     const nets = buildNets(state);
     const part = (key) => state.parts.find((p) => p.key === key);
     const label = (key) => (invOf(proj, key) || {}).label || key;
     const boardNames = (id) => {
       const r = nets.root(id), out = [];
-      SIGNAL.forEach((p) => { if (nets.root(p + '.S') === r) out.push(p); });
+      signalList(boardKind(proj)).forEach((p) => { if (nets.root(p + '.S') === r) out.push(p); });
       if (nets.root('NET:5V') === r) out.push('5V power');
       if (nets.root('NET:GND') === r) out.push('ground (GND)');
-      if (nets.root('NET:VEXT') === r) out.push('the battery +');
+      if (nets.root('NET:3V3') === r) out.push('3.3V');
+      if (nets.root('NET:VIN') === r) out.push('VIN');
       return out;
     };
     return { proj, state, nets, part, label, boardNames };
@@ -211,8 +242,6 @@
       out.push(linkItem(c, 'Ultrasonic eyes', 'hcsr04', 'gnd', 'NET:GND', 'GND → ground'));
       out.push(linkItem(c, 'Ultrasonic eyes', 'hcsr04', 'trig', 'D8.S', 'TRIG → D8'));
       out.push(linkItem(c, 'Ultrasonic eyes', 'hcsr04', 'echo', 'D9.S', 'ECHO → D9'));
-      out.push(linkItem(c, 'Battery for the servos', 'battery', 'p', 'EXT.P', 'Battery + → EXT +'));
-      out.push(linkItem(c, 'Battery for the servos', 'battery', 'n', 'EXT.N', 'Battery − → EXT −'));
       out.push(plugItem(c, 'Bonus', 'buzzer', 'D13', 'Buzzer → D13', { optional: true }));
       return out;
     },
@@ -223,14 +252,14 @@
       out.push(linkItem(c, 'OLED screen', 'oled', 'vcc', 'NET:5V', 'VCC → 5V power'));
       out.push(linkItem(c, 'OLED screen', 'oled', 'sda', 'A4.S', 'SDA → A4 (the data wire)'));
       out.push(linkItem(c, 'OLED screen', 'oled', 'scl', 'A5.S', 'SCL → A5 (the clock wire)'));
-      out.push(plugItem(c, 'Head', 'head', 'D9', 'Head servo → D9'));
-      out.push(plugItem(c, 'Bonus', 'buzzer', 'D8', 'Buzzer → D8', { optional: true }));
+      moduleItems(c, 'Head servo', 'head', 'D9', 'Head servo', out);
+      moduleItems(c, 'Bonus', 'buzzer', 'D8', 'Buzzer', out, true);
       return out;
     },
     jarvis(c) {
       const out = [];
       out.push(usbItem(c));
-      out.push(plugItem(c, 'Soil sensor', 'soil', 'A0', 'Soil sensor → A0'));
+      moduleItems(c, 'Soil sensor', 'soil', 'A0', 'Soil sensor', out);
       const ldr = c.part('ldr');
       const ldrIt = base('ldr.divider', 'Light sensor', 'LDR between 5V and A1', { focus: ldr ? [ldr.id + '.a', ldr.id + '.b', 'A1.S'] : ['bin:ldr'] });
       if (!ldr) { ldrIt.msg = 'Drag the light sensor (LDR) onto the breadboard.'; }
@@ -250,12 +279,19 @@
           out.push(resistorBetween(c, 'RGB light', 'rgb.' + x[0], x[1] + '.S', led.id + '.' + x[0], 220, x[2] + ' leg ← 220Ω resistor ← ' + x[1]));
         });
       }
-      out.push(plugItem(c, 'Buzzer', 'buzzer', 'D8', 'Buzzer → D8'));
+      moduleItems(c, 'Buzzer', 'buzzer', 'D8', 'Buzzer', out);
       return out;
     }
   };
+  // a 3-pin module on a plain Uno: three jumper wires (signal to its pin, power to 5V, ground to GND)
+  function moduleItems(c, group, key, pin, name, out, optional) {
+    const o = { optional: !!optional };
+    out.push(linkItem(c, group, key, 's', pin + '.S', name + ' signal → ' + pin, o));
+    out.push(linkItem(c, group, key, 'v', 'NET:5V', name + ' power (V) → 5V', o));
+    out.push(linkItem(c, group, key, 'g', 'NET:GND', name + ' ground (G) → GND', o));
+  }
   function usbItem(c) {
-    const p = c.part('usb'), it = base('usb', 'Power & code', 'USB cable plugged into the Nano', { focus: ['USB'] });
+    const p = c.part('usb'), it = base('usb', 'Power & code', 'USB cable plugged into the ' + (boardKind(c.proj) === 'uno' ? 'Arduino Uno' : 'Nano'), { focus: ['USB'] });
     if (!p) { it.msg = 'Drag the USB cable onto the board first.'; it.focus = ['bin:usb']; return it; }
     if (!p.plug || p.plug.to !== 'USB') { it.msg = 'Drag the end of the USB cable onto the USB port on the left of the board.'; return it; }
     it.status = 'ok'; return it;
@@ -266,16 +302,18 @@
     const ids = ctx.nets.ids();
     const roots = {}; ids.forEach((id) => { const r = ctx.nets.root(id); (roots[r] = roots[r] || []).push(id); });
     const rootOf = (n) => ctx.nets.root(n);
-    const rP = rootOf('NET:5V'), rG = rootOf('NET:GND'), rE = rootOf('NET:VEXT');
+    const kind = boardKind(ctx.proj), rP = rootOf('NET:5V'), rG = rootOf('NET:GND'), r3 = rootOf('NET:3V3'), rV = rootOf('NET:VIN');
     if (rP === rG) probs.push({ type: 'short', msg: '⚡ SHORT CIRCUIT! Power (5V) is touching ground. Unplug the USB cable and find the wire that joins them.', focus: [] });
-    if (rE === rG && rE !== rP) probs.push({ type: 'short', msg: '⚡ The battery + is touching ground. That is a short circuit!', focus: [] });
-    if (rE === rP && rE !== rG) probs.push({ type: 'short', msg: '⚡ The battery + is joined to the Nano\'s 5V. Keep the two power sources apart.', focus: [] });
+    if (kind === 'uno') {
+      if (r3 === rG || rV === rG) probs.push({ type: 'short', msg: '⚡ The ' + (r3 === rG ? '3.3V' : 'VIN') + ' pin is touching ground. That is a short circuit!', focus: [] });
+      if (r3 === rP || rV === rP || r3 === rV) probs.push({ type: 'short', msg: '⚡ Two different power pins (5V, 3.3V, VIN) are joined together. Use only 5V.', focus: [] });
+    }
     const pinsByRoot = {};
-    SIGNAL.forEach((p) => { const r = rootOf(p + '.S'); (pinsByRoot[r] = pinsByRoot[r] || []).push(p); });
+    signalList(kind).forEach((p) => { const r = rootOf(p + '.S'); (pinsByRoot[r] = pinsByRoot[r] || []).push(p); });
     Object.keys(pinsByRoot).forEach((r) => {
       const pins = pinsByRoot[r];
       if (pins.length > 1 && !seen.has(r)) { seen.add(r); probs.push({ type: 'joined', msg: pins.join(' and ') + ' are connected together. Each pin should do its own job.', focus: pins.map((p) => p + '.S') }); }
-      if (pins.length >= 1 && (r === rP || r === rG || r === rE)) probs.push({ type: 'power', msg: pins[0] + ' is wired straight to ' + (r === rG ? 'ground' : 'power') + '. A signal pin should only go to its sensor.', focus: [pins[0] + '.S'] });
+      if (pins.length >= 1 && (r === rP || r === rG || r === r3 || r === rV)) probs.push({ type: 'power', msg: pins[0] + ' is wired straight to ' + (r === rG ? 'ground' : 'power') + '. A signal pin should only go to its sensor.', focus: [pins[0] + '.S'] });
     });
     return probs;
   }
@@ -295,30 +333,31 @@
     const st = newState(proj), add = (k, x, y) => addPart(st, k, x, y), plug = (k, to) => { const p = st.parts.find((q) => q.key === k); p.plug = { to, flip: false }; }, w = (a, b) => addWire(st, a, b);
     const seat = (id, col, row, ohms) => { const p = st.parts.find((q) => q.id === id); p.seat = { bb: bb.id, col, row }; if (ohms) p.ohms = ohms; };
     let bb = null;
-    add('usb', 120, 120); plug('usb', 'USB');
+    add('usb', 110, 110); plug('usb', 'USB');
     if (proj === 'chipbot') {
       [['lhip', 150, 110, 'D2'], ['rhip', 270, 110, 'D3'], ['lfoot', 390, 110, 'D4'], ['rfoot', 510, 110, 'D5']].forEach(([k, x, y, pin]) => { add(k, x, y); plug(k, pin); });
       const hc = add('hcsr04', 660, 120);
       w(hc.id + '.vcc', 'D8.V'); w(hc.id + '.gnd', 'D8.G'); w(hc.id + '.trig', 'D8.S'); w(hc.id + '.echo', 'D9.S');
-      const bt = add('battery', 900, 650); w(bt.id + '.p', 'EXT.P'); w(bt.id + '.n', 'EXT.N');
       add('buzzer', 610, 150); plug('buzzer', 'D13');
     } else if (proj === 'peeko') {
-      const o = add('oled', 560, 640);
-      w(o.id + '.gnd', 'I2C.GND'); w(o.id + '.vcc', 'I2C.VCC'); w(o.id + '.sda', 'I2C.SDA'); w(o.id + '.scl', 'I2C.SCL');
-      add('head', 330, 110); plug('head', 'D9');
-      add('buzzer', 470, 140); plug('buzzer', 'D8');
+      bb = add('breadboard', L.bb.x, L.bb.y);
+      w('PWR.5V', bb.id + '#T+1'); w('PWR.GND1', bb.id + '#T-1');
+      const sv = add('head', 250, 120); w(sv.id + '.s', 'D9.S'); w(sv.id + '.v', bb.id + '#T+3'); w(sv.id + '.g', bb.id + '#T-3');
+      const bz = add('buzzer', 470, 130); w(bz.id + '.s', 'D8.S'); w(bz.id + '.v', bb.id + '#T+5'); w(bz.id + '.g', bb.id + '#T-5');
+      const o = add('oled', 880, 660); w(o.id + '.vcc', bb.id + '#T+7'); w(o.id + '.gnd', bb.id + '#T-7'); w(o.id + '.sda', 'A4.S'); w(o.id + '.scl', 'A5.S');
     } else {
       bb = add('breadboard', L.bb.x, L.bb.y);
-      add('soil', 200, 650); plug('soil', 'A0');
-      add('buzzer', 450, 150); plug('buzzer', 'D8');
+      w('PWR.5V', bb.id + '#T+1'); w('PWR.GND1', bb.id + '#T-1');
+      const so = add('soil', 250, 130); w(so.id + '.s', 'A0.S'); w(so.id + '.v', bb.id + '#T+3'); w(so.id + '.g', bb.id + '#T-3');
+      const bz = add('buzzer', 470, 130); w(bz.id + '.s', 'D8.S'); w(bz.id + '.v', bb.id + '#T+5'); w(bz.id + '.g', bb.id + '#T-5');
       const ldr = add('ldr'); seat(ldr.id, 2, 'c');
       const r10 = add('resistor'); seat(r10.id, 4, 'd', 10000);
-      w('A1.V', bb.id + '#2a'); w('A1.S', bb.id + '#4a'); w('A1.G', bb.id + '#8a');
+      w(bb.id + '#T+2', bb.id + '#2a'); w('A1.S', bb.id + '#4a'); w(bb.id + '#T-8', bb.id + '#8a');
       const led = add('rgb'); seat(led.id, 13, 'a');
       const rr = add('resistor'); seat(rr.id, 9, 'b', 220);
       const rg = add('resistor'); seat(rg.id, 11, 'c', 220);
       const rb = add('resistor'); seat(rb.id, 12, 'd', 220);
-      w('D9.S', bb.id + '#9a'); w('D10.S', bb.id + '#11a'); w('D11.S', bb.id + '#12a'); w('D12.G', bb.id + '#14b');
+      w('D9.S', bb.id + '#9a'); w('D10.S', bb.id + '#11a'); w('D11.S', bb.id + '#12a'); w(bb.id + '#T-14', bb.id + '#14b');
     }
     return st;
   }
@@ -333,15 +372,15 @@
     return { x: part.x, y: part.y };
   }
   function termPos(id, state) {
-    const b = boardTermPos(id); if (b) return b;
+    const b = boardTermPos(id, boardKind(state.proj)); if (b) return b;
     const h = holePos(id); if (h) return h;
     const m = /^([a-z0-9]+)\.([a-z]+)$/.exec(id); if (!m) return null;
     const part = state.parts.find((p) => p.id === m[1]); if (!part) return null;
-    const def = PARTS[part.type], o = partOrigin(part, state);
+    const def = defFor(part, state), o = partOrigin(part, state);
     if (def.terms && def.terms[m[2]]) return { x: o.x + def.terms[m[2]][0], y: o.y + def.terms[m[2]][1] };
     if (def.legs && def.legs[m[2]]) { const l = def.legs[m[2]]; return { x: o.x + l[0], y: o.y + l[1] }; }
     return null;
   }
 
-  return { L, PARTS, INV, ROWS, DIG, ANA, OHMS, ohmLabel, legsKind, invOf, newState, addPart, addWire, buildNets, check, solution, termPos, partOrigin, boardTermPos, headerCenter, holeXY, holePos, canon, legHoles, SIGNAL };
+  return { L, PARTS, INV, ROWS, DIG, ANA, OHMS, ohmLabel, legsKind, invOf, newState, addPart, addWire, buildNets, check, solution, termPos, partOrigin, boardTermPos, headerCenter, holeXY, holePos, canon, legHoles, SIGNAL, signalList, boardKind, usbPos, defFor, UNO_PINS };
 });

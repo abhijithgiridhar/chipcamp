@@ -9,7 +9,7 @@
   Pins (Otto defaults):
     D2 left hip   D3 right hip   D4 left foot   D5 right foot
     D8 ultrasonic TRIG   D9 ultrasonic ECHO   D13 buzzer
-  Servo POWER comes from the 4xAA pack on the shield, NOT from USB.
+  Power: everything runs from the laptop USB cable. There is no battery pack.
 
   The walking, turning and dancing code below is the tested Otto code from
   Chip Bot Studio. Only the STUDENT PART sections are different for each student.

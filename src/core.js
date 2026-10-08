@@ -12,6 +12,7 @@
 
   const TEMPLATES = (typeof CAMP_TEMPLATES !== 'undefined') ? CAMP_TEMPLATES : (function () {
     const out = {};
+    if (!fs) return out;   // pages that never generate code (the Studio) don't carry the base sketches
     ['peeko', 'chipbot', 'jarvis'].forEach(function (id) {
       out[id] = fs.readFileSync(path.join(__dirname, '..', 'firmware', id + '.base.ino'), 'utf8');
     });

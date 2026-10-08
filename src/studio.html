@@ -1,0 +1,33 @@
+<header class="topbar">
+  <a class="homebtn" href="index.html" title="Back to the Chip Camp welcome screen" aria-label="Home">🏠</a>
+  <div class="brand"><span class="logo" aria-hidden="true"><i style="background:#FF6680"></i><i style="background:#FFAB19"></i><i style="background:#59C059"></i><i style="background:#4C97FF"></i></span><span id="brandName">Studio</span></div>
+  <nav class="ptabs" id="ptabs" aria-label="Choose a robot"></nav>
+  <div class="spacer"></div>
+</header>
+
+<main class="studio">
+  <section class="card edcard" aria-label="Your design">
+    <div class="edhead"><h1 id="edTitle"></h1><p id="edSay"></p></div>
+    <div id="editor"></div>
+    <div class="cta">
+      <button class="btn go big" id="toBuilder">🧩 Use this in the Code Builder</button>
+      <span class="note" id="edNote"></span>
+    </div>
+  </section>
+
+  <aside class="card stagecard" aria-label="Try it">
+    <div class="stagehead">
+      <h2>🎬 Try it</h2>
+      <div class="speedsel" id="speedsel" aria-label="Speed">
+        <button data-sp="1" aria-pressed="true">1×</button><button data-sp="2" aria-pressed="false">2×</button><button data-sp="4" aria-pressed="false">4×</button>
+      </div>
+      <button class="btn small" id="soundBtn" title="Sound on/off" aria-pressed="false">🔇</button>
+      <button class="btn go small" id="runBtn">▶ Run it all</button>
+      <button class="btn stop small" id="stopBtn" hidden>■ Stop</button>
+    </div>
+    <div class="scene" id="scene"></div>
+    <div class="sliders" id="sliders"></div>
+    <div class="serial" id="serial"><b>Serial Monitor</b></div>
+  </aside>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>

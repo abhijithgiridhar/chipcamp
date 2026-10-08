@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Code Builder · Chip Camp</title>
+<title>Studio · Chip Camp</title>
 <style>
 @import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Nunito:wght@600;800;900&family=JetBrains+Mono:wght@400;700&display=swap");
 :root{
@@ -195,116 +195,74 @@ a.btn{text-decoration:none}
 .jv-scene .soil{transition:fill .5s ease}
 .jv-scene .jv-sun{transition:opacity .4s, transform .4s}
 
-/* ---------- build layout ---------- */
-.build{display:grid;grid-template-columns:292px minmax(420px,1fr) 372px;gap:14px;padding:14px 18px 40px;align-items:start;max-width:1700px;margin:0 auto}
-@media (max-width:1180px){.build{grid-template-columns:292px 1fr}.stagecard{grid-column:1/-1}}
-@media (max-width:760px){.build{grid-template-columns:1fr;padding:10px}.palwrap{position:static!important;height:auto!important;max-height:340px}}
+/* Face / Dance / Light Studio */
 .card{background:var(--card);border:2px solid var(--line);border-radius:20px;box-shadow:0 4px 0 var(--line)}
+.studio{display:grid;grid-template-columns:minmax(420px,1fr) 372px;gap:14px;padding:14px 18px 40px;align-items:start;max-width:1500px;margin:0 auto}
+@media (max-width:1000px){.studio{grid-template-columns:1fr}.stagecard{position:static}}
+@media (max-width:760px){.studio{padding:10px}}
+.edcard{padding:16px 16px 18px}
+.edhead h1{font-family:var(--font-d);font-weight:500;font-size:26px;margin:0}
+.edhead p{margin:4px 0 14px;font-weight:700;color:#38406a;font-size:15.5px}
+.cta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px}
+.cta .note{color:var(--ink-soft);font-weight:800;font-size:13px}
 
-/* ---------- palette ---------- */
-.palwrap{display:flex;position:sticky;top:12px;height:calc(100vh - 100px);min-height:380px;overflow:hidden}
-.rail{display:flex;flex-direction:column;gap:2px;padding:8px 4px;background:#f3f7ff;border-right:2px solid var(--line-soft);width:68px;flex:none;overflow-y:auto}
-.rail button{border:0;background:transparent;cursor:pointer;padding:7px 2px;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:800;color:var(--ink-soft)}
-.rail button:hover{background:#e6eeff}
-.rail button i{width:28px;height:28px;border-radius:50%;display:block;background:var(--c);box-shadow:inset 0 -3px 0 rgba(0,0,0,.16)}
-.fly{flex:1;overflow-y:auto;padding:6px 12px 24px;scroll-behavior:smooth}
-.fly h3{font-family:var(--font-d);font-weight:500;font-size:16px;margin:14px 0 8px;color:var(--c);display:flex;align-items:center;gap:7px}
-.fly h3::before{content:"";width:12px;height:12px;border-radius:50%;background:var(--c)}
-.fly .hint{font-size:12.5px;color:var(--ink-soft);margin:0 0 10px;background:#f6f9ff;border-radius:12px;padding:8px 10px}
-.trash{border:2px dashed var(--line);border-radius:14px;padding:10px;text-align:center;color:var(--ink-soft);font-size:12.5px;margin-top:14px}
-body.dragging-move .trash{border-color:#ff6680;color:#d94a63;background:#fff0f3}
-body.over-trash .trash{background:#ff6680;color:#fff;border-color:#d94a63}
-
-/* ---------- workspace ---------- */
-.ws{padding:14px;background:radial-gradient(#d2dcf3 1.1px,transparent 1.1px) 0 0/22px 22px,#fbfdff;min-height:calc(100vh - 100px)}
-.namebar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px;padding:10px 12px;background:linear-gradient(#fff6c9,#ffefa8);border:2px solid #ffe27a;border-radius:18px;box-shadow:0 3px 0 #f2d45f}
-.namebar label{display:flex;align-items:center;gap:7px;font-family:var(--font-d);font-size:15px;color:#5a4a00}
-.namebar input{border:2px solid #f2d45f;background:#fff;border-radius:12px;padding:6px 10px;font-weight:800;width:150px;outline:0;font-family:var(--font-b);color:var(--ink)}
-.namebar input:focus{border-color:#ffb300;box-shadow:0 0 0 3px rgba(255,191,0,.35)}
-.namebar .note{font-size:11.5px;color:#7a6a20;font-family:var(--font-b)}
-.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.story{margin-bottom:14px}
-.steps{display:flex;gap:6px;flex-wrap:wrap}
-.step{border:2px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px 5px 8px;font-family:var(--font-d);font-size:14px;cursor:pointer;display:flex;align-items:center;gap:7px;color:var(--ink-soft);transition:transform .12s}
-.step:hover{transform:translateY(-1px)}
-.step i{width:22px;height:22px;border-radius:50%;background:#e6edfb;display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:800;color:var(--ink-soft)}
-.step.done{border-color:#9bdca4;background:#effbf1;color:#23702f}
-.step.done i{background:var(--green);color:#fff}
-.step.active{border-color:var(--purple);color:var(--purple);box-shadow:0 0 0 3px rgba(124,77,255,.18)}
-.step.just{animation:pop .5s cubic-bezier(.3,1.7,.5,1)}
-.say{margin-top:10px;display:flex;gap:10px;align-items:flex-start;background:#f0ebff;border:2px solid #d9ccff;border-radius:16px;padding:10px 14px;font-size:15px;color:#3b2a7a;font-weight:700}
-.say b{font-family:var(--font-d);font-weight:500}
-.script{display:flex;flex-direction:column;align-items:flex-start;gap:0;min-width:0;padding:4px 4px 10px}
-.script>*{width:min(100%,560px)}
-.hat{position:relative;background:var(--events);color:#4a3a00;font-family:var(--font-d);font-weight:500;font-size:17px;padding:20px 14px 14px 14px;border-radius:60px 60px 12px 12px/34px 34px 12px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;filter:drop-shadow(0 2px 0 rgba(0,0,0,.2));clip-path:none;margin-top:6px}
-.hat .tag{font-size:11px;font-weight:800;background:rgba(0,0,0,.12);border-radius:10px;padding:2px 8px;font-family:var(--font-b)}
-.hat .flag{font-size:22px}
-.hat strong{background:#fff;border-radius:12px;padding:1px 9px;color:var(--ink)}
-.lane{min-height:50px;margin-top:calc(var(--nh) * -1);padding-top:0}
-.cta{margin-top:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.laneword{font-family:var(--font-b);font-size:12px;font-weight:800;color:var(--ink-soft);margin:8px 0 2px 4px}
-
-/* ---------- code view ---------- */
-.codeview{padding:16px 18px 50px;max-width:1500px;margin:0 auto}
-.codetop{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
-.codetop h2{font-family:var(--font-d);font-weight:500;font-size:24px;margin:0;margin-right:auto}
-.codegrid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}
-@media (max-width:1000px){.codegrid{grid-template-columns:1fr}}
-.codecard{background:#fffdf6;border:2px solid #f1e6c4;box-shadow:0 4px 0 #f1e6c4;border-radius:20px;overflow:hidden}
-.legend{display:flex;flex-wrap:wrap;gap:8px;padding:10px 14px;border-bottom:2px solid #f1e6c4;background:#fff9e3;font-size:12.5px;font-weight:800;align-items:center}
-.legend span{display:inline-flex;align-items:center;gap:6px;color:#5d5b48}
-.legend i{width:14px;height:14px;border-radius:5px;background:var(--c);display:block}
-.legend mark.v{font-size:12px}
-.codepane{max-height:74vh;overflow:auto;padding:8px 0;font-family:var(--font-m);font-size:13px;line-height:1.62}
-.ln{display:flex;align-items:stretch;min-height:21px}
-.ln .no{width:48px;flex:none;text-align:right;padding-right:14px;color:#c0b79a;user-select:none}
-.ln .tx{flex:1;white-space:pre;padding-right:16px;color:#3e4766}
-.ln.mine{background:color-mix(in srgb,var(--c) 15%,#fffdf6);box-shadow:inset 6px 0 0 var(--c)}
-.ln.mine .tx{color:#262c47;font-weight:600}
-.fold{display:flex;align-items:center;gap:10px;margin:6px 0;padding:8px 14px 8px 48px;background:#eef3ff;border-top:2px dashed #cdd9f6;border-bottom:2px dashed #cdd9f6;color:#44507f;font-family:var(--font-b);font-weight:800;font-size:13.5px;cursor:pointer}
-.fold:hover{background:#e3ebff}
-.fold .chev{font-size:12px}
-mark.v{background:#ffe14d;color:#3a2b00;border-radius:5px;padding:0 3px;font-weight:900;box-shadow:0 0 0 2px rgba(255,225,77,.5)}
-.tk-k{color:#8a3ffc;font-weight:700}.tk-t{color:#0a8aa3}.tk-n{color:#d9611a}.tk-s{color:#1f9d55}.tk-p{color:#d6458a}.tk-c{color:#8a93a6;font-style:italic}.tk-f{color:#2f6fe0}
-.sidecard{padding:14px 16px;margin-bottom:14px}
-.sidecard h3{font-family:var(--font-d);font-weight:500;font-size:18px;margin:0 0 8px}
-.sidecard ol{list-style:none;counter-reset:s;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
-.sidecard li{counter-increment:s;display:flex;gap:10px;align-items:flex-start;font-size:14px}
-.sidecard li::before{content:counter(s);flex:none;width:26px;height:26px;border-radius:50%;background:var(--purple);color:#fff;display:grid;place-items:center;font-family:var(--font-d);font-size:14px;box-shadow:0 2px 0 rgba(0,0,0,.18)}
-.sidecard code{background:#f1f5ff;border:1px solid var(--line);border-radius:7px;padding:1px 6px;font-family:var(--font-m);font-size:12.5px}
-.sidecard .small{font-size:12.5px;color:var(--ink-soft);margin:8px 0 0}
-.facil{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;font-size:13.5px;font-weight:700}
-.facil input[type=number]{width:84px;border:2px solid var(--line);border-radius:10px;padding:4px 8px;font-weight:800}
-.facil label{display:contents}
+/* one card per moment / move / rule */
+.stack{display:flex;flex-direction:column;gap:12px}
+.mom{--c:#9966FF;background:#fbfaff;border:3px solid var(--c);border-radius:18px;overflow:hidden;box-shadow:0 3px 0 rgba(0,0,0,.08)}
+.momhead{display:flex;align-items:center;gap:8px;background:var(--c);color:#fff;font-family:var(--font-d);font-weight:500;padding:6px 8px 6px 10px;text-shadow:0 1px 0 rgba(0,0,0,.18)}
+.momhead .num{background:#fff;color:var(--c);border-radius:11px;min-width:26px;text-align:center;padding:0 7px;font-size:15px;text-shadow:none}
+.momhead .sp{flex:1}
+.momhead button{border:0;cursor:pointer;background:rgba(255,255,255,.28);color:#fff;border-radius:10px;padding:2px 9px;font-family:var(--font-d);font-size:14px;line-height:1.5}
+.momhead button:hover:not(:disabled){background:rgba(255,255,255,.5)}
+.momhead button:disabled{opacity:.35;cursor:default}
+.mombody{padding:10px 12px 12px;display:flex;flex-direction:column;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{border:3px solid var(--line);background:#fff;border-radius:16px;cursor:pointer;padding:5px 11px;font-family:var(--font-d);font-size:15px;display:inline-flex;align-items:center;gap:6px;transition:transform .08s}
+.chip:hover{transform:translateY(-1px);border-color:var(--c)}
+.chip[aria-pressed="true"]{background:var(--c);border-color:var(--c);color:#fff;box-shadow:0 3px 0 rgba(0,0,0,.18);transform:translateY(-1px)}
+.chip .e{font-size:20px;line-height:1}
+.swatch{width:46px;height:46px;border-radius:50%;padding:0;border:4px solid #fff;box-shadow:0 0 0 3px var(--line),0 3px 0 rgba(0,0,0,.15);cursor:pointer;position:relative}
+.swatch[aria-pressed="true"]{box-shadow:0 0 0 4px var(--c),0 3px 0 rgba(0,0,0,.2);transform:scale(1.1)}
+.swatch.off{background-image:repeating-linear-gradient(45deg,#6b7280 0 6px,#59606e 6px 12px)}
+.swatches{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.swlabel{font-size:12px;font-weight:800;color:var(--ink-soft);margin:-4px 0 0 4px}
+.fields{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end}
+.fields label{display:flex;flex-direction:column;gap:3px;font-weight:800;font-size:12px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em}
+.fields input,.fields select{border:2px solid var(--line);background:#fff;border-radius:12px;padding:6px 10px;font-weight:800;font-size:15px;color:var(--ink);text-transform:none;letter-spacing:0;font-family:var(--font-b)}
+.fields input[type=number]{width:76px}
+.fields input[type=text]{width:190px}
+.fields select{padding-right:6px}
+.fields input:focus,.fields select:focus{outline:3px solid rgba(124,77,255,.35);border-color:var(--purple)}
+.check{display:flex;align-items:center;gap:10px;font-weight:800;font-size:15px;flex-wrap:wrap}
+.check input[type=checkbox]{width:22px;height:22px;accent-color:var(--purple)}
+.check input[type=number]{width:70px;border:2px solid var(--line);border-radius:12px;padding:5px 8px;font-weight:800;font-size:15px}
+.addrow{display:flex;align-items:center;gap:10px;margin-top:2px}
+.addrow .note{font-weight:800;font-size:13px;color:var(--ink-soft)}
+.guard{--c:#4C97FF}
+.rule{--c:#FFAB19}
+.rule .momhead b{font-weight:500}
+.rule.r2{--c:#3FB8DE}
+.rule.r3{--c:#59C059}
+.flow{text-align:center;font-family:var(--font-d);color:var(--ink-soft);font-size:14px;margin:8px 0}
+.step.run{outline:3px solid #ffd93b}
 
 </style>
 </head>
 <body>
 <header class="topbar">
   <a class="homebtn" href="index.html" title="Back to the Chip Camp welcome screen" aria-label="Home">🏠</a>
-  <div class="brand"><span class="logo" aria-hidden="true"><i style="background:#FFBF00"></i><i style="background:#4C97FF"></i><i style="background:#CF63CF"></i><i style="background:#59C059"></i></span>Camp Blocks</div>
+  <div class="brand"><span class="logo" aria-hidden="true"><i style="background:#FF6680"></i><i style="background:#FFAB19"></i><i style="background:#59C059"></i><i style="background:#4C97FF"></i></span><span id="brandName">Studio</span></div>
   <nav class="ptabs" id="ptabs" aria-label="Choose a robot"></nav>
   <div class="spacer"></div>
-  <div class="viewtabs" role="tablist" aria-label="Build or Code">
-    <button class="vtab" role="tab" data-view="build" aria-selected="true">🧩 Build</button>
-    <button class="vtab" role="tab" data-view="code" aria-selected="false">⚡ Code</button>
-  </div>
 </header>
 
-<main id="buildView" class="build">
-  <aside class="card palwrap" aria-label="Blocks">
-    <nav class="rail" id="rail"></nav>
-    <div class="fly" id="fly"></div>
-  </aside>
-
-  <section class="card ws" aria-label="Your program">
-    <div class="namebar" id="namebar"></div>
-    <div class="toolbar" id="toolbar"></div>
-    <div class="story" id="story"></div>
-    <div class="script" id="script"></div>
+<main class="studio">
+  <section class="card edcard" aria-label="Your design">
+    <div class="edhead"><h1 id="edTitle"></h1><p id="edSay"></p></div>
+    <div id="editor"></div>
     <div class="cta">
-      <button class="btn go big" id="makeCode">⚡ Make the code</button>
-      <span class="note" id="blockCount" style="color:#69709a;font-weight:800"></span>
+      <button class="btn go big" id="toBuilder">🧩 Use this in the Code Builder</button>
+      <span class="note" id="edNote"></span>
     </div>
   </section>
 
@@ -315,7 +273,7 @@ mark.v{background:#ffe14d;color:#3a2b00;border-radius:5px;padding:0 3px;font-wei
         <button data-sp="1" aria-pressed="true">1×</button><button data-sp="2" aria-pressed="false">2×</button><button data-sp="4" aria-pressed="false">4×</button>
       </div>
       <button class="btn small" id="soundBtn" title="Sound on/off" aria-pressed="false">🔇</button>
-      <button class="btn go small" id="runBtn">▶ Run</button>
+      <button class="btn go small" id="runBtn">▶ Run it all</button>
       <button class="btn stop small" id="stopBtn" hidden>■ Stop</button>
     </div>
     <div class="scene" id="scene"></div>
@@ -323,39 +281,8 @@ mark.v{background:#ffe14d;color:#3a2b00;border-radius:5px;padding:0 3px;font-wei
     <div class="serial" id="serial"><b>Serial Monitor</b></div>
   </aside>
 </main>
-
-<section id="codeView" class="codeview" hidden aria-label="Generated code">
-  <div class="codetop">
-    <h2 id="codeTitle">Your sketch</h2>
-    <button class="btn" id="backBtn">← Back to blocks</button>
-    <label class="btn small" style="cursor:pointer"><input type="checkbox" id="showAll"> show all tested code</label>
-    <button class="btn go big" id="copyBtn">📋 Copy code</button>
-  </div>
-  <div class="codegrid">
-    <div class="codecard">
-      <div class="legend" id="legend"></div>
-      <div class="codepane" id="codePane" tabindex="0"></div>
-    </div>
-    <div>
-      <div class="card sidecard">
-        <h3>Put it on the robot</h3>
-        <ol>
-          <li><span>Press <b>Copy code</b>.</span></li>
-          <li><span>Open the <b>Arduino IDE</b> and make a new sketch. Select everything (<code>Ctrl/⌘ + A</code>) and paste.</span></li>
-          <li><span id="boardStep"></span></li>
-          <li><span><b>Tools → Port</b>: pick the USB port, then press <b>Upload</b> ➜</span></li>
-          <li><span>Open <b>Tools → Serial Monitor</b> at <code>9600 baud</code> to see anything the robot prints.</span></li>
-        </ol>
-        <p class="small" id="libNote"></p>
-      </div>
-      <div class="card sidecard" id="facilCard" hidden></div>
-    </div>
-  </div>
-</section>
-
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script>var CAMP_TEMPLATES = {"peeko":"//@@HEADER@@\n/*\n  PEEKO — final action layer (v2: distinct, animated faces)\n  ---------------------------------------------------------\n  Same command protocol as before — send one of:\n  happy / sad / surprised / angry / sleepy / left / right / neutral / celebrate\n  followed by a newline, over Serial.\n\n  What changed: each face is now its own shape (not just a bigger/\n  smaller circle), and each one plays out as a short animation —\n  a few frames drawn in sequence — instead of one static image.\n*/\n\n#include <Wire.h>\n#include <Adafruit_GFX.h>\n#include <Adafruit_SH110X.h>\n#include <Servo.h>\n\nAdafruit_SH1106G display(128, 64, &Wire, -1);\nServo headServo;\n\nconst int buzzerPin = 8;\nconst int HEAD_CENTER = 90;\nconst int HEAD_LEFT   = 50;\nconst int HEAD_RIGHT  = 130;\n\nunsigned long lastBlinkTime = 0;\nunsigned long blinkInterval = 4000;\nbool isPlayingAction = false;\nString inputLine = \"\";\n\n//@@KEEP+\n// ===================== STUDENT PART: NAMES =====================\n// PROGMEM keeps these words in flash memory, so they do not use up RAM.\n//@@CONSTANTS@@\n//@@KEEP-\n\n// ===================== DRAWING HELPERS =====================\n// Small reusable pieces — an eye shape, a mouth curve — built once,\n// then combined differently for each expression.\n\nvoid drawRoundEye(int cx, int cy, int r) {\n  display.fillCircle(cx, cy, r, SH110X_WHITE);\n}\n\nvoid drawHappyEye(int cx, int cy) {\n  // upward-curving \"^\" eye, drawn as two thickened diagonal lines\n  display.drawLine(cx - 9, cy + 5, cx, cy - 5, SH110X_WHITE);\n  display.drawLine(cx - 9, cy + 6, cx, cy - 4, SH110X_WHITE);\n  display.drawLine(cx, cy - 5, cx + 9, cy + 5, SH110X_WHITE);\n  display.drawLine(cx, cy - 4, cx + 9, cy + 6, SH110X_WHITE);\n}\n\nvoid drawSadEye(int cx, int cy) {\n  // downward-drooping eye, opposite curve of the happy eye\n  display.drawLine(cx - 9, cy - 3, cx, cy + 6, SH110X_WHITE);\n  display.drawLine(cx - 9, cy - 2, cx, cy + 7, SH110X_WHITE);\n  display.drawLine(cx, cy + 6, cx + 9, cy - 3, SH110X_WHITE);\n  display.drawLine(cx, cy + 7, cx + 9, cy - 2, SH110X_WHITE);\n}\n\nvoid drawAngryEye(int cx, int cy) {\n  // narrow eye + angled eyebrow above it\n  display.fillRoundRect(cx - 8, cy - 2, 16, 6, 2, SH110X_WHITE);\n  if (cx < 64) display.drawLine(cx - 9, cy - 12, cx + 9, cy - 6, SH110X_WHITE);\n  else         display.drawLine(cx + 9, cy - 12, cx - 9, cy - 6, SH110X_WHITE);\n}\n\nvoid drawSmile(int yBase, int width) {\n  for (int x = 64 - width; x <= 64 + width; x += 2) {\n    int y = yBase + ((x - 64) * (x - 64)) / 55;\n    display.drawPixel(x, y, SH110X_WHITE);\n    display.drawPixel(x, y + 1, SH110X_WHITE);\n  }\n}\n\nvoid drawFrown(int yBase, int width) {\n  for (int x = 64 - width; x <= 64 + width; x += 2) {\n    int y = yBase - ((x - 64) * (x - 64)) / 55;\n    display.drawPixel(x, y, SH110X_WHITE);\n    display.drawPixel(x, y + 1, SH110X_WHITE);\n  }\n}\n\nvoid drawTear(int cx, int cy) {\n  display.fillCircle(cx, cy, 3, SH110X_WHITE);\n}\n\nvoid drawOMouth(int cx, int cy, int r) {\n  display.drawCircle(cx, cy, r, SH110X_WHITE);\n  display.drawCircle(cx, cy, r - 1, SH110X_WHITE);\n}\n\n// ===================== FACES (each one is a short animation) =====================\n\nvoid faceNeutral() {\n  display.clearDisplay();\n  drawRoundEye(40, 28, 9);\n  drawRoundEye(88, 28, 9);\n  display.display();\n}\n\nvoid faceClosed() {\n  display.clearDisplay();\n  display.fillRect(31, 26, 18, 4, SH110X_WHITE);\n  display.fillRect(79, 26, 18, 4, SH110X_WHITE);\n  display.display();\n}\n\nvoid faceHappy() {\n  // Frame 1: eyes still round, no mouth yet\n  display.clearDisplay();\n  drawRoundEye(40, 28, 9);\n  drawRoundEye(88, 28, 9);\n  display.display();\n  delay(150);\n\n  // Frame 2: eyes curve upward into \"^ ^\", small smile appears\n  display.clearDisplay();\n  drawHappyEye(40, 28);\n  drawHappyEye(88, 28);\n  drawSmile(46, 12);\n  display.display();\n  delay(150);\n\n  // Frame 3: full wide smile, held\n  display.clearDisplay();\n  drawHappyEye(40, 28);\n  drawHappyEye(88, 28);\n  drawSmile(44, 20);\n  display.display();\n}\n\nvoid faceSad() {\n  // Frame 1: eyes still round\n  display.clearDisplay();\n  drawRoundEye(40, 28, 9);\n  drawRoundEye(88, 28, 9);\n  display.display();\n  delay(150);\n\n  // Frame 2: eyes droop downward, frown appears\n  display.clearDisplay();\n  drawSadEye(40, 28);\n  drawSadEye(88, 28);\n  drawFrown(54, 18);\n  display.display();\n  delay(200);\n\n  // Frame 3: a tear appears, held\n  display.clearDisplay();\n  drawSadEye(40, 28);\n  drawSadEye(88, 28);\n  drawFrown(54, 18);\n  drawTear(34, 40);\n  display.display();\n}\n\nvoid faceSurprised() {\n  display.clearDisplay();\n  drawRoundEye(40, 28, 9);\n  drawRoundEye(88, 28, 9);\n  display.display();\n  delay(100);\n\n  display.clearDisplay();\n  drawRoundEye(40, 28, 15); // eyes snap wide open\n  drawRoundEye(88, 28, 15);\n  drawOMouth(64, 50, 6);    // small \"o\" mouth\n  display.display();\n}\n\nvoid faceAngry() {\n  display.clearDisplay();\n  drawRoundEye(40, 28, 9);\n  drawRoundEye(88, 28, 9);\n  display.display();\n  delay(100);\n\n  display.clearDisplay();\n  drawAngryEye(40, 28);\n  drawAngryEye(88, 28);\n  drawFrown(52, 14);\n  display.display();\n}\n\n// ===================== SOUNDS =====================\n\nvoid soundHappy() {\n  tone(buzzerPin, 523, 150); delay(160);\n  tone(buzzerPin, 659, 150); delay(160);\n  tone(buzzerPin, 784, 250); delay(260);\n  noTone(buzzerPin);\n}\nvoid soundSad() {\n  tone(buzzerPin, 400, 300); delay(320);\n  tone(buzzerPin, 300, 300); delay(320);\n  tone(buzzerPin, 200, 500); delay(520);\n  noTone(buzzerPin);\n}\nvoid soundSurprised() {\n  tone(buzzerPin, 1200, 120); delay(130);\n  noTone(buzzerPin);\n}\nvoid soundAngry() {\n  tone(buzzerPin, 150, 400); delay(420);\n  noTone(buzzerPin);\n}\n\n// ===================== REACTIONS =====================\n\nvoid reactHappy() {\n  isPlayingAction = true;\n  faceHappy();\n  headServo.write(HEAD_CENTER + 15);\n  soundHappy();\n  headServo.write(HEAD_CENTER);\n  isPlayingAction = false;\n}\nvoid reactSad() {\n  isPlayingAction = true;\n  faceSad();\n  headServo.write(HEAD_CENTER - 20);\n  soundSad();\n  headServo.write(HEAD_CENTER);\n  isPlayingAction = false;\n}\nvoid reactSurprised() {\n  isPlayingAction = true;\n  faceSurprised();\n  headServo.write(HEAD_CENTER - 25);\n  soundSurprised();\n  delay(200);\n  headServo.write(HEAD_CENTER);\n  isPlayingAction = false;\n}\nvoid reactAngry() {\n  isPlayingAction = true;\n  faceAngry();\n  for (int i = 0; i < 3; i++) {\n    headServo.write(HEAD_LEFT + 20); delay(80);\n    headServo.write(HEAD_RIGHT - 20); delay(80);\n  }\n  headServo.write(HEAD_CENTER);\n  soundAngry();\n  isPlayingAction = false;\n}\nvoid reactSleepy() {\n  isPlayingAction = true;\n  faceClosed();\n  delay(600);\n  faceNeutral();\n  isPlayingAction = false;\n}\nvoid reactLeft() {\n  isPlayingAction = true;\n  headServo.write(HEAD_LEFT);\n  delay(400);\n  headServo.write(HEAD_CENTER);\n  isPlayingAction = false;\n}\nvoid reactRight() {\n  isPlayingAction = true;\n  headServo.write(HEAD_RIGHT);\n  delay(400);\n  headServo.write(HEAD_CENTER);\n  isPlayingAction = false;\n}\nvoid reactNeutral() {\n  isPlayingAction = true;\n  faceNeutral();\n  headServo.write(HEAD_CENTER);\n  isPlayingAction = false;\n}\nvoid reactCelebrate() {\n  isPlayingAction = true;\n  for (int i = 0; i < 2; i++) {\n    faceHappy();\n    headServo.write(HEAD_LEFT + 20);\n    tone(buzzerPin, 784, 100);\n    delay(120);\n    headServo.write(HEAD_RIGHT - 20);\n    tone(buzzerPin, 988, 100);\n    delay(120);\n  }\n  headServo.write(HEAD_CENTER);\n  noTone(buzzerPin);\n  isPlayingAction = false;\n}\n\n// ===================== COMMAND DISPATCH =====================\n\nvoid runCommand(String cmd) {\n  cmd.trim();\n  cmd.toLowerCase();\n\n  if (cmd == \"happy\") reactHappy();\n  else if (cmd == \"sad\") reactSad();\n  else if (cmd == \"surprised\") reactSurprised();\n  else if (cmd == \"angry\") reactAngry();\n  else if (cmd == \"sleepy\") reactSleepy();\n  else if (cmd == \"left\") reactLeft();\n  else if (cmd == \"right\") reactRight();\n  else if (cmd == \"neutral\") reactNeutral();\n  else if (cmd == \"celebrate\") reactCelebrate();\n  else {\n    Serial.print(\"Peeko didn't understand: \");\n    Serial.println(cmd);\n  }\n\n  lastBlinkTime = millis();\n}\n\n// ===================== TESTED HELPERS FOR THE BLOCKS =====================\n// Same for every student. Each block in Camp Blocks calls one of these.\n\nvoid pollSerial() {\n  while (Serial.available() > 0) {\n    char c = Serial.read();\n    if (c == '\\n') {\n      runCommand(inputLine);\n      inputLine = \"\";\n    } else {\n      inputLine += c;\n    }\n  }\n}\n\n// Wait without freezing: Peeko still listens to the computer while it waits.\nvoid waitSecs(float secs) {\n  unsigned long ms = (unsigned long)(secs * 1000.0);\n  unsigned long start = millis();\n  while (millis() - start < ms) {\n    pollSerial();\n  }\n}\n\n// Show words on the OLED screen. msg lives in flash memory (PROGMEM / PSTR).\nvoid sayText(const char* msg, float secs) {\n  char buf[21];\n  strncpy_P(buf, msg, 20);\n  buf[20] = 0;\n  int len = strlen(buf);\n  int size = (len <= 10) ? 2 : 1;\n  isPlayingAction = true;\n  display.clearDisplay();\n  display.setTextColor(SH110X_WHITE);\n  display.setTextSize(size);\n  display.setCursor((128 - len * 6 * size) / 2, (64 - 8 * size) / 2);\n  display.print(buf);\n  display.display();\n  waitSecs(secs);\n  faceNeutral();\n  lastBlinkTime = millis();\n  isPlayingAction = false;\n}\n\nvoid playNote(unsigned int hz, float secs) {\n  tone(buzzerPin, hz, (unsigned long)(secs * 1000.0));\n  waitSecs(secs);\n  noTone(buzzerPin);\n}\n\n//@@KEEP+\n// ===================== STUDENT PART: WHAT PEEKO DOES =====================\n\n// Runs ONCE, when Peeko wakes up (when it is powered on).\nvoid studentWake() {\n//@@WAKE@@\n}\n\n// Runs again and again, forever.\nvoid studentForever() {\n//@@FOREVER@@\n}\n//@@KEEP-\n\n// ===================== SETUP / LOOP =====================\n\nvoid setup() {\n  Serial.begin(9600);\n  display.begin(0x3C, true);\n  headServo.attach(9);\n  pinMode(buzzerPin, OUTPUT);\n  randomSeed(analogRead(A0));   // so coin flips are different every time\n  reactNeutral();\n  studentWake();\n}\n\nvoid loop() {\n  pollSerial();\n  studentForever();\n\n  if (!isPlayingAction && millis() - lastBlinkTime > blinkInterval) {\n    faceClosed();\n    delay(150);\n    faceNeutral();\n    lastBlinkTime = millis();\n  }\n}","chipbot":"//@@HEADER@@\n/*\n  CHIP BOT  —  Arduino Nano + IO shield, Otto-style biped\n  --------------------------------------------------------\n  Pins (Otto defaults):\n    D2 left hip   D3 right hip   D4 left foot   D5 right foot\n    D8 ultrasonic TRIG   D9 ultrasonic ECHO   D13 buzzer\n  Power: everything runs from the laptop USB cable. There is no battery pack.\n\n  The walking, turning and dancing code below is the tested Otto code from\n  Chip Bot Studio. Only the STUDENT PART sections are different for each student.\n*/\n#include <Servo.h>\n#include <EEPROM.h>\n#include <math.h>\n\nconst uint8_t PIN_SERVO[4] = {2, 3, 4, 5};   // YL, YR, RL, RR\n#define PIN_TRIG 8\n#define PIN_ECHO 9\n#define PIN_BUZZER 13\n\nServo servo[4];\nbool attached = false;\nint8_t trim[4] = {0, 0, 0, 0};\nfloat cur[4] = {90, 90, 90, 90};\nuint16_t T_STEP = 1000;                       // gait period in ms (speed block changes it)\nbool abortFlag = false;\n\n//@@KEEP+\n// ===================== STUDENT PART: NAMES =====================\n//@@CONSTANTS@@\n//@@KEEP-\n\n// ---------------------------------------------------------------- serial helpers\nvoid pollSerial() {\n  while (Serial.available()) {\n    if (Serial.read() == '!') abortFlag = true;\n  }\n}\nbool aborted() { pollSerial(); return abortFlag; }\n\nvoid waitMs(uint16_t ms) {\n  unsigned long end = millis() + ms;\n  while (millis() < end) { if (aborted()) return; delay(5); }\n}\n\n// ---------------------------------------------------------------- servos\nvoid attachServos() {\n  if (attached) return;\n  for (uint8_t i = 0; i < 4; i++) servo[i].attach(PIN_SERVO[i]);\n  attached = true;\n}\nvoid detachServos() {\n  if (!attached) return;\n  for (uint8_t i = 0; i < 4; i++) servo[i].detach();\n  attached = false;\n}\nvoid writeServo(uint8_t i, float angle) {\n  cur[i] = angle;\n  int a = (int)(angle + trim[i] + 0.5f);\n  servo[i].write(constrain(a, 0, 180));\n}\n\n// Smoothly move all 4 servos to target[] over `time` ms (same idea as Otto::_moveServos).\nvoid moveServos(uint16_t time, const int target[4]) {\n  attachServos();\n  float start[4], inc[4];\n  uint16_t n = time / 10; if (n < 1) n = 1;\n  for (uint8_t i = 0; i < 4; i++) { start[i] = cur[i]; inc[i] = (target[i] - cur[i]) / (float)n; }\n  for (uint16_t k = 1; k <= n; k++) {\n    if (aborted()) return;\n    for (uint8_t i = 0; i < 4; i++) writeServo(i, start[i] + inc[i] * k);\n    delay(10);\n  }\n  for (uint8_t i = 0; i < 4; i++) writeServo(i, target[i]);\n}\n\n// Oscillator gait (same maths as Otto::_execute): angle = 90 + O + A * sin(2*pi*t/T + phase)\nvoid execute(const int A[4], const int O[4], const int phDeg[4], uint8_t steps) {\n  attachServos();\n  int first[4];\n  for (uint8_t i = 0; i < 4; i++) first[i] = 90 + O[i] + (int)(A[i] * sin(phDeg[i] * PI / 180.0));\n  moveServos(120, first);                          // avoid a jump at the start\n  unsigned long start = millis(), total = (unsigned long)T_STEP * steps, t;\n  while ((t = millis() - start) < total) {\n    if (aborted()) return;\n    for (uint8_t i = 0; i < 4; i++)\n      writeServo(i, 90 + O[i] + A[i] * sin(2.0 * PI * t / T_STEP + phDeg[i] * PI / 180.0));\n    delay(15);\n  }\n}\n\n// ---------------------------------------------------------------- Otto moves\nvoid doWalk(uint8_t dir, uint8_t steps) {          // dir 0 fwd, 1 back\n  int d = dir ? -1 : 1;\n  int A[4] = {30, 30, 20, 20}, O[4] = {0, 0, 4, -4};\n  int ph[4] = {0, 0, d * -90, d * -90};\n  execute(A, O, ph, steps);\n}\nvoid doTurn(uint8_t dir, uint8_t steps) {          // dir 0 left, 1 right\n  int A[4] = {30, 30, 20, 20}, O[4] = {0, 0, 4, -4};\n  int ph[4] = {0, 0, -90, -90};\n  if (dir == 0) { A[0] = 30; A[1] = 10; } else { A[0] = 10; A[1] = 30; }\n  execute(A, O, ph, steps);\n}\n\nstatic const int DH = 25;  // Otto \"h\" for the dance moves\nvoid doDance(uint8_t id, uint8_t reps) {\n  attachServos();\n  int homes[4] = {90, 90, 90, 90};\n  switch (id) {\n    case 0: { int A[4] = {0, 0, DH, DH}, O[4] = {0, 0, DH / 2, -DH / 2}, ph[4] = {0, 0, 0, 0}; execute(A, O, ph, reps); break; }   // swing\n    case 1: { int A[4] = {0, 0, DH, DH}, O[4] = {0, 0, DH, -DH}, ph[4] = {0, 0, 0, 0}; execute(A, O, ph, reps); break; }             // tiptoe swing\n    case 2: { int A[4] = {0, 0, DH, DH}, O[4] = {0, 0, DH, -DH}, ph[4] = {0, 0, -90, 90}; execute(A, O, ph, reps); break; }          // up-down\n    case 3: { int A[4] = {25, 25, 0, 0}, O[4] = {0, 0, 0, 0}, ph[4] = {-90, 90, 0, 0}; execute(A, O, ph, reps); break; }         // jitter\n    case 4:\n    case 5: {                                                                                                                     // moonwalker L / R\n      int dir = (id == 4) ? 1 : -1, phi = -dir * 90;\n      int A[4] = {0, 0, DH, DH}, O[4] = {0, 0, DH / 2 + 2, -DH / 2 - 2}, ph[4] = {0, 0, phi, -60 * dir + phi};\n      execute(A, O, ph, reps); break; }\n    case 6: { int A[4] = {12, 12, DH, DH}, O[4] = {0, 0, DH - 10, -DH + 10}, ph[4] = {0, 180, -90, 90}; execute(A, O, ph, reps); break; } // flapping\n    case 7:\n    case 8: {                                                                                                                     // shake leg R / L\n      int s1[4] = {90, 90, 58, 35}, s2[4] = {90, 90, 58, 120}, s3[4] = {90, 90, 58, 60};\n      if (id == 8) { s1[2] = 180 - 35; s1[3] = 180 - 58; s2[2] = 180 - 120; s2[3] = 180 - 58; s3[2] = 180 - 60; s3[3] = 180 - 58; }\n      for (uint8_t j = 0; j < reps && !aborted(); j++) {\n        moveServos(500, s1); moveServos(500, s2);\n        for (uint8_t i = 0; i < 2; i++) { moveServos(200, s3); moveServos(200, s2); }\n        moveServos(500, homes);\n      }\n      break; }\n    case 9:\n    case 10: {                                                                                                                    // bend R / L\n      int b1[4] = {90, 90, 62, 35}, b2[4] = {90, 90, 62, 105};\n      if (id == 10) { b1[2] = 180 - 35; b1[3] = 180 - 60; b2[2] = 180 - 105; b2[3] = 180 - 60; }\n      for (uint8_t i = 0; i < reps && !aborted(); i++) {\n        moveServos(400, b1); moveServos(400, b2); waitMs(T_STEP * 8 / 10); moveServos(500, homes);\n      }\n      break; }\n  }\n}\n\nvoid doPose(uint8_t a, uint8_t b, uint8_t c, uint8_t d) {\n  int t[4] = {constrain(a, 45, 135), constrain(b, 45, 135), constrain(c, 45, 135), constrain(d, 45, 135)};\n  moveServos(400, t);\n}\nvoid doRest() { int h[4] = {90, 90, 90, 90}; moveServos(500, h); detachServos(); }\nvoid doBeep(uint8_t f20, uint8_t d10) {\n  tone(PIN_BUZZER, (unsigned int)f20 * 20, (unsigned long)d10 * 10);\n  waitMs((uint16_t)d10 * 10);\n}\nvoid doSpeed(uint8_t level) { T_STEP = (level == 0) ? 1400 : (level == 2) ? 700 : 1000; }\nvoid doWait(uint8_t tenths) { waitMs((uint16_t)tenths * 100); }\n\n// ---------------------------------------------------------------- sensing\nuint8_t readDistance() {\n  digitalWrite(PIN_TRIG, LOW); delayMicroseconds(2);\n  digitalWrite(PIN_TRIG, HIGH); delayMicroseconds(10);\n  digitalWrite(PIN_TRIG, LOW);\n  unsigned long us = pulseIn(PIN_ECHO, HIGH, 6000UL);\n  if (us == 0) return 50;\n  unsigned long cm = us / 58;\n  return cm > 50 ? 50 : (uint8_t)cm;\n}\n\n// ===================== TESTED HELPERS FOR THE BLOCKS =====================\n// Same for every student. Each block in Camp Blocks calls one of these.\n\n// Uses the servo calibration saved by Chip Bot Studio (if any). Never writes anything.\nvoid loadTrims() {\n  if (EEPROM.read(0) == 0xC5) {\n    for (uint8_t i = 0; i < 4; i++) trim[i] = (int8_t)EEPROM.read(1 + i);\n  }\n}\n\nvoid waitSecs(float secs) { waitMs((uint16_t)(secs * 1000.0)); }\n\nvoid beepNote(unsigned int hz, float secs) {\n  tone(PIN_BUZZER, hz, (unsigned long)(secs * 1000.0));\n  waitSecs(secs);\n}\n\n//@@KEEP+\n// ===================== STUDENT PART: WHAT CHIP BOT DOES =====================\n\n// Runs ONCE, when Chip Bot wakes up (when it is powered on).\nvoid studentWake() {\n//@@WAKE@@\n}\n\n// Runs again and again, forever.\nvoid studentForever() {\n//@@FOREVER@@\n}\n//@@KEEP-\n\n// ===================== SETUP / LOOP =====================\n\nvoid setup() {\n  pinMode(PIN_TRIG, OUTPUT);\n  pinMode(PIN_ECHO, INPUT);\n  pinMode(PIN_BUZZER, OUTPUT);\n  Serial.begin(9600);\n  loadTrims();\n  doRest();\n  studentWake();\n}\n\nvoid loop() {\n  studentForever();\n}\n","jarvis":"//@@HEADER@@\n/*\n  JARVIS  —  terrarium buddy, Arduino Uno\n  ----------------------------------------------------\n    A0  soil moisture sensor\n    A1  light sensor (LDR with a 10k resistor)\n    D9 / D10 / D11  RGB LED  (red / green / blue)\n    D8  buzzer\n\n  The LED only uses ON / OFF (no PWM), so the buzzer's tone() and the LED\n  can never fight over the same timer.\n  Only the STUDENT PART sections are different for each student.\n*/\n\n#define PIN_SOIL   A0\n#define PIN_LIGHT  A1\n#define PIN_LED_R  9\n#define PIN_LED_G  10\n#define PIN_LED_B  11\n#define PIN_BUZZER 8\n\n//@@KEEP+\n// ===================== STUDENT PART: NAMES =====================\n//@@CONSTANTS@@\n//@@KEEP-\n\n// ===================== BENCH SETTINGS (set once by the facilitator) =====================\n//@@SETTINGS@@\n\n// ===================== TESTED HELPERS FOR THE BLOCKS =====================\n// Same for every student. Each block in Camp Blocks calls one of these.\n\n// Average a few readings so the numbers do not jump around.\nint readAverage(int pin) {\n  long total = 0;\n  for (int i = 0; i < 8; i++) {\n    total += analogRead(pin);\n    delay(2);\n  }\n  return (int)(total / 8);\n}\n\n// 0 = bone dry, 100 = soaking wet\nint soilPercent() {\n  long pct = map(readAverage(PIN_SOIL), SOIL_DRY, SOIL_WET, 0, 100);\n  return (int)constrain(pct, 0, 100);\n}\n\n// 0 = dark, 100 = very bright\nint lightPercent() {\n  long pct = map(readAverage(PIN_LIGHT), 0, 1023, 0, 100);\n  if (!LIGHT_BRIGHT_IS_HIGH) pct = 100 - pct;\n  return (int)constrain(pct, 0, 100);\n}\n\n// r, g, b are 1 (on) or 0 (off)\nvoid setColor(int r, int g, int b) {\n  if (LED_COMMON_ANODE) { r = 1 - r; g = 1 - g; b = 1 - b; }\n  digitalWrite(PIN_LED_R, r ? HIGH : LOW);\n  digitalWrite(PIN_LED_G, g ? HIGH : LOW);\n  digitalWrite(PIN_LED_B, b ? HIGH : LOW);\n}\n\nvoid waitSecs(float secs) {\n  delay((unsigned long)(secs * 1000.0));\n}\n\nvoid playNote(unsigned int hz, float secs) {\n  unsigned long ms = (unsigned long)(secs * 1000.0);\n  tone(PIN_BUZZER, hz, ms);\n  delay(ms + 20);\n  noTone(PIN_BUZZER);\n}\n\nvoid printSensors() {\n  Serial.print(F(\"Soil: \"));\n  Serial.print(soilPercent());\n  Serial.print(F(\"% (raw \"));\n  Serial.print(readAverage(PIN_SOIL));\n  Serial.print(F(\")   Light: \"));\n  Serial.print(lightPercent());\n  Serial.print(F(\"% (raw \"));\n  Serial.print(readAverage(PIN_LIGHT));\n  Serial.println(F(\")\"));\n}\n\n//@@KEEP+\n// ===================== STUDENT PART: WHAT JARVIS DOES =====================\n\n// Runs ONCE, when Jarvis wakes up (when it is powered on).\nvoid studentWake() {\n//@@WAKE@@\n}\n\n// Runs again and again, forever.\nvoid studentForever() {\n//@@FOREVER@@\n}\n//@@KEEP-\n\n// ===================== SETUP / LOOP =====================\n\nvoid setup() {\n  Serial.begin(9600);\n  pinMode(PIN_LED_R, OUTPUT);\n  pinMode(PIN_LED_G, OUTPUT);\n  pinMode(PIN_LED_B, OUTPUT);\n  pinMode(PIN_BUZZER, OUTPUT);\n  setColor(0, 0, 0);\n  studentWake();\n}\n\nvoid loop() {\n  studentForever();\n}\n"};</script>
 <script>
 /* Chip Camp: what each student has chosen and finished, shared by every page (kept in this browser only). */
 (function (root) {
@@ -1189,365 +1116,197 @@ mark.v{background:#ffe14d;color:#3a2b00;border-radius:5px;padding:0 3px;font-wei
 
 </script>
 <script>
-/* Camp Blocks UI: blocks, drag and drop, stage, code view. */
+/* Camp Studio UI: Face Studio (Peeko), Dance Studio (Chip Bot), Light Studio (Jarvis). */
 (function () {
   'use strict';
-  const Core = CampCore, Runtime = CampRuntime, Stages = CampStages, Studio = CampStudio;
+  const Core = CampCore, Studio = CampStudio, Runtime = CampRuntime, Stages = CampStages;
   const PROJECTS = Core.PROJECTS, ORDER = ['peeko', 'chipbot', 'jarvis'];
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
   const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
-  const todayStr = () => new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
-  const S = { proj: 'peeko', view: 'build', states: {}, speed: 1, lastLane: 'forever', activeStory: null, doneBefore: {}, showAll: false, openFolds: new Set() };
-  const P = () => PROJECTS[S.proj];
-  function state() {
-    if (!S.states[S.proj]) { S.states[S.proj] = Core.newState(S.proj); S.states[S.proj].date = todayStr(); }
-    const st = S.states[S.proj];
-    if (!st.builder) st.builder = ChipCamp.get().name;
-    return st;
-  }
+  const META = {
+    peeko: { studio: 'Face Studio', title: "Design Peeko's face show", say: 'Each card is one moment. Pick a face, a head move, some words, a sound, and how long to hold it. Peeko plays your moments in order, forever.', add: '+ Add a moment', noun: 'moment' },
+    chipbot: { studio: 'Dance Studio', title: "Design Chip Bot's routine", say: 'Each card is one move. Chip Bot does them in order, forever. Switch on the safety check and it turns away when something gets close.', add: '+ Add a move', noun: 'move' },
+    jarvis: { studio: 'Light Studio', title: "Design Jarvis's plant light", say: 'Jarvis checks the soil and the light over and over. Pick a colour for each situation, then move the sliders on the right to test your rules.', add: '', noun: 'rule' }
+  };
+  const COLORCSS = { red: '#ff3b3b', green: '#35d07f', blue: '#3b82ff', yellow: '#ffd93b', cyan: '#2de2e6', purple: '#b06bff', white: '#ffffff', off: '#59606e' };
+  const colorOpts = PROJECTS.jarvis.blockMap.light.params[0].opts;
+  const faceOpts = PROJECTS.peeko.blockMap.act.params[0].opts;
+  const moveOpts = PROJECTS.chipbot.blockMap.dance.params[0].opts;
+  const noteOpts = [['none', 'no sound']].concat(Core.NOTES.map((n) => [n[0], 'note ' + n[1]]));
+  const KIND_LABEL = { walk: ['🚶', 'Walk'], turn: ['↩️', 'Turn'], dance: ['💃', 'Dance'], stand: ['🧍', 'Stand still'] };
+  const num = (proj, type, id, v) => Core.norm(PROJECTS[proj].blockMap[type], { [id]: v })[id];
 
-  /* ---------- persistence ---------- */
-  const KEY = 'campblocks.v2', SAVES = 'campblocks.saves.v1';
-  function lsGet(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
-  function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
-  let saveT = 0;
-  function persist() { clearTimeout(saveT); saveT = setTimeout(() => lsSet(KEY, { proj: S.proj, states: S.states }), 250); }
-  function cleanList(proj, list) {
-    const Pj = PROJECTS[proj];
-    return (Array.isArray(list) ? list : []).filter((n) => n && Pj.blockMap[n.type]).map((n) => {
-      const def = Pj.blockMap[n.type];
-      const node = { id: n.id || Core.uid(), type: n.type, p: Object.assign(Core.defaults(def), n.p || {}) };
-      if (def.shape === 'c') { node.kids = cleanList(proj, n.kids); if (def.canElse && n.els) node.els = cleanList(proj, n.els); }
-      return node;
-    });
-  }
-  function cleanState(proj, st) {
-    const base = Core.newState(proj);
-    return Object.assign(base, { builder: String((st && st.builder) || ''), robot: String((st && st.robot) || ''), date: (st && st.date) || todayStr(),
-      settings: Object.assign(base.settings, (st && st.settings) || {}), wake: cleanList(proj, st && st.wake), forever: cleanList(proj, st && st.forever) });
-  }
-  (function load() {
-    const d = lsGet(KEY);
-    if (d && d.states) { ORDER.forEach((id) => { if (d.states[id]) S.states[id] = cleanState(id, d.states[id]); }); if (PROJECTS[d.proj]) S.proj = d.proj; }
-    const chosen = ChipCamp.get().robot; if (chosen && PROJECTS[chosen]) S.proj = chosen;
-  })();
-
-  /* ---------- small helpers ---------- */
+  const S = { proj: ChipCamp.robotOrDefault(), design: null, speed: 1 };
   let toastT = 0;
   function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2200); }
-  function confetti(x, y) {
-    const em = ['🎉', '✨', '⭐', '💜', '💙', '🟡', '🟢'];
-    for (let i = 0; i < 16; i++) {
-      const s = el('span', 'conf', em[i % em.length]);
-      s.style.left = x + 'px'; s.style.top = y + 'px';
-      s.style.setProperty('--dx', (Math.random() * 260 - 130) + 'px'); s.style.setProperty('--dy', (Math.random() * -220 - 20) + 'px'); s.style.setProperty('--r', (Math.random() * 360 - 180) + 'deg');
-      document.body.appendChild(s); setTimeout(() => s.remove(), 1200);
-    }
-  }
-  function twoClick(btn, label, action) {
-    let armed = false, t = 0; const orig = btn.innerHTML;
-    btn.onclick = () => {
-      if (!armed) { armed = true; btn.innerHTML = label; t = setTimeout(() => { armed = false; btn.innerHTML = orig; }, 3000); return; }
-      clearTimeout(t); armed = false; btn.innerHTML = orig; action();
-    };
-  }
-  function changed() { persist(); ChipCamp.codeBlocks(S.proj, Core.countBlocks(state())); renderStory(); updateHat(); updateCount(); if (S.view === 'code') renderCode(); }
 
-  /* ---------- header ---------- */
+  /* ---------- design storage ---------- */
+  function loadDesign() { S.design = Studio.clean(S.proj, ChipCamp.design(S.proj) || Studio.defaults(S.proj)); }
+  function save() { ChipCamp.setDesign(S.proj, Studio.clean(S.proj, S.design)); }
+  function changed(rerender) { save(); if (rerender) renderEditor(); }
+
+  /* ---------- small builders ---------- */
+  function field(label, node) { const l = el('label'); l.appendChild(document.createTextNode(label)); l.appendChild(node); return l; }
+  function select(opts, value, onchange) {
+    const s = el('select'); opts.forEach((o) => { const op = el('option'); op.value = o[0]; op.textContent = o[1]; s.appendChild(op); });
+    s.value = value; s.onchange = () => onchange(s.value); return s;
+  }
+  function numberIn(value, min, max, step, onchange) {
+    const i = el('input'); i.type = 'number'; i.min = min; i.max = max; i.step = step; i.value = value;
+    i.onchange = () => onchange(i.value); return i;
+  }
+  function chip(html, pressed, onclick, cls) { const b = el('button', cls || 'chip', html); b.type = 'button'; b.setAttribute('aria-pressed', pressed ? 'true' : 'false'); b.onclick = onclick; return b; }
+  function cardHead(num, label, list, i, onPlay) {
+    const h = el('div', 'momhead', '<span class="num">' + num + '</span><b>' + esc(label) + '</b><span class="sp"></span>');
+    if (onPlay) { const p = el('button', null, '▶'); p.title = 'Try just this ' + META[S.proj].noun; p.onclick = onPlay; h.appendChild(p); }
+    if (list) {
+      const up = el('button', null, '↑'), dn = el('button', null, '↓'), rm = el('button', null, '✕');
+      up.title = 'Move up'; dn.title = 'Move down'; rm.title = 'Remove';
+      up.disabled = i === 0; dn.disabled = i === list.length - 1;
+      up.onclick = () => { list.splice(i - 1, 0, list.splice(i, 1)[0]); changed(true); };
+      dn.onclick = () => { list.splice(i + 1, 0, list.splice(i, 1)[0]); changed(true); };
+      rm.onclick = () => { list.splice(i, 1); changed(true); };
+      h.appendChild(up); h.appendChild(dn); h.appendChild(rm);
+    }
+    return h;
+  }
+  function addRow(list, make) {
+    const r = el('div', 'addrow'), max = Studio.MAX_STEPS;
+    const b = el('button', 'btn', META[S.proj].add); b.disabled = list.length >= max;
+    b.onclick = () => { list.push(make()); changed(true); };
+    r.appendChild(b);
+    r.appendChild(el('span', 'note', list.length >= max ? 'That is the most (' + max + ').' : list.length + ' of ' + max));
+    return r;
+  }
+
+  /* ---------- Face Studio (Peeko) ---------- */
+  function editPeeko(root) {
+    const list = S.design.moments, stack = el('div', 'stack');
+    if (!list.length) stack.appendChild(el('p', 'note', 'No moments yet. Add one to start your show.'));
+    list.forEach((m, i) => {
+      const card = el('div', 'mom'); card.style.setProperty('--c', '#9966FF');
+      card.appendChild(cardHead(i + 1, 'Moment', list, i, () => playPart(i)));
+      const body = el('div', 'mombody');
+      const faces = el('div', 'chips');
+      faceOpts.forEach((o) => { const [emoji, ...rest] = o[1].split(' '); faces.appendChild(chip('<span class="e">' + emoji + '</span>' + esc(rest.join(' ')), m.face === o[0], () => { m.face = o[0]; changed(true); })); });
+      body.appendChild(faces);
+      const f = el('div', 'fields');
+      f.appendChild(field('Head', select([['none', 'stays still'], ['left', '⬅️ looks left'], ['right', '➡️ looks right']], m.look, (v) => { m.look = v; changed(); })));
+      const words = el('input'); words.type = 'text'; words.maxLength = 20; words.placeholder = 'optional'; words.value = m.words;
+      words.oninput = () => { m.words = words.value; save(); };
+      words.onchange = () => { m.words = Core.cleanText(words.value, 20, ''); words.value = m.words; changed(); };
+      f.appendChild(field('Words on screen', words));
+      f.appendChild(field('Sound', select(noteOpts, m.note, (v) => { m.note = v; changed(); })));
+      f.appendChild(field('Then wait (sec)', numberIn(m.wait, 0.1, 30, 0.1, (v) => { m.wait = num('peeko', 'wait', 'secs', v); changed(true); })));
+      body.appendChild(f); card.appendChild(body); stack.appendChild(card);
+    });
+    root.appendChild(stack);
+    root.appendChild(addRow(list, () => ({ face: 'happy', look: 'none', words: '', note: 'none', wait: 2 })));
+  }
+
+  /* ---------- Dance Studio (Chip Bot) ---------- */
+  function editChipbot(root) {
+    const d = S.design, list = d.moves;
+    const guard = el('div', 'mom guard');
+    guard.appendChild(el('div', 'momhead', '<span class="num">🛡</span><b>Safety check</b>'));
+    const gb = el('div', 'mombody'), row = el('label', 'check');
+    const cb = el('input'); cb.type = 'checkbox'; cb.checked = d.safe; cb.onchange = () => { d.safe = cb.checked; changed(true); };
+    row.appendChild(cb); row.appendChild(document.createTextNode('If something is closer than'));
+    const cm = numberIn(d.safeCm, 3, 50, 1, (v) => { d.safeCm = num('chipbot', 'if_dist', 'cm', v); changed(true); }); cm.disabled = !d.safe;
+    row.appendChild(cm); row.appendChild(document.createTextNode('cm, turn away instead of doing the routine'));
+    gb.appendChild(row); guard.appendChild(gb); root.appendChild(guard);
+    root.appendChild(el('div', 'flow', d.safe ? '↓ otherwise, Chip Bot does this routine ↓' : '↓ Chip Bot does this routine ↓'));
+
+    const stack = el('div', 'stack');
+    if (!list.length) stack.appendChild(el('p', 'note', 'No moves yet. Add one to start your routine.'));
+    list.forEach((m, i) => {
+      const card = el('div', 'mom'); card.style.setProperty('--c', '#4C97FF');
+      card.appendChild(cardHead(i + 1, KIND_LABEL[m.kind][1], list, i, () => playPart(i)));
+      const body = el('div', 'mombody'), kinds = el('div', 'chips');
+      Studio.KINDS.forEach((k) => kinds.appendChild(chip('<span class="e">' + KIND_LABEL[k][0] + '</span>' + KIND_LABEL[k][1], m.kind === k, () => {
+        m.kind = k; m.dir = k === 'turn' ? 'left' : 'fwd'; m.n = k === 'dance' ? 2 : k === 'turn' ? 3 : 4; changed(true);
+      })));
+      body.appendChild(kinds);
+      const f = el('div', 'fields');
+      if (m.kind === 'walk') {
+        f.appendChild(field('Direction', select([['fwd', 'forward'], ['back', 'backward']], m.dir, (v) => { m.dir = v; changed(); })));
+        f.appendChild(field('Steps', numberIn(m.n, 1, 10, 1, (v) => { m.n = num('chipbot', 'walk', 'steps', v); changed(true); })));
+      } else if (m.kind === 'turn') {
+        f.appendChild(field('Direction', select([['left', 'left'], ['right', 'right']], m.dir, (v) => { m.dir = v; changed(); })));
+        f.appendChild(field('Steps', numberIn(m.n, 1, 10, 1, (v) => { m.n = num('chipbot', 'turn', 'steps', v); changed(true); })));
+      } else if (m.kind === 'dance') {
+        f.appendChild(field('Dance move', select(moveOpts, m.move, (v) => { m.move = v; changed(); })));
+        f.appendChild(field('Times', numberIn(m.n, 1, 8, 1, (v) => { m.n = num('chipbot', 'dance', 'reps', v); changed(true); })));
+      }
+      f.appendChild(field('Beep after', select(noteOpts, m.beep, (v) => { m.beep = v; changed(); })));
+      body.appendChild(f); card.appendChild(body); stack.appendChild(card);
+    });
+    root.appendChild(stack);
+    root.appendChild(addRow(list, () => ({ kind: 'walk', dir: 'fwd', n: 4, move: '0', beep: 'none' })));
+  }
+
+  /* ---------- Light Studio (Jarvis) ---------- */
+  function swatches(current, onpick) {
+    const wrap = el('div', 'swatches');
+    colorOpts.forEach((o) => {
+      const b = el('button', 'swatch' + (o[0] === 'off' ? ' off' : '')); b.type = 'button';
+      if (o[0] !== 'off') b.style.background = COLORCSS[o[0]];
+      b.title = o[1].replace(/^\S+\s/, ''); b.setAttribute('aria-label', b.title); b.setAttribute('aria-pressed', o[0] === current ? 'true' : 'false');
+      b.onclick = () => { onpick(o[0]); changed(true); };
+      wrap.appendChild(b);
+    });
+    return wrap;
+  }
+  function editJarvis(root) {
+    const d = S.design;
+    const rule = (cls, num, title, color, onpick, extra) => {
+      const card = el('div', 'mom rule ' + cls);
+      const head = el('div', 'momhead', '<span class="num">' + num + '</span><b>' + title + '</b>'); card.appendChild(head);
+      const body = el('div', 'mombody'); body.appendChild(swatches(color, onpick));
+      body.appendChild(el('div', 'swlabel', 'LED colour: ' + (colorOpts.find((o) => o[0] === color) || ['', color])[1].replace(/^\S+\s/, '')));
+      if (extra) body.appendChild(extra);
+      card.appendChild(body); return card;
+    };
+    const dryExtra = el('div', 'fields');
+    dryExtra.appendChild(field('Dry means below (%)', numberIn(d.dryPct, 0, 100, 5, (v) => { d.dryPct = num('jarvis', 'if_soil', 'pct', v); changed(true); })));
+    const al = el('label', 'check'); const acb = el('input'); acb.type = 'checkbox'; acb.checked = d.dryAlarm; acb.onchange = () => { d.dryAlarm = acb.checked; changed(); };
+    al.appendChild(acb); al.appendChild(document.createTextNode('🔔 Beep 3 times to ask for water')); dryExtra.appendChild(al);
+    root.appendChild(rule('r1', 1, 'If the soil is dry', d.dryColor, (c) => { d.dryColor = c; }, dryExtra));
+    root.appendChild(el('div', 'flow', '↓ if not ↓'));
+    const darkExtra = el('div', 'fields');
+    darkExtra.appendChild(field('Dark means below (%)', numberIn(d.darkPct, 0, 100, 5, (v) => { d.darkPct = num('jarvis', 'if_light', 'pct', v); changed(true); })));
+    root.appendChild(rule('r2', 2, 'Else, if it is dark', d.darkColor, (c) => { d.darkColor = c; }, darkExtra));
+    root.appendChild(el('div', 'flow', '↓ if not ↓'));
+    root.appendChild(rule('r3', 3, 'Otherwise, all is well', d.okColor, (c) => { d.okColor = c; }));
+    const f = el('div', 'fields'); f.style.marginTop = '14px';
+    f.appendChild(field('Check the plant every (sec)', numberIn(d.checkSecs, 0.1, 30, 0.1, (v) => { d.checkSecs = num('jarvis', 'wait', 'secs', v); changed(true); })));
+    root.appendChild(f);
+  }
+
+  function renderEditor() {
+    const m = META[S.proj], root = $('#editor'); root.innerHTML = '';
+    $('#brandName').textContent = m.studio; $('#edTitle').textContent = m.title; $('#edSay').textContent = m.say;
+    document.title = m.studio + ' · Chip Camp';
+    if (S.proj === 'peeko') editPeeko(root); else if (S.proj === 'chipbot') editChipbot(root); else editJarvis(root);
+    $('#edNote').textContent = 'Your design is saved on this laptop as you go.';
+  }
+
+  /* ---------- tabs ---------- */
   function renderTabs() {
     const nav = $('#ptabs'); nav.innerHTML = '';
     ORDER.forEach((id) => {
       const p = PROJECTS[id];
       const b = el('button', 'ptab', '<span class="em">' + p.emoji + '</span>' + esc(p.name));
-      b.setAttribute('aria-selected', id === S.proj ? 'true' : 'false');
-      b.style.setProperty('--pc', p.color);
-      b.onclick = () => { if (id === S.proj) return; stopRun(); S.proj = id; ChipCamp.setRobot(id); S.activeStory = null; S.openFolds.clear(); persist(); renderAll(); };
+      b.setAttribute('aria-selected', id === S.proj ? 'true' : 'false'); b.style.setProperty('--pc', p.color);
+      b.onclick = () => { if (id === S.proj) return; stopRun(); S.proj = id; ChipCamp.setRobot(id); loadDesign(); renderAll(); };
       nav.appendChild(b);
     });
   }
-  $$('.vtab').forEach((b) => { b.onclick = () => setView(b.dataset.view); });
-  function setView(v) {
-    S.view = v; stopRun();
-    $$('.vtab').forEach((b) => b.setAttribute('aria-selected', b.dataset.view === v ? 'true' : 'false'));
-    $('#buildView').hidden = v !== 'build'; $('#codeView').hidden = v !== 'code';
-    if (v === 'code') renderCode();
-    window.scrollTo(0, 0);
-  }
-  $('#makeCode').onclick = (e) => { confetti(e.clientX, e.clientY); setView('code'); };
-  $('#backBtn').onclick = () => setView('build');
 
-  /* ---------- palette ---------- */
-  function paramEls(def, node, interactive) {
-    const out = [];
-    def.parts.forEach((part) => {
-      if (typeof part === 'string') { const s = el('span'); s.textContent = part; out.push(s); return; }
-      if (!interactive) {
-        const s = el('span', 'static ' + (part.t === 'choice' ? 'd' : 'p'));
-        s.textContent = part.t === 'choice' ? ((part.opts.find((o) => o[0] === part.d) || [])[1] || part.d) : part.d;
-        out.push(s); return;
-      }
-      if (part.t === 'num') {
-        const w = el('span', 'pill'), i = el('input'); i.type = 'number'; i.min = part.min; i.max = part.max; i.step = part.step || 1; i.value = node.p[part.id];
-        i.setAttribute('aria-label', part.id);
-        i.oninput = () => { const v = Number(i.value); if (isFinite(v)) { node.p[part.id] = v; changed(); } };
-        i.onchange = () => { const v = Core.norm({ params: [part] }, { [part.id]: i.value })[part.id]; node.p[part.id] = v; i.value = v; changed(); };
-        w.appendChild(i); out.push(w);
-      } else if (part.t === 'choice') {
-        const w = el('span', 'drop'), sel = el('select');
-        part.opts.forEach((o) => { const op = el('option'); op.value = o[0]; op.textContent = o[1]; sel.appendChild(op); });
-        sel.value = node.p[part.id]; sel.setAttribute('aria-label', part.id);
-        sel.onchange = () => { node.p[part.id] = sel.value; changed(); };
-        w.appendChild(sel); out.push(w);
-      } else if (part.t === 'text') {
-        const w = el('span', 'pill'), i = el('input'); i.type = 'text'; i.maxLength = part.max; i.value = node.p[part.id]; i.setAttribute('aria-label', part.id);
-        i.oninput = () => { node.p[part.id] = i.value; changed(); };
-        i.onchange = () => { const v = Core.cleanText(i.value, part.max, part.d); node.p[part.id] = v; i.value = v; changed(); };
-        w.appendChild(i); out.push(w);
-      }
-    });
-    return out;
-  }
-  function renderPalette() {
-    const p = P(), fly = $('#fly'), rail = $('#rail');
-    fly.innerHTML = ''; rail.innerHTML = '';
-    fly.appendChild(el('p', 'hint', 'Drag a block into the script, or just tap it. Change the numbers and words once it is there.'));
-    p.cats.forEach((cat) => {
-      const b = el('button', null, '<i></i>' + esc(cat.label)); b.style.setProperty('--c', cat.color);
-      b.onclick = () => { const h = $('#cat-' + cat.id); if (h) fly.scrollTo({ top: h.offsetTop - 8, behavior: 'smooth' }); };
-      rail.appendChild(b);
-      const h = el('h3', null, esc(cat.label)); h.id = 'cat-' + cat.id; h.style.setProperty('--c', cat.color); fly.appendChild(h);
-      p.blocks.filter((d) => d.cat === cat.id).forEach((def) => {
-        const blk = el('div', 'blk palette-blk' + (def.shape === 'c' ? ' c' : ''));
-        blk.style.setProperty('--c', cat.color); blk.dataset.type = def.type;
-        const row = el('div', 'row'); paramEls(def, null, false).forEach((x) => row.appendChild(x)); blk.appendChild(row);
-        if (def.shape === 'c') blk.appendChild(el('div', 'foot'));
-        fly.appendChild(blk);
-      });
-    });
-    fly.appendChild(el('div', 'trash', '🗑 Drag a block here to throw it away'));
-  }
-
-  /* ---------- the script ---------- */
-  function makeDz(list, lane) {
-    const dz = el('div', 'dz' + (list.length ? '' : ' empty')); dz.__list = list; if (lane) dz.dataset.lane = lane;
-    list.forEach((n) => { const b = nodeEl(n, list); if (b) dz.appendChild(b); });
-    return dz;
-  }
-  function nodeEl(node, list) {
-    const p = P(), def = p.blockMap[node.type]; if (!def) return null;
-    const cat = p.catMap[def.cat];
-    const blk = el('div', 'blk' + (def.shape === 'c' ? ' c' : '')); blk.style.setProperty('--c', cat.color);
-    blk.dataset.nid = node.id; blk.__node = node; blk.__list = list;
-    const row = el('div', 'row'); paramEls(def, node, true).forEach((x) => row.appendChild(x));
-    const x = el('button', 'x', '✕'); x.title = 'Remove this block'; x.setAttribute('aria-label', 'Remove block');
-    x.onclick = (e) => { e.stopPropagation(); const i = list.indexOf(node); if (i > -1) list.splice(i, 1); renderScript(); changed(); };
-    row.appendChild(x); blk.appendChild(row);
-    if (def.shape === 'c') {
-      const slot = el('div', 'cslot'); slot.appendChild(makeDz(node.kids, null)); blk.appendChild(slot);
-      if (def.canElse && node.els) {
-        blk.appendChild(el('div', 'row else', 'else'));
-        const s2 = el('div', 'cslot'); s2.appendChild(makeDz(node.els, null)); blk.appendChild(s2);
-      }
-      const foot = el('div', 'foot');
-      if (def.canElse) {
-        const eb = el('button', 'elsebtn', node.els ? '− take away else' : '+ add else');
-        eb.onclick = (e) => { e.stopPropagation(); if (node.els) delete node.els; else node.els = []; renderScript(); changed(); };
-        foot.appendChild(eb);
-      }
-      blk.appendChild(foot);
-    }
-    return blk;
-  }
-  function updateHat() { const s = $('#hatName'); if (s) s.textContent = Core.cleanText(state().robot, 16, P().robotDefault); }
-  function updateCount() { const n = Core.countBlocks(state()); $('#blockCount').textContent = n ? n + (n === 1 ? ' block' : ' blocks') + ' in your program' : ''; }
-  function renderScript() {
-    const st = state(), root = $('#script'); root.innerHTML = '';
-    const hat = el('div', 'hat', '<span class="flag">🏁</span><span>when <strong id="hatName"></strong> wakes up</span><span class="tag">runs once</span>');
-    root.appendChild(hat);
-    const wake = makeDz(st.wake, 'wake'); wake.classList.add('lane'); root.appendChild(wake);
-    const forever = el('div', 'blk c'); forever.style.setProperty('--c', '#FFAB19'); forever.style.marginTop = '4px';
-    forever.appendChild(el('div', 'row', '<span>🔁 forever</span><span class="tag">again and again</span>'));
-    const slot = el('div', 'cslot'); slot.appendChild(makeDz(st.forever, 'forever')); forever.appendChild(slot);
-    forever.appendChild(el('div', 'foot'));
-    root.appendChild(forever);
-    updateHat(); updateCount();
-  }
-
-  /* ---------- drag and drop (pointer events: mouse + touch) ---------- */
-  let drag = null;
-  document.addEventListener('pointerdown', (e) => {
-    if (e.pointerType === 'mouse' && e.button !== 0) return;
-    const lane = e.target.closest && e.target.closest('[data-lane]'); if (lane) S.lastLane = lane.dataset.lane;
-    if (e.target.closest('input,select,textarea,button,.pill,.drop')) return;
-    const pal = e.target.closest('.palette-blk');
-    const blk = !pal && e.target.closest('.blk[data-nid]');
-    if (!pal && !blk) return;
-    if (blk && !e.target.closest('.blk[data-nid] > .row')) return;
-    const src = pal || blk, r = src.getBoundingClientRect();
-    drag = { kind: pal ? 'new' : 'move', type: pal && pal.dataset.type, el: src, node: blk && blk.__node, list: blk && blk.__list, sx: e.clientX, sy: e.clientY, ox: e.clientX - r.left, oy: e.clientY - r.top, w: r.width, active: false, ghost: null, target: null, idx: 0, line: null };
-    e.preventDefault();
-  });
-  document.addEventListener('pointermove', (e) => {
-    if (!drag) return;
-    if (!drag.active) {
-      if (Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) < 6) return;
-      drag.active = true;
-      const g = drag.el.cloneNode(true); g.classList.add('ghost'); g.classList.remove('lifting', 'pop'); g.style.width = drag.w + 'px'; document.body.appendChild(g); drag.ghost = g;
-      document.body.classList.add('dragging', 'dragging-' + drag.kind);
-      if (drag.kind === 'move') drag.el.classList.add('lifting');
-    }
-    drag.ghost.style.left = (e.clientX - drag.ox) + 'px'; drag.ghost.style.top = (e.clientY - drag.oy) + 'px';
-    const stack = document.elementsFromPoint(e.clientX, e.clientY);
-    const dz = stack.find((x) => x.classList && x.classList.contains('dz') && !(drag.kind === 'move' && drag.el.contains(x)));
-    const overPal = !dz && stack.some((x) => x.classList && x.classList.contains('palwrap'));
-    document.body.classList.toggle('over-trash', !!(overPal && drag.kind === 'move'));
-    if (drag.target && drag.target !== dz) drag.target.classList.remove('over');
-    if (drag.line) { drag.line.remove(); drag.line = null; }
-    drag.target = dz || null;
-    if (dz) {
-      dz.classList.add('over');
-      const kids = Array.from(dz.children).filter((c) => c.classList.contains('blk') && c !== drag.el);
-      let idx = kids.length;
-      for (let i = 0; i < kids.length; i++) { const r = kids[i].getBoundingClientRect(); if (e.clientY < r.top + r.height / 2) { idx = i; break; } }
-      drag.idx = idx;
-      drag.line = el('div', 'dropline');
-      if (idx < kids.length) dz.insertBefore(drag.line, kids[idx]); else dz.appendChild(drag.line);
-    }
-  });
-  function endDrag(e, cancel) {
-    if (!drag) return;
-    const d = drag; drag = null;
-    document.body.classList.remove('dragging', 'dragging-new', 'dragging-move', 'over-trash');
-    if (d.ghost) d.ghost.remove();
-    if (d.line) d.line.remove();
-    if (d.target) d.target.classList.remove('over');
-    d.el.classList.remove('lifting');
-    if (cancel) return;
-    if (!d.active) { if (d.kind === 'new') addBlock(d.type); return; }
-    const st = state();
-    if (d.target) {
-      const list = d.target.__list;
-      if (d.kind === 'new') {
-        const n = Core.mkNode(S.proj, d.type); list.splice(d.idx, 0, n); finishDrop(n.id);
-      } else {
-        const i = d.list.indexOf(d.node); if (i > -1) d.list.splice(i, 1);
-        list.splice(Math.min(d.idx, list.length), 0, d.node); finishDrop(d.node.id);
-      }
-      const lane = d.target.closest('[data-lane]'); if (lane) S.lastLane = lane.dataset.lane;
-    } else if (d.kind === 'move') {
-      const stack = document.elementsFromPoint(e.clientX, e.clientY);
-      if (stack.some((x) => x.classList && x.classList.contains('palwrap'))) { const i = d.list.indexOf(d.node); if (i > -1) d.list.splice(i, 1); renderScript(); changed(); }
-    }
-  }
-  document.addEventListener('pointerup', (e) => endDrag(e, false));
-  document.addEventListener('pointercancel', (e) => endDrag(e, true));
-  function finishDrop(id) {
-    renderScript(); changed();
-    const b = $('.blk[data-nid="' + id + '"]'); if (b) { b.classList.add('pop'); b.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); setTimeout(() => b.classList.remove('pop'), 500); }
-  }
-  function addBlock(type) {
-    const st = state(), list = S.lastLane === 'wake' ? st.wake : st.forever;
-    const n = Core.mkNode(S.proj, type); list.push(n); finishDrop(n.id);
-  }
-
-  /* ---------- name tag, toolbar, story ---------- */
-  function renderNamebar() {
-    const p = P(), st = state(), bar = $('#namebar');
-    bar.innerHTML = '<label>👋 My name <input id="inBuilder" maxlength="16" placeholder="e.g. Aarav" autocomplete="off"></label>' +
-      '<label>' + p.emoji + ' ' + esc(p.robotLabel) + ' <input id="inRobot" maxlength="16" placeholder="' + esc(p.robotDefault) + '" autocomplete="off"></label>' +
-      '<span class="note">letters &amp; numbers only: they go into the code</span>';
-    const a = $('#inBuilder'), b = $('#inRobot');
-    a.value = st.builder; b.value = st.robot;
-    a.oninput = () => { st.builder = a.value; changed(); };
-    b.oninput = () => { st.robot = b.value; changed(); };
-    a.onchange = () => { a.value = st.builder = Core.cleanText(a.value, 16, ''); changed(); };
-    b.onchange = () => { b.value = st.robot = Core.cleanText(b.value, 16, ''); changed(); };
-  }
-  function renderToolbar() {
-    const bar = $('#toolbar'); bar.innerHTML = '';
-    const mk = (html, fn, cls) => { const b = el('button', 'btn small ' + (cls || ''), html); b.onclick = fn; bar.appendChild(b); return b; };
-    const ex = mk('✨ Show me an example', () => {}); twoClick(ex, 'Replace my blocks? Click again', () => { const old = state(); const e = Core.exampleState(S.proj); e.builder = old.builder; e.robot = old.robot; e.date = old.date; e.settings = old.settings; S.states[S.proj] = e; renderScript(); renderNamebar(); changed(); toast('Here is an example. Change anything you like!'); });
-    const cl = mk('🧹 Clear', () => {}); twoClick(cl, 'Clear everything? Click again', () => { const st = state(); st.wake = []; st.forever = []; renderScript(); changed(); });
-    if (ChipCamp.design(S.proj)) { const dg = mk('🎨 Load my design', () => {}); twoClick(dg, 'Replace my blocks? Click again', () => { applyDesign(); }); }
-    const st = el('a', 'btn small', '🎨 ' + ({ peeko: 'Face', chipbot: 'Dance', jarvis: 'Light' }[S.proj]) + ' Studio'); st.href = 'studio.html'; bar.appendChild(st);
-    mk('💾 Save', saveSlot);
-    mk('📂 My saves', openSaves);
-    mk('🔗 Share', openShare);
-  }
-  function applyDesign() {
-    const old = state();
-    S.states[S.proj] = Studio.toState(S.proj, ChipCamp.design(S.proj) || Studio.defaults(S.proj), old);
-    renderScript(); renderNamebar(); changed(); toast('Your design is in the blocks. Change anything you like!');
-  }
-  function saveSlot() {
-    const st = state(), saves = lsGet(SAVES) || [];
-    const who = Core.cleanText(st.builder, 16, '') || '(no name yet)';
-    const id = S.proj + ':' + who.toLowerCase();
-    const rec = { id, proj: S.proj, who, robot: Core.cleanText(st.robot, 16, P().robotDefault), ts: Date.now(), state: JSON.parse(JSON.stringify(st)) };
-    const i = saves.findIndex((s) => s.id === id); if (i > -1) saves[i] = rec; else saves.push(rec);
-    toast(lsSet(SAVES, saves) ? 'Saved ' + who + "'s " + P().name + ' ✔' : 'Could not save in this browser');
-  }
-  function modal(html, mount) {
-    const back = el('div', 'modalback'), m = el('div', 'modal', html); back.appendChild(m); document.body.appendChild(back);
-    const close = () => back.remove(); back.onclick = (e) => { if (e.target === back) close(); };
-    mount && mount(m, close); return close;
-  }
-  function openSaves() {
-    const saves = (lsGet(SAVES) || []).sort((a, b) => b.ts - a.ts);
-    modal('<h2>📂 My saves</h2><p style="color:#69709a;margin:0 0 8px">Your latest work is also kept automatically on this laptop. Saves are handy when a friend uses the laptop next.</p><div id="saveList"></div><div style="margin-top:12px"><button class="btn" id="closeM">Close</button></div>', (m, close) => {
-      const list = $('#saveList', m);
-      if (!saves.length) list.innerHTML = '<p>Nothing saved yet. Press <b>💾 Save</b> to keep your program.</p>';
-      saves.forEach((s) => {
-        const row = el('div', 'saverow', '<div class="who">' + PROJECTS[s.proj].emoji + ' ' + esc(s.who) + '<small>' + esc(PROJECTS[s.proj].name) + ' · ' + esc(s.robot) + ' · ' + new Date(s.ts).toLocaleString([], { hour: 'numeric', minute: '2-digit', day: 'numeric', month: 'short' }) + '</small></div>');
-        const open = el('button', 'btn small go', 'Open'); open.onclick = () => { stopRun(); S.proj = s.proj; S.states[s.proj] = cleanState(s.proj, s.state); S.activeStory = null; persist(); close(); renderAll(); toast('Opened ' + s.who + "'s " + PROJECTS[s.proj].name); };
-        const del = el('button', 'btn small', '🗑'); del.title = 'Delete this save'; del.onclick = () => { lsSet(SAVES, (lsGet(SAVES) || []).filter((x) => x.id !== s.id)); close(); openSaves(); };
-        row.appendChild(open); row.appendChild(del); list.appendChild(row);
-      });
-      $('#closeM', m).onclick = close;
-    });
-  }
-  function openShare() {
-    const payload = JSON.stringify({ camp: 1, proj: S.proj, state: state() });
-    modal('<h2>🔗 Share my program</h2><p style="margin:0 0 6px;color:#69709a">Copy this text to move your program to another laptop, or paste a friend\'s text below.</p><textarea id="shareTx" spellcheck="false"></textarea><div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn" id="copyShare">📋 Copy</button><button class="btn go" id="loadShare">📥 Load pasted program</button><button class="btn" id="closeM">Close</button></div>', (m, close) => {
-      const tx = $('#shareTx', m); tx.value = payload;
-      $('#copyShare', m).onclick = () => { tx.select(); copyText(tx.value).then(() => toast('Copied!')); };
-      $('#loadShare', m).onclick = () => {
-        try { const d = JSON.parse(tx.value); if (!d || !PROJECTS[d.proj]) throw 0; stopRun(); S.proj = d.proj; S.states[d.proj] = cleanState(d.proj, d.state); persist(); close(); renderAll(); toast('Program loaded'); }
-        catch (e) { toast("That text didn't look like a program"); }
-      };
-      $('#closeM', m).onclick = close;
-    });
-  }
-  function copyText(text) {
-    const fallback = () => { const ta = el('textarea'); ta.value = text; ta.style.cssText = 'position:fixed;opacity:0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (e) { /* ignore */ } ta.remove(); };
-    if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text).catch(fallback);
-    fallback(); return Promise.resolve();
-  }
-
-  function renderStory() {
-    const p = P(), st = state(), box = $('#story');
-    const steps = p.story.map((s) => ({ s, done: !!s.done(st) }));
-    const first = steps.find((x) => !x.done);
-    const active = S.activeStory && steps.find((x) => x.s.id === S.activeStory) ? S.activeStory : (first ? first.s.id : steps[steps.length - 1].s.id);
-    const prev = S.doneBefore[S.proj] || {};
-    box.innerHTML = '';
-    const row = el('div', 'steps');
-    steps.forEach((x, i) => {
-      const b = el('button', 'step' + (x.done ? ' done' : '') + (x.s.id === active ? ' active' : ''), '<i>' + (x.done ? '✓' : (i + 1)) + '</i>' + esc(x.s.title));
-      if (x.done && prev[x.s.id] === false) { b.classList.add('just'); const r = b.getBoundingClientRect(); setTimeout(() => confetti(r.left + 20, r.top + 10), 30); }
-      b.onclick = () => { S.activeStory = x.s.id; renderStory(); };
-      row.appendChild(b);
-    });
-    box.appendChild(row);
-    const cur = steps.find((x) => x.s.id === active);
-    box.appendChild(el('div', 'say', '<span style="font-size:22px">🎤</span><div><b>Step ' + (steps.indexOf(cur) + 1) + ': ' + esc(cur.s.title) + '.</b> ' + esc(cur.s.say) + '</div>'));
-    const rec = {}; steps.forEach((x) => { rec[x.s.id] = x.done; }); S.doneBefore[S.proj] = rec;
-  }
-
-  /* ---------- stage ---------- */
+  /* ---------- the stage (same on-screen robots as the Code Builder) ---------- */
   const sensors = {
     distance: 50, soil: 35, light: 70, _l: {},
     on(k, f) { (this._l[k] = this._l[k] || []).push(f); },
@@ -1568,108 +1327,43 @@ mark.v{background:#ffe14d;color:#3a2b00;border-radius:5px;padding:0 3px;font-wei
     $('#serial').innerHTML = '<b>Serial Monitor</b>';
   }
   function stopRun() { if (running) stopFlag = true; }
-  async function runIt() {
-    if (running) return;
-    running = true; stopFlag = false;
-    $('#runBtn').hidden = true; $('#stopBtn').hidden = false;
-    const st = state(), settings = Object.assign({}, P().settingsDefault || {}, st.settings || {});
-    $('#serial').innerHTML = '<b>Serial Monitor</b>';
-    const ctx = {
-      stage: stageApi, sensors, settings, speedLevel: 1,
-      names: { robot: Core.cleanText(st.robot, 16, P().robotDefault), builder: Core.cleanText(st.builder, 16, 'Friend') },
+  function makeCtx() {
+    const P = PROJECTS[S.proj], name = ChipCamp.get().name;
+    return {
+      stage: stageApi, sensors, settings: Object.assign({}, P.settingsDefault || {}), speedLevel: 1,
+      names: { robot: P.robotDefault, builder: Core.cleanText(name, 16, 'Friend') },
       stepSeconds() { return [1.4, 1.0, 0.7][this.speedLevel] || 1; },
       stopped: () => stopFlag,
-      onNode: (id, on) => { const b = $('.blk[data-nid="' + id + '"]'); if (b) b.classList.toggle('running', on); },
+      onNode: () => {},
       sleep: async (sec) => { let left = sec * 1000 / S.speed; while (left > 0) { if (stopFlag) throw Runtime.STOP; const dt = Math.min(left, 40); await new Promise((r) => setTimeout(r, dt)); left -= dt; } }
     };
-    try { await Runtime.runProgram(S.proj, st, ctx); }
-    catch (e) { console.error(e); toast('Oops, the preview hit a problem'); }
-    $$('.blk.running').forEach((b) => b.classList.remove('running'));
+  }
+  async function exec(fn) {
+    if (running) { stopFlag = true; await new Promise((r) => setTimeout(r, 120)); }
+    running = true; stopFlag = false;
+    $('#runBtn').hidden = true; $('#stopBtn').hidden = false; $('#serial').innerHTML = '<b>Serial Monitor</b>';
+    try { await fn(makeCtx()); }
+    catch (e) { if (e !== Runtime.STOP) { console.error(e); toast('Oops, the preview hit a problem'); } }
     running = false; $('#runBtn').hidden = false; $('#stopBtn').hidden = true;
   }
-  $('#runBtn').onclick = runIt;
+  function currentState() { return Studio.toState(S.proj, S.design, { builder: ChipCamp.get().name, robot: '' }); }
+  $('#runBtn').onclick = () => { save(); exec((c) => Runtime.runProgram(S.proj, currentState(), c)); };
   $('#stopBtn').onclick = () => { stopFlag = true; };
+  // try just one card: the same blocks the Code Builder will get, run once
+  function playPart(i) {
+    const d = JSON.parse(JSON.stringify(S.design));
+    if (S.proj === 'peeko') d.moments = [d.moments[i]]; else d.moves = [d.moves[i]], d.safe = false;
+    const b = Studio.toBlocks(S.proj, d);
+    exec((c) => { c.stage.reset(); return Runtime.runList(S.proj, b.forever, c); });
+  }
   $$('#speedsel button').forEach((b) => { b.onclick = () => { S.speed = Number(b.dataset.sp); $$('#speedsel button').forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false')); }; });
   $('#soundBtn').onclick = () => { Stages.Sound.on = !Stages.Sound.on; $('#soundBtn').textContent = Stages.Sound.on ? '🔊' : '🔇'; $('#soundBtn').setAttribute('aria-pressed', Stages.Sound.on); if (Stages.Sound.on) Stages.Sound.beep(660, 0.12); };
 
-  /* ---------- code view ---------- */
-  const TYPES = new Set(['void', 'int', 'float', 'long', 'unsigned', 'bool', 'boolean', 'char', 'String', 'uint8_t', 'uint16_t', 'int8_t', 'byte', 'double', 'short', 'Servo', 'Adafruit_SH1106G', 'size_t']);
-  const KW = new Set(['if', 'else', 'for', 'while', 'return', 'const', 'static', 'true', 'false', 'switch', 'case', 'break', 'default', 'PROGMEM', 'HIGH', 'LOW', 'OUTPUT', 'INPUT', 'PI']);
-  const TOK = /(\/\/[^\n]*)|("(?:[^"\\]|\\.)*")|(#\s*\w+)|(\b\d+(?:\.\d+)?\b)|([A-Za-z_]\w*)/g;
-  function hl(line) {
-    let out = '', last = 0, m; TOK.lastIndex = 0;
-    while ((m = TOK.exec(line))) {
-      out += esc(line.slice(last, m.index));
-      const t = m[0]; let cls = null;
-      if (m[1]) cls = 'c'; else if (m[2]) cls = 's'; else if (m[3]) cls = 'p'; else if (m[4]) cls = 'n';
-      else cls = TYPES.has(t) ? 't' : KW.has(t) ? 'k' : (line.charAt(TOK.lastIndex) === '(' ? 'f' : null);
-      out += cls ? '<span class="tk-' + cls + '">' + esc(t) + '</span>' : esc(t);
-      last = TOK.lastIndex;
-    }
-    out += esc(line.slice(last));
-    return out.split(Core.MARK_S).join('<mark class="v">').split(Core.MARK_E).join('</mark>');
-  }
-  const NAME_COLOR = '#FFBF00';
-  function renderCode() {
-    const p = P(), gen = Core.generate(S.proj, state());
-    $('#codeTitle').textContent = p.emoji + ' ' + (gen.robot) + "'s sketch";
-    const legend = $('#legend'); legend.innerHTML = '<span>Colour = the block that made the line:</span>';
-    const used = new Set(gen.lines.filter((l) => l.src === 'student').map((l) => l.cat));
-    p.cats.filter((c) => used.has(c.id)).forEach((c) => { const s = el('span', null, '<i></i>' + esc(c.label)); s.style.setProperty('--c', c.color); legend.appendChild(s); });
-    legend.appendChild(el('span', null, '<mark class="v">your words &amp; numbers</mark>'));
-    const pane = $('#codePane'); pane.innerHTML = '';
-    let i = 0;
-    const line = (l, n) => {
-      const color = l.src === 'student' ? (l.cat === 'name' ? NAME_COLOR : ((p.catMap[l.cat] || { color: '#FFAB19' }).color)) : null;
-      const row = el('div', 'ln' + (color ? ' mine' : '')); if (color) row.style.setProperty('--c', color);
-      row.innerHTML = '<span class="no">' + n + '</span><span class="tx">' + hl(l.t || ' ') + '</span>'; return row;
-    };
-    while (i < gen.lines.length) {
-      const l = gen.lines[i];
-      const fold = l.src === 'base' && !l.keep && !S.showAll;
-      if (!fold) { pane.appendChild(line(l, i + 1)); i++; continue; }
-      let j = i; while (j < gen.lines.length && gen.lines[j].src === 'base' && !gen.lines[j].keep) j++;
-      const count = j - i, key = i;
-      if (S.openFolds.has(key)) {
-        const head = el('div', 'fold', '<span class="chev">▾</span><span>✓ ' + count + ' lines of tested ' + esc(p.name) + ' code (click to hide)</span>'); head.onclick = () => { S.openFolds.delete(key); renderCode(); }; pane.appendChild(head);
-        for (let k = i; k < j; k++) pane.appendChild(line(gen.lines[k], k + 1));
-      } else if (count <= 3) {
-        for (let k = i; k < j; k++) pane.appendChild(line(gen.lines[k], k + 1));
-      } else {
-        const head = el('div', 'fold', '<span class="chev">▸</span><span>✓ ' + count + ' lines of tested ' + esc(p.name) + ' code: ' + esc(p.foldBlurb) + ' (click to show)</span>'); head.onclick = () => { S.openFolds.add(key); renderCode(); }; pane.appendChild(head);
-      }
-      i = j;
-    }
-    const libs = { peeko: 'Libraries needed (Tools → Manage Libraries): <b>Adafruit GFX Library</b> and <b>Adafruit SH110X</b> (say yes to installing BusIO too). Servo is already built in.', chipbot: 'Servo is built into the Arduino IDE, so there is nothing extra to install.', jarvis: 'No extra libraries needed.' };
-    $('#libNote').innerHTML = libs[S.proj];
-    $('#boardStep').innerHTML = S.proj === 'chipbot' ? '<b>Tools → Board → Arduino Nano.</b> If the upload fails, set <b>Processor → ATmega328P (Old Bootloader)</b>.' : '<b>Tools → Board → Arduino Uno.</b>';
-    renderFacil();
-  }
-  function renderFacil() {
-    const card = $('#facilCard');
-    if (S.proj !== 'jarvis') { card.hidden = true; return; }
-    const st = state(); card.hidden = false;
-    card.innerHTML = '<h3>🔧 Facilitator: bench settings</h3><p class="small" style="margin:0 0 8px">Set these once per board. Print the sensor readings with the probe in dry air, then in a glass of water, and copy the raw numbers here.</p><div class="facil">' +
-      '<label>Soil raw reading when dry <input type="number" id="fDry" min="0" max="1023"></label><label>Soil raw reading when wet <input type="number" id="fWet" min="0" max="1023"></label>' +
-      '<label>Brighter light gives a bigger number <input type="checkbox" id="fLight"></label><label>RGB LED long leg goes to 5V (common anode) <input type="checkbox" id="fAnode"></label></div>';
-    $('#fDry').value = st.settings.soilDry; $('#fWet').value = st.settings.soilWet; $('#fLight').checked = !!st.settings.lightHigh; $('#fAnode').checked = !!st.settings.ledAnode;
-    const clamp = (v, d) => { v = Math.round(Number(v)); return isFinite(v) ? Math.min(1023, Math.max(0, v)) : d; };
-    $('#fDry').onchange = (e) => { st.settings.soilDry = clamp(e.target.value, 520); persist(); renderCode(); };
-    $('#fWet').onchange = (e) => { st.settings.soilWet = clamp(e.target.value, 280); persist(); renderCode(); };
-    $('#fLight').onchange = (e) => { st.settings.lightHigh = e.target.checked; persist(); renderCode(); };
-    $('#fAnode').onchange = (e) => { st.settings.ledAnode = e.target.checked; persist(); renderCode(); };
-  }
-  $('#showAll').onchange = (e) => { S.showAll = e.target.checked; renderCode(); };
-  $('#copyBtn').onclick = (e) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    copyText(Core.generate(S.proj, state()).text).then(() => { confetti(r.left + r.width / 2, r.top); toast('Copied! Now paste it into the Arduino IDE 🎉'); });
-  };
+  $('#toBuilder').onclick = () => { stopRun(); save(); location.href = 'blocks.html#design'; };
 
-  /* ---------- boot ---------- */
-  function renderAll() { renderTabs(); renderPalette(); renderNamebar(); renderToolbar(); renderScript(); renderStory(); mountStage(); if (S.view === 'code') renderCode(); }
-  renderAll();
-  if (location.hash === '#design') { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* fine */ } applyDesign(); }
-  window.__camp = { S, state, Core, renderAll, setView, sensors, runIt };
+  function renderAll() { renderTabs(); renderEditor(); mountStage(); }
+  loadDesign(); renderAll();
+  window.__studio = { S, Studio, renderAll };
 })();
 
 </script>

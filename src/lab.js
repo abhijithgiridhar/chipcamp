@@ -6,14 +6,16 @@
   const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
   const ROBOTS = [['chipbot', '🤖', 'Chip Bot', '#2bb3a3'], ['peeko', '👀', 'Peeko', '#ff6b5e'], ['jarvis', '🌱', 'Jarvis', '#8b7fe8']];
-  const EMOJI = { usb: '🔌', servo: '⚙️', buzzer: '🔔', soil: '🌱', hcsr04: '📡', oled: '🖥️', battery: '🔋', ldr: '☀️', resistor: '🟫', rgb: '💡', breadboard: '🟦' };
-  const CHIPCOL = { usb: '#e8eefc', servo: '#dbeafe', buzzer: '#fff2c4', soil: '#dcf5e1', hcsr04: '#d9ecff', oled: '#e3e0ff', battery: '#ffe1d6', ldr: '#fff2c4', resistor: '#f3e6d6', rgb: '#ffe1f3', breadboard: '#e6f1ff' };
+  const EMOJI = { usb: '🔌', servo: '⚙️', buzzer: '🔔', soil: '🌱', hcsr04: '📡', oled: '🖥️', ldr: '☀️', resistor: '🟫', rgb: '💡', breadboard: '🟦' };
+  const CHIPCOL = { usb: '#e8eefc', servo: '#dbeafe', buzzer: '#fff2c4', soil: '#dcf5e1', hcsr04: '#d9ecff', oled: '#e3e0ff', ldr: '#fff2c4', resistor: '#f3e6d6', rgb: '#ffe1f3', breadboard: '#e6f1ff' };
   const BANDS = { 100: ['#7a4a21', '#111', '#7a4a21'], 220: ['#d6342f', '#d6342f', '#7a4a21'], 1000: ['#7a4a21', '#111', '#d6342f'], 10000: ['#7a4a21', '#111', '#f08a1c'], 100000: ['#7a4a21', '#111', '#f0d21c'] };
   const WIRE_COLORS = ['#3b82f6', '#f59e0b', '#10b981', '#a855f7', '#ec4899', '#14b8a6', '#8b5cf6', '#f97316'];
 
   const svg = $('#svg');
   const S = { proj: ChipCamp.robotOrDefault(), st: null, sel: null, zoom: 1, undo: [], alive: false, hintT: 0, pulses: [], snap: null, preview: null };
-  const KEY = (p) => 'chipcamp.lab.v1.' + p;
+  const KEY = (p) => 'chipcamp.lab.v2.' + p;
+  const kindNow = () => Lab.boardKind(S.proj);
+  const usbC = () => { const u = Lab.usbPos(kindNow()); return { x: u.x - 20, y: u.y }; };
 
   /* ---------- persistence ---------- */
   function sanitize(proj, st) {
@@ -24,7 +26,7 @@
       const inv = Lab.invOf(proj, p.key); if (!inv || inv.type !== p.type) return;
       have[inv.key] = (have[inv.key] || 0) + 1; if (have[inv.key] > inv.qty) return;
       const part = { id: String(p.id), key: p.key, type: p.type, role: inv.role || null, x: +p.x || 0, y: +p.y || 0, plug: null, plugPos: null, seat: null };
-      if (p.plug && typeof p.plug.to === 'string') part.plug = { to: p.plug.to, flip: !!p.plug.flip };
+      if (p.plug && typeof p.plug.to === 'string' && (p.type === 'usb' || Lab.boardKind(proj) === 'shield')) part.plug = { to: p.plug.to, flip: !!p.plug.flip };
       if (p.plugPos) part.plugPos = { x: +p.plugPos.x || 0, y: +p.plugPos.y || 0 };
       if (p.seat && Lab.legsKind(p.type)) part.seat = { bb: String(p.seat.bb), col: +p.seat.col, row: String(p.seat.row) };
       if (p.type === 'resistor') part.ohms = Lab.OHMS.indexOf(p.ohms) >= 0 ? p.ohms : 220;
@@ -60,7 +62,7 @@
   const snapshot = () => JSON.stringify(S.st);
   function pushUndo(before) { S.undo.push(before); if (S.undo.length > 60) S.undo.shift(); $('#undoBtn').disabled = false; }
   function plugCenter(p) {
-    if (p.plug) { if (p.plug.to === 'USB') return { x: L.usb.x - 20, y: L.usb.y }; return Lab.headerCenter(p.plug.to); }
+    if (p.plug) { if (p.plug.to === 'USB') return usbC(); return Lab.headerCenter(p.plug.to); }
     return p.plugPos || { x: p.x, y: p.y + 90 };
   }
 
@@ -68,9 +70,12 @@
   function terminals() {
     const out = [];
     const add = (id) => { const pos = Lab.termPos(id, S.st); if (pos) out.push({ id, pos }); };
-    Lab.DIG.forEach((n) => ['S', 'V', 'G'].forEach((t) => add('D' + n + '.' + t)));
-    Lab.ANA.forEach((n) => ['S', 'V', 'G'].forEach((t) => add('A' + n + '.' + t)));
-    ['GND', 'VCC', 'SDA', 'SCL'].forEach((t) => add('I2C.' + t)); add('EXT.P'); add('EXT.N');
+    if (kindNow() === 'uno') Lab.UNO_PINS.forEach((q) => { if (q.id) add(q.id); });
+    else {
+      Lab.DIG.forEach((n) => ['S', 'V', 'G'].forEach((t) => add('D' + n + '.' + t)));
+      Lab.ANA.forEach((n) => ['S', 'V', 'G'].forEach((t) => add('A' + n + '.' + t)));
+      ['GND', 'VCC', 'SDA', 'SCL'].forEach((t) => add('I2C.' + t));
+    }
     const bb = bbPart();
     if (bb) {
       for (let c = 1; c <= L.bb.cols; c++) {
@@ -79,7 +84,7 @@
       }
     }
     S.st.parts.forEach((p) => {
-      const def = PARTS[p.type];
+      const def = Lab.defFor(p, S.st);
       if (def.terms) Object.keys(def.terms).forEach((t) => add(p.id + '.' + t));
       if (def.legs && !p.seat) Object.keys(def.legs).forEach((t) => add(p.id + '.' + t));
     });
@@ -109,7 +114,28 @@
     ['S', 'V', 'G'].forEach((t) => { s += termCircle(pin + '.' + t, Lab.boardTermPos(pin + '.' + t), PINCOL[t], 4.5, pin + ' ' + { S: 'signal (S)', V: 'power (V)', G: 'ground (G)' }[t]); });
     return s + '<text x="' + x + '" y="' + hdr.labelY + '" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">' + pin + '</text>';
   }
-  function boardSVG() {
+  function boardSVG() { return kindNow() === 'uno' ? unoSVG() : shieldSVG(); }
+  function unoSVG() {
+    const b = L.uno, U = L.unoUsb; let s = '';
+    s += '<rect x="' + b.x + '" y="' + b.y + '" width="' + b.w + '" height="' + b.h + '" rx="18" fill="#0f8195" stroke="#0a5866" stroke-width="4"/>';
+    [[b.x + 18, b.y + 18], [b.x + b.w - 18, b.y + 18], [b.x + 18, b.y + b.h - 18], [b.x + b.w - 18, b.y + b.h - 18]].forEach((c) => { s += '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="6" fill="#0a5866"/><circle cx="' + c[0] + '" cy="' + c[1] + '" r="3" fill="#cfeaf0"/>'; });
+    s += '<rect x="' + (U.x - 14) + '" y="' + (U.y - 30) + '" width="74" height="60" rx="5" fill="#aab2c2" stroke="#6b7385" stroke-width="2"/><rect x="' + (U.x - 6) + '" y="' + (U.y - 20) + '" width="50" height="40" rx="3" fill="#2b2f4a"/><text x="' + (U.x + 20) + '" y="' + (U.y + 5) + '" font-size="12" font-weight="900" fill="#cdd5e6" text-anchor="middle">USB</text>';
+    s += '<rect x="' + (b.x - 14) + '" y="' + (b.y + b.h - 78) + '" width="70" height="56" rx="5" fill="#1d1f2b"/><text x="' + (b.x + 21) + '" y="' + (b.y + b.h - 46) + '" font-size="10" font-weight="800" fill="#9aa3b5" text-anchor="middle">power jack</text><text x="' + (b.x + 21) + '" y="' + (b.y + b.h - 33) + '" font-size="9" font-weight="800" fill="#9aa3b5" text-anchor="middle">(not used)</text>';
+    s += '<rect x="300" y="345" width="230" height="70" rx="8" fill="#1d1f2b" stroke="#000" stroke-width="2"/><text x="415" y="386" font-size="16" font-weight="900" fill="#cdd5e6" text-anchor="middle">ATmega328P</text><text x="415" y="440" font-size="26" font-weight="900" fill="#e8fbff" text-anchor="middle" letter-spacing="2">ARDUINO UNO</text>';
+    [[118, 364 + 12, 262], [398, 592 + 12, 262], [188, 356 + 12, 498], [398, 540 + 12, 498]].forEach((r) => { s += '<rect x="' + r[0] + '" y="' + (r[2] - 14) + '" width="' + (r[1] - r[0]) + '" height="28" rx="5" fill="#1d1f2b"/>'; });
+    Lab.UNO_PINS.forEach((q) => {
+      const power = /^PWR\.(5V|3V3|VIN)$/.test(q.id || ''), gnd = /GND/.test(q.id || '') || q.label === 'GND';
+      const col = power ? '#ff4d4d' : gnd ? '#9aa3b5' : '#ffd93b';
+      const tip = !q.id ? q.label + ' (not used in this camp)' : power ? q.label + (q.label === '5V' ? ' power: use this one' : ' power') : gnd ? 'GND (ground)' : q.id.replace('.S', '') + (q.id.indexOf('I2C') === 0 ? ' (same wire as ' + (q.label === 'SDA' ? 'A4' : 'A5') + ')' : '');
+      s += q.id ? termCircle(q.id, q, col, 4.8, tip) : '<circle cx="' + q.x + '" cy="' + q.y + '" r="4" fill="#4a5568"/>';
+      const small = q.label.length > 3;
+      s += '<text x="' + q.x + '" y="' + (q.y < 300 ? q.y - 20 : q.y + 28) + '" text-anchor="middle" font-size="' + (small ? 9 : 12) + '" font-weight="900" fill="' + (q.id ? '#fff' : '#a8d4dc') + '">' + q.label + '</text>';
+    });
+    s += '<text x="500" y="' + (262 - 40) + '" text-anchor="middle" font-size="11" font-weight="900" fill="#2f6f80">DIGITAL pins</text><text x="270" y="' + (498 + 50) + '" text-anchor="middle" font-size="12" font-weight="900" fill="#2f6f80">POWER</text><text x="475" y="' + (498 + 50) + '" text-anchor="middle" font-size="12" font-weight="900" fill="#2f6f80">ANALOG IN</text>';
+    s += '<text x="' + (b.x + 320) + '" y="' + (b.y + b.h + 44) + '" font-size="12" font-weight="800" fill="#38406a" text-anchor="middle">5V (red) is power · GND (grey) is ground · every other pin is a signal pin</text>';
+    return s;
+  }
+  function shieldSVG() {
     const b = L.board; let s = '';
     s += '<rect x="' + b.x + '" y="' + b.y + '" width="' + b.w + '" height="' + b.h + '" rx="18" fill="#12875a" stroke="#0a5a3b" stroke-width="4"/>';
     [[b.x + 16, b.y + 16], [b.x + b.w - 16, b.y + 16], [b.x + 16, b.y + b.h - 16], [b.x + b.w - 16, b.y + b.h - 16]].forEach((c) => { s += '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="6" fill="#0a5a3b"/><circle cx="' + c[0] + '" cy="' + c[1] + '" r="3" fill="#cfe9dc"/>'; });
@@ -122,10 +148,6 @@
     // I2C header
     const i0 = L.i2c.x0 - 16; s += '<rect x="' + i0 + '" y="' + (L.i2c.y - 12) + '" width="' + (L.i2c.dx * 3 + 32) + '" height="24" rx="5" fill="#1d1f2b"/><text x="' + (L.i2c.x0 + 45) + '" y="' + (L.i2c.y - 20) + '" text-anchor="middle" font-size="12" font-weight="900" fill="#fff">I2C</text>';
     L.i2c.order.forEach((t, i) => { const id = 'I2C.' + t, pos = Lab.boardTermPos(id); s += termCircle(id, pos, t === 'VCC' ? PINCOL.V : t === 'GND' ? PINCOL.G : PINCOL.S, 4.5, 'I2C ' + t) + '<text x="' + pos.x + '" y="' + (pos.y + 26) + '" text-anchor="middle" font-size="10.5" font-weight="900" fill="#fff">' + t + '</text>'; });
-    // external power
-    s += '<rect x="' + (L.ext.x - 26) + '" y="' + (L.ext.yP - 18) + '" width="52" height="' + (L.ext.yN - L.ext.yP + 36) + '" rx="6" fill="#2d6bd1" stroke="#1d4a99" stroke-width="2"/><text x="' + L.ext.x + '" y="' + (L.ext.yP - 26) + '" text-anchor="middle" font-size="11" font-weight="900" fill="#fff">EXT POWER</text>';
-    s += termCircle('EXT.P', Lab.boardTermPos('EXT.P'), '#ff4d4d', 7, 'External power +') + '<text x="' + (L.ext.x - 18) + '" y="' + (L.ext.yP + 4) + '" font-size="14" font-weight="900" fill="#fff" text-anchor="middle">+</text>';
-    s += termCircle('EXT.N', Lab.boardTermPos('EXT.N'), '#2b2f4a', 7, 'External power −') + '<text x="' + (L.ext.x - 18) + '" y="' + (L.ext.yN + 5) + '" font-size="16" font-weight="900" fill="#fff" text-anchor="middle">−</text>';
     // USB
     s += '<rect x="' + (L.usb.x - 6) + '" y="' + (L.usb.y - 18) + '" width="30" height="36" rx="5" fill="#9aa3b5" stroke="#6b7385" stroke-width="2"/><rect x="' + (L.usb.x + 2) + '" y="' + (L.usb.y - 9) + '" width="16" height="18" rx="2" fill="#2b2f4a"/><text x="' + (L.usb.x + 40) + '" y="' + (L.usb.y + 5) + '" font-size="12" font-weight="900" fill="#fff">USB</text>';
     return s;
@@ -154,7 +176,7 @@
 
   /* ---------- drawing: parts ---------- */
   function pinDot(id, pos, label, dy, up) {
-    return termCircle(id, pos, '#e2b93b', 4.5, label) + '<text x="' + pos.x + '" y="' + (pos.y + dy) + '" text-anchor="middle" font-size="9.5" font-weight="900" fill="' + (up ? '#fff' : '#fff') + '">' + label + '</text>';
+    return termCircle(id, pos, '#e2b93b', 4.5, label) + '<text x="' + pos.x + '" y="' + (pos.y + dy) + '" text-anchor="middle" font-size="10.5" font-weight="900" fill="#38406a" stroke="#fff" stroke-width="3" paint-order="stroke">' + label + '</text>';
   }
   function plugMarkup(p, def) {
     const c = plugCenter(p); let s = '<g class="plugg" data-plug="' + p.id + '" style="cursor:grab" transform="translate(' + c.x + ',' + c.y + ')">';
@@ -179,7 +201,7 @@
   function labelFor(p) { const inv = Lab.invOf(S.proj, p.key); const l = (inv && inv.label) || ''; return l.replace(/^Servo: /, '').replace(/ \(bonus\)/, ''); }
   function bandsSVG(ohms) { const b = BANDS[ohms] || BANDS[220]; return b.map((c, i) => '<rect x="' + (19 + i * 8) + '" y="-20" width="4.5" height="16" fill="' + c + '"/>').join('') + '<rect x="44" y="-20" width="3.5" height="16" fill="#d4af37"/>'; }
   function partMarkup(p) {
-    const def = PARTS[p.type]; if (def.kind === 'breadboard') return '';
+    const def = Lab.defFor(p, S.st); if (def.kind === 'breadboard') return '';
     const o = Lab.partOrigin(p, S.st), sel = S.sel && S.sel.kind === 'part' && S.sel.id === p.id;
     let s = '<g class="part' + (sel ? ' sel' : '') + '" data-part="' + p.id + '">';
     if (def.kind === 'plug3' || def.kind === 'usb') s += cableMarkup(p, def, o);
@@ -206,10 +228,6 @@
         s += bound(100, 66) + '<rect x="-50" y="-33" width="100" height="66" rx="6" fill="#1b2236" stroke="#0d0f1a" stroke-width="2"/><rect x="-40" y="-20" width="80" height="46" rx="3" fill="#050b14"/><g class="eyes"><circle cx="-16" cy="2" r="9" fill="#e8f6ff"/><circle cx="16" cy="2" r="9" fill="#e8f6ff"/></g>';
         Object.keys(def.terms).forEach((t) => { const pos = Lab.termPos(p.id + '.' + t, S.st); s += '</g>' + pinDot(p.id + '.' + t, pos, def.labels[t], -9) + '<g transform="translate(' + o.x + ',' + o.y + ')">'; });
         break;
-      case 'battery':
-        s += bound(104, 48, 6, 0) + '<rect x="-52" y="-24" width="104" height="48" rx="8" fill="#2b2f4a" stroke="#0d0f1a" stroke-width="2"/><text x="-4" y="5" text-anchor="middle" font-size="14" font-weight="900" fill="#ffd93b">4 × AA</text><rect x="-44" y="-18" width="22" height="8" rx="3" fill="#59c059"/><path d="M52 -12 H64" stroke="#e5484d" stroke-width="4"/><path d="M52 12 H64" stroke="#111" stroke-width="4"/>';
-        Object.keys(def.terms).forEach((t) => { const pos = Lab.termPos(p.id + '.' + t, S.st); s += '</g>' + termCircle(p.id + '.' + t, pos, t === 'p' ? '#ff4d4d' : '#2b2f4a', 5.5, 'battery ' + def.labels[t]) + '<text x="' + (pos.x + 14) + '" y="' + (pos.y + 5) + '" font-size="15" font-weight="900" fill="#38406a" style="pointer-events:none">' + def.labels[t] + '</text><g transform="translate(' + o.x + ',' + o.y + ')">'; });
-        break;
       case 'ldr': {
         const m = P; // legs at 0 and 2P, body centred between them
         s += bound(2 * P + 20, 48, m, -20) + '<path d="M0 0 V-14 M' + (2 * P) + ' 0 V-14" stroke="#9aa3b5" stroke-width="3" fill="none"/><circle cx="' + m + '" cy="-30" r="17" fill="#e9c98f" stroke="#a88548" stroke-width="2"/><path d="M' + (m - 10) + ' -30 l5 -7 l5 14 l5 -14 l5 7" stroke="#7a5a1f" stroke-width="2.4" fill="none"/><text x="' + m + '" y="-53" text-anchor="middle" font-size="11" font-weight="900" fill="#38406a">LDR</text>';
@@ -225,6 +243,16 @@
         break; }
     }
     s += '</g>';
+    if (def.kind === 'pins3') {
+      const col = PARTS[p.type].cable;
+      Object.keys(def.terms).forEach((t) => {
+        const pos = Lab.termPos(p.id + '.' + t, S.st);
+        const from = p.type === 'servo' ? { x: o.x - 43, y: pos.y } : p.type === 'buzzer' ? { x: pos.x, y: o.y + 23 } : { x: pos.x, y: o.y - 44 };
+        s += '<path d="M' + from.x + ' ' + from.y + ' L' + pos.x + ' ' + pos.y + '" stroke="' + col[t] + '" stroke-width="4.5" stroke-linecap="round"/>' + termCircle(p.id + '.' + t, pos, '#e2b93b', 4.5, (p.type === 'servo' ? 'servo ' : p.type === 'buzzer' ? 'buzzer ' : 'soil sensor ') + { s: 'signal (S)', v: 'power (V)', g: 'ground (G)' }[t]);
+        const lx = p.type === 'servo' ? pos.x - 9 : pos.x, ly = p.type === 'servo' ? pos.y + 4 : p.type === 'buzzer' ? pos.y + 17 : pos.y - 9;
+        s += '<text x="' + lx + '" y="' + ly + '" text-anchor="' + (p.type === 'servo' ? 'end' : 'middle') + '" font-size="11" font-weight="900" fill="#38406a" stroke="#fff" stroke-width="3" paint-order="stroke">' + def.labels[t] + '</text>';
+      });
+    }
     if (def.kind === 'legs' && !p.seat) Object.keys(def.legs).forEach((t) => { const pos = Lab.termPos(p.id + '.' + t, S.st); s += termCircle(p.id + '.' + t, pos, '#c9ced9', 4, t); });
     if (def.kind === 'plug3' || def.kind === 'usb') s += plugMarkup(p, def);
     if (sel) { const legs = def.kind === 'legs', x = legs ? o.x + ({ resistor: 2 * P, ldr: 2 * P, rgb: 3 * P })[p.type] : o.x + (def.w || 60) / 2 + 6, y = legs ? o.y - ({ resistor: 52, ldr: 70, rgb: 76 })[p.type] : o.y - (def.h || 40) / 2 - 12; s += '<g class="xbtn" data-del="' + p.id + '" transform="translate(' + x + ',' + y + ')"><circle r="11" fill="#e5484d" stroke="#fff" stroke-width="2"/><text y="4.5" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">✕</text></g>'; }
@@ -237,12 +265,12 @@
     return 'M' + a.x + ' ' + a.y + ' C' + a.x + ' ' + (a.y + sag) + ' ' + b.x + ' ' + (b.y + sag) + ' ' + b.x + ' ' + b.y;
   }
   function wiresMarkup() {
-    const nets = Lab.buildNets(S.st), r5 = nets.root('NET:5V'), rg = nets.root('NET:GND'), re = nets.root('NET:VEXT'), hash = {};
+    const nets = Lab.buildNets(S.st), r5 = nets.root('NET:5V'), rg = nets.root('NET:GND'), hash = {};
     let s = '';
     S.st.wires.forEach((w) => {
       const a = Lab.termPos(w.a, S.st), b = Lab.termPos(w.b, S.st); if (!a || !b) return;
       const r = nets.root(w.a);
-      let col = r === r5 ? '#e5484d' : r === rg ? '#2b2f4a' : r === re ? '#e0832b' : (hash[r] = hash[r] || WIRE_COLORS[Object.keys(hash).length % WIRE_COLORS.length]);
+      let col = r === r5 ? '#e5484d' : r === rg ? '#2b2f4a' : (hash[r] = hash[r] || WIRE_COLORS[Object.keys(hash).length % WIRE_COLORS.length]);
       const sel = S.sel && S.sel.kind === 'wire' && S.sel.id === w.id, d = wirePath(a, b);
       s += '<g data-wire="' + w.id + '"><path class="wirehit" d="' + d + '"/><path class="wire' + (sel ? ' sel' : '') + '" d="' + d + '" stroke="' + col + '"/><circle cx="' + a.x + '" cy="' + a.y + '" r="4.5" fill="' + col + '"/><circle cx="' + b.x + '" cy="' + b.y + '" r="4.5" fill="' + col + '"/></g>';
     });
@@ -259,8 +287,9 @@
   function initSvg() {
     svg.innerHTML = '<g id="gBoard"></g><g id="gBB"></g><g id="gParts"></g><g id="gWires"></g><g id="gOver"></g>';
     gBoard = $('#gBoard'); gBB = $('#gBB'); gParts = $('#gParts'); gWires = $('#gWires'); gOver = $('#gOver');
-    gBoard.innerHTML = boardSVG();
+    drawBoard();
   }
+  function drawBoard() { gBoard.innerHTML = boardSVG(); }
   function render() {
     const bb = bbPart();
     gBB.innerHTML = bb ? bbSVG(bb) : '';
@@ -288,7 +317,6 @@
   const SPOTS = [[150, 110], [270, 110], [390, 110], [510, 110], [630, 110], [140, 650], [320, 650], [520, 650], [740, 640], [930, 620], [960, 700], [1080, 640]];
   function defaultSpot(type) {
     if (type === 'hcsr04' || type === 'oled') return type === 'oled' ? { x: 560, y: 650 } : { x: 700, y: 110 };
-    if (type === 'battery') return { x: 920, y: 650 };
     if (Lab.legsKind(type)) { const n = S.st.parts.filter((p) => Lab.legsKind(p.type) && !p.seat).length; return { x: 790 + (n % 4) * 100, y: 650 + Math.floor(n / 4) * 60 }; }
     const used = S.st.parts.filter((p) => !p.seat && PARTS[p.type].kind !== 'breadboard');
     const free = SPOTS.find((sp) => used.every((p) => dist({ x: p.x, y: p.y }, { x: sp[0], y: sp[1] }) > 70)) || SPOTS[0];
@@ -298,7 +326,7 @@
     const before = snapshot(), inv = Lab.invOf(S.proj, key); if (!inv) return;
     const pos = at || defaultSpot(inv.type);
     const part = Lab.addPart(S.st, key, pos.x, pos.y); if (!part) return;
-    const def = PARTS[part.type];
+    const def = Lab.defFor(part, S.st);
     if (def.kind === 'plug3' || def.kind === 'usb') part.plugPos = { x: Math.min(L.W - 40, Math.max(40, pos.x)), y: Math.min(L.H - 60, pos.y + 95) };
     if (def.kind === 'breadboard') { part.x = L.bb.x; part.y = L.bb.y; }
     if (Lab.legsKind(part.type)) { trySeat(part); }
@@ -365,7 +393,7 @@
     if (!drag.moved) return;
     if (drag.kind === 'plug') {
       drag.part.plug = null; drag.part.plugPos = { x: pt.x, y: pt.y };
-      if (drag.part.type === 'usb') { const d = dist(pt, { x: L.usb.x - 20, y: L.usb.y }); S.snap = d < 46 ? { x: L.usb.x, y: L.usb.y, r: 22 } : null; }
+      if (drag.part.type === 'usb') { const d = dist(pt, usbC()); const u = Lab.usbPos(kindNow()); S.snap = d < 46 ? { x: u.x, y: u.y, r: 22 } : null; }
       else { const h = nearestHeader(pt, 34); S.snap = h ? { x: h.c.x, y: h.c.y, r: 30 } : null; }
       render(); S.snap && renderOver();
     } else if (drag.kind === 'part') {
@@ -391,7 +419,7 @@
       const p = d.part;
       if (!d.moved && p.plug && p.type !== 'usb') { p.plug.flip = !p.plug.flip; pushUndo(d.before); }
       if (d.moved) {
-        if (p.type === 'usb') { p.plug = dist(pt, { x: L.usb.x - 20, y: L.usb.y }) < 46 ? { to: 'USB', flip: false } : null; }
+        if (p.type === 'usb') { p.plug = dist(pt, usbC()) < 46 ? { to: 'USB', flip: false } : null; }
         else { const h = nearestHeader(pt, 34); p.plug = h ? { to: h.pin, flip: false } : null; }
         if (!p.plug) p.plugPos = { x: pt.x, y: pt.y };
         pushUndo(d.before);
@@ -484,7 +512,7 @@
     const nav = $('#ptabs'); nav.innerHTML = '';
     ROBOTS.forEach((r) => {
       const b = el('button', 'ptab', '<span>' + r[1] + '</span>' + r[2]); b.style.setProperty('--pc', r[3]); b.setAttribute('aria-selected', r[0] === S.proj ? 'true' : 'false');
-      b.onclick = () => { if (r[0] === S.proj) return; S.proj = r[0]; ChipCamp.setRobot(r[0]); S.st = load(S.proj); S.sel = null; S.undo = []; S.pulses = []; $('#hintline').className = 'hintline'; $('#hintline').textContent = ''; renderTabs(); render(); };
+      b.onclick = () => { if (r[0] === S.proj) return; S.proj = r[0]; ChipCamp.setRobot(r[0]); S.st = load(S.proj); drawBoard(); S.sel = null; S.undo = []; S.pulses = []; $('#hintline').className = 'hintline'; $('#hintline').textContent = ''; renderTabs(); render(); };
       nav.appendChild(b);
     });
   }

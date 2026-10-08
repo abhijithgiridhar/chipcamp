@@ -1,4 +1,4 @@
-/* Welcome screen: follows "Option 2" of the Micron Chip Camp sticker (purple-to-black diagonal, stacked title, logos in the corners, Innovator Kit at the bottom). */
+/* Welcome screen: follows "Option 2" of the Micron Chip Camp sticker (purple-to-black diagonal, stacked title, logos in the corners). */
 :root{
   --hub-font:"Inter","Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;
   color-scheme:dark;
@@ -44,5 +44,8 @@ body{font-family:var(--hub-font);color:#fff;background:#0d0d10;-webkit-font-smoo
 .tile .prog{font-size:13px;font-weight:600;white-space:nowrap;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.8)}
 .tile .prog.done{background:rgba(89,192,89,.24);color:#9df59d}
 @media (max-width:560px){.tile{grid-template-columns:auto 1fr}.tile .prog{grid-column:1/-1;justify-self:start}}
-.hub-foot{padding:0 clamp(22px,5.6vw,80px) clamp(22px,4vw,52px);font-size:clamp(20px,2.4vw,32px);font-weight:600;letter-spacing:-.01em}
+.hub-main{padding-bottom:clamp(28px,5vw,64px)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.hub-fac{align-self:flex-start;margin:0 clamp(22px,5.6vw,80px) clamp(18px,3vw,36px);font-size:13px;font-weight:600;color:rgba(255,255,255,.45);text-decoration:none;padding:6px 10px;border-radius:999px}
+.hub-fac:hover,.hub-fac:focus-visible{color:#fff;background:rgba(255,255,255,.12);outline:none}
