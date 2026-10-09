@@ -58,6 +58,30 @@ body{font-family:var(--hub-font);color:#fff;background:#0d0d10;-webkit-font-smoo
 .hub-fac{align-self:flex-start;margin:0 clamp(22px,5.6vw,80px) clamp(18px,3vw,36px);font-size:13px;font-weight:600;color:rgba(255,255,255,.45);text-decoration:none;padding:6px 10px;border-radius:999px}
 .hub-fac:hover,.hub-fac:focus-visible{color:#fff;background:rgba(255,255,255,.12);outline:none}
 
+/* home: three big robot cards */
+.bots{display:flex;flex-direction:column;gap:14px}
+.bot{--rc:#fff;display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;text-decoration:none;color:#fff;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:26px;padding:20px 26px 20px 20px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:transform .15s,background .15s,border-color .15s,box-shadow .15s}
+.bot:hover{transform:translateY(-3px);background:rgba(255,255,255,.12);border-color:var(--rc);box-shadow:0 14px 34px rgba(0,0,0,.35),0 0 0 3px color-mix(in srgb,var(--rc) 32%,transparent)}
+.bot:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.bot .rem,.hub-bot .rem{font-size:40px;width:72px;height:72px;border-radius:22px;display:grid;place-items:center;background:color-mix(in srgb,var(--rc) 30%,transparent);flex:none}
+.bot .bt{display:flex;flex-direction:column;gap:2px}
+.bot .bt b{font-size:clamp(24px,2.4vw,32px);font-weight:600;letter-spacing:-.015em}
+.bot .bt small{font-size:15px;color:rgba(255,255,255,.62)}
+.bot .go{font-size:26px;color:rgba(255,255,255,.55)}
+/* robot page */
+.hub-back{display:inline-block;font-size:14px;font-weight:600;color:rgba(255,255,255,.7);text-decoration:none;padding:6px 12px 6px 0;margin-bottom:clamp(10px,2vw,22px)}
+.hub-back:hover,.hub-back:focus-visible{color:#fff;outline:none;text-decoration:underline}
+.hub-bot{--rc:#fff;display:flex;align-items:center;gap:18px}
+.hub-bot .hub-welcome{margin:6px 0 0}
+.hub-title.small{font-size:clamp(40px,5.4vw,84px)}
+@media (max-width:560px){.bot{grid-template-columns:auto 1fr}.bot .go{display:none}}
+[hidden]{display:none!important}
+
+.tile.locked{opacity:.45;filter:grayscale(.6);cursor:not-allowed}
+.tile.locked:hover{transform:none;background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.16);box-shadow:none}
+.tile.locked .prog{background:rgba(255,191,0,.2);color:#ffd96b}
+.locknote{margin:4px 2px 0;font-size:14px;font-weight:600;color:#ffd96b}
+
 </style>
 </head>
 <body>
@@ -67,25 +91,34 @@ body{font-family:var(--hub-font);color:#fff;background:#0d0d10;-webkit-font-smoo
     <img class="logo-l" src="assets/lah-logo.png" alt="Lend A Hand India. Building a skilled tomorrow." width="312" height="81">
   </header>
 
-  <main class="hub-main">
+  <main class="hub-main" id="viewHome">
     <section class="hub-hero">
       <p class="hub-welcome">Welcome, innovator</p>
       <h1 class="hub-title">Micron<br>Chip Camp</h1>
+    </section>
+    <section class="hub-panel" aria-label="Choose your robot">
+      <h2 class="hub-h">Pick your robot</h2>
+      <nav class="bots" id="bots">
+        <a class="bot" href="#chipbot" data-robot="chipbot" style="--rc:#2bb3a3"><span class="rem">🤖</span><span class="bt"><b>Chip Bot</b><small>The mover</small></span><span class="go" aria-hidden="true">→</span></a>
+        <a class="bot" href="#peeko" data-robot="peeko" style="--rc:#ff6b5e"><span class="rem">👀</span><span class="bt"><b>Peeko</b><small>The face</small></span><span class="go" aria-hidden="true">→</span></a>
+        <a class="bot" href="#jarvis" data-robot="jarvis" style="--rc:#8b7fe8"><span class="rem">🌱</span><span class="bt"><b>Jarvis</b><small>The living world</small></span><span class="go" aria-hidden="true">→</span></a>
+      </nav>
+    </section>
+  </main>
+
+  <main class="hub-main" id="viewRobot" hidden>
+    <section class="hub-hero">
+      <a class="hub-back" href="#">← All robots</a>
+      <div class="hub-bot" id="botHead" style="--rc:#2bb3a3">
+        <span class="rem" id="botEm" aria-hidden="true"></span>
+        <div><h1 class="hub-title small" id="botName"></h1><p class="hub-welcome" id="botTag"></p></div>
+      </div>
       <label class="hub-name">
         <span>What should we call you?</span>
         <input id="hubName" type="text" maxlength="16" placeholder="Type your name" autocomplete="off" spellcheck="false">
       </label>
     </section>
-
-    <section class="hub-panel" aria-label="Start here">
-      <h2 class="hub-h">1 · Which robot are you building?</h2>
-      <div class="robots" id="robots" role="radiogroup" aria-label="Choose your robot">
-        <button class="robot" role="radio" aria-checked="false" data-robot="chipbot" style="--rc:#2bb3a3"><span class="rem">🤖</span><b>Chip Bot</b><small>The mover</small></button>
-        <button class="robot" role="radio" aria-checked="false" data-robot="peeko" style="--rc:#ff6b5e"><span class="rem">👀</span><b>Peeko</b><small>The face</small></button>
-        <button class="robot" role="radio" aria-checked="false" data-robot="jarvis" style="--rc:#8b7fe8"><span class="rem">🌱</span><b>Jarvis</b><small>The living world</small></button>
-      </div>
-
-      <h2 class="hub-h">2 · Pick where to go</h2>
+    <section class="hub-panel" aria-label="What to do next">
       <nav class="tiles" aria-label="Chip Camp tools">
         <a class="tile" id="tLogic" href="logic.html" style="--tc:#4C97FF">
           <span class="ico" aria-hidden="true">
@@ -113,7 +146,7 @@ body{font-family:var(--hub-font);color:#fff;background:#0d0d10;-webkit-font-smoo
             <svg viewBox="0 0 40 40" width="40" height="40"><rect x="5" y="9" width="30" height="22" rx="9" fill="#FF6B5E"/><circle cx="14" cy="20" r="4.5" fill="#fff"/><circle cx="26" cy="20" r="4.5" fill="#fff"/><circle cx="14" cy="20" r="2" fill="#2b2f4a"/><circle cx="26" cy="20" r="2" fill="#2b2f4a"/></svg>
           </span>
           <span class="tt"><b>Peeko's Brain</b><small>Teach Peeko to recognise you with Teachable Machine.</small></span>
-          <span class="prog">Day 2</span>
+          <span class="prog" id="pgBrain">Day 2</span>
         </a>
         <a class="tile" id="tCode" href="blocks.html" style="--tc:#CF63CF">
           <span class="ico" aria-hidden="true">
@@ -123,6 +156,7 @@ body{font-family:var(--hub-font);color:#fff;background:#0d0d10;-webkit-font-smoo
           <span class="prog" id="pgCode">Not yet</span>
         </a>
       </nav>
+      <p class="locknote" id="lockNote" hidden>That one opens on day 2. Your facilitator will unlock it.</p>
     </section>
   </main>
 
@@ -148,6 +182,8 @@ body{font-family:var(--hub-font);color:#fff;background:#0d0d10;-webkit-font-smoo
     },
     design(robot) { const d = read(); return (d.designs && d.designs[robot]) || null; },
     setDesign(robot, design) { if (ROBOTS.indexOf(robot) < 0) return; const d = read(); d.designs = d.designs || {}; d.designs[robot] = design; write(d); },
+    day2() { return !!read().day2; },
+    setDay2(on) { const d = read(); d.day2 = !!on; write(d); },
     robotOrDefault() { return this.get().robot || 'chipbot'; },
     setName(n) { const d = read(); d.name = clean(n); write(d); },
     setRobot(r) { if (ROBOTS.indexOf(r) < 0) return; const d = read(); d.robot = r; write(d); },
@@ -156,6 +192,14 @@ body{font-family:var(--hub-font);color:#fff;background:#0d0d10;-webkit-font-smoo
     codeBlocks(robot, n) { const d = read(); d.code = d.code || {}; d.code[robot] = n; write(d); },
     levelsCompleted() { const l = this.get().levels; return Object.keys(l).filter((k) => l[k] > 0).length; }
   };
+
+  // the home button on every page goes back to the student's robot page
+  if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', function () {
+      var r = root.ChipCamp.get().robot, b = document.querySelector('.homebtn');
+      if (b && r) b.setAttribute('href', 'index.html#' + r);
+    });
+  }
 })(typeof self !== 'undefined' ? self : this);
 
 </script>
@@ -170,31 +214,58 @@ body{font-family:var(--hub-font);color:#fff;background:#0d0d10;-webkit-font-smoo
   nameIn.oninput = () => ChipCamp.setName(nameIn.value);
   nameIn.onchange = () => { ChipCamp.setName(nameIn.value); nameIn.value = ChipCamp.get().name; };
 
+  const BOTS = {
+    chipbot: { name: 'Chip Bot', tag: 'The mover', em: '🤖', color: '#2bb3a3' },
+    peeko: { name: 'Peeko', tag: 'The face', em: '👀', color: '#ff6b5e' },
+    jarvis: { name: 'Jarvis', tag: 'The living world', em: '🌱', color: '#8b7fe8' }
+  };
+
+  // tools that wait for day 2 (a facilitator unlocks them from the Facilitators page)
+  const DAY2 = { chipbot: ['tStudio'], jarvis: ['tStudio'], peeko: ['tBrain'] };
+
   function render() {
-    const p = ChipCamp.get();
-    document.querySelectorAll('.robot').forEach((b) => b.setAttribute('aria-checked', b.dataset.robot === p.robot ? 'true' : 'false'));
-    const r = p.robot, label = r ? NAMES[r] : 'your robot';
+    const p = ChipCamp.get(), r = BOTS[location.hash.slice(1)] ? location.hash.slice(1) : null;
+    $('#viewHome').hidden = !!r; $('#viewRobot').hidden = !r;
+    document.title = r ? BOTS[r].name + ' · Micron Chip Camp' : 'Micron Chip Camp';
+    if (!r) { window.scrollTo(0, 0); return; }
+    ChipCamp.setRobot(r);
+    const b = BOTS[r], label = b.name;
+    $('#botHead').style.setProperty('--rc', b.color);
+    $('#botEm').textContent = b.em; $('#botName').textContent = b.name; $('#botTag').textContent = b.tag;
+    nameIn.value = p.name;
 
     const lv = ChipCamp.levelsCompleted();
     const pl = $('#pgLogic'); pl.textContent = lv + ' of 10'; pl.classList.toggle('done', lv >= 10);
 
-    $('#sCircuit').textContent = r ? 'Drag parts together and wire up ' + label + '.' : 'Drag parts together and wire up your robot.';
-    const pc = $('#pgCircuit'); const cDone = r && p.circuits[r];
+    $('#sCircuit').textContent = 'Drag parts together and wire up ' + label + '.';
+    const pc = $('#pgCircuit'); const cDone = p.circuits[r];
     pc.textContent = cDone ? 'Wired ✓' : 'Not yet'; pc.classList.toggle('done', !!cDone);
 
     const SN = { chipbot: ['Dance Studio', 'Choose the moves for ' + label + '.'], peeko: ['Face Studio', 'Choose the faces for ' + label + '.'], jarvis: ['Light Studio', 'Choose the lights for ' + label + '.'] };
-    $('#nStudio').textContent = r ? SN[r][0] : 'Studio'; $('#sStudio').textContent = r ? SN[r][1] : 'Design how your robot looks, moves or lights up.';
+    $('#nStudio').textContent = SN[r][0]; $('#sStudio').textContent = SN[r][1];
     $('#tBrain').hidden = r !== 'peeko';
-    const dz = r && ChipCamp.design(r); const ps = $('#pgStudio'); ps.textContent = dz ? 'Designed ✓' : 'Not yet'; ps.classList.toggle('done', !!dz);
+    const dz = ChipCamp.design(r); const ps = $('#pgStudio'); ps.textContent = dz ? 'Designed ✓' : 'Not yet'; ps.classList.toggle('done', !!dz);
 
-    $('#sCode').textContent = r ? 'Build ' + label + "'s logic with blocks, then copy the code." : 'Build the logic with blocks, then copy your code.';
-    const pk = $('#pgCode'); const n = r ? p.code[r] || 0 : 0;
+    $('#sCode').textContent = 'Build ' + label + "'s logic with blocks, then copy the code.";
+    const pk = $('#pgCode'); const n = p.code[r] || 0;
     pk.textContent = n ? n + (n === 1 ? ' block' : ' blocks') : 'Not yet'; pk.classList.toggle('done', n >= 5);
+    const lockedIds = ChipCamp.day2() ? [] : DAY2[r];
+    document.querySelectorAll('.tile').forEach((t) => {
+      const lock = lockedIds.indexOf(t.id) >= 0, pg = t.querySelector('.prog');
+      t.classList.toggle('locked', lock);
+      if (lock) { t.setAttribute('aria-disabled', 'true'); pg.textContent = 'Day 2'; pg.classList.remove('done'); }
+      else t.removeAttribute('aria-disabled');
+    });
+    $('#lockNote').hidden = true;
+    window.scrollTo(0, 0);
   }
 
-  document.querySelectorAll('.robot').forEach((b) => { b.onclick = () => { ChipCamp.setRobot(b.dataset.robot); render(); }; });
-  render();
+  document.querySelectorAll('.tile').forEach((t) => {
+    t.addEventListener('click', (e) => { if (t.classList.contains('locked')) { e.preventDefault(); $('#lockNote').hidden = false; } });
+  });
+  window.addEventListener('hashchange', render);
   window.addEventListener('pageshow', render);
+  render();
 })();
 
 </script>

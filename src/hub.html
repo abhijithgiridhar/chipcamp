@@ -4,25 +4,34 @@
     <img class="logo-l" src="assets/lah-logo.png" alt="Lend A Hand India. Building a skilled tomorrow." width="312" height="81">
   </header>
 
-  <main class="hub-main">
+  <main class="hub-main" id="viewHome">
     <section class="hub-hero">
       <p class="hub-welcome">Welcome, innovator</p>
       <h1 class="hub-title">Micron<br>Chip Camp</h1>
+    </section>
+    <section class="hub-panel" aria-label="Choose your robot">
+      <h2 class="hub-h">Pick your robot</h2>
+      <nav class="bots" id="bots">
+        <a class="bot" href="#chipbot" data-robot="chipbot" style="--rc:#2bb3a3"><span class="rem">🤖</span><span class="bt"><b>Chip Bot</b><small>The mover</small></span><span class="go" aria-hidden="true">→</span></a>
+        <a class="bot" href="#peeko" data-robot="peeko" style="--rc:#ff6b5e"><span class="rem">👀</span><span class="bt"><b>Peeko</b><small>The face</small></span><span class="go" aria-hidden="true">→</span></a>
+        <a class="bot" href="#jarvis" data-robot="jarvis" style="--rc:#8b7fe8"><span class="rem">🌱</span><span class="bt"><b>Jarvis</b><small>The living world</small></span><span class="go" aria-hidden="true">→</span></a>
+      </nav>
+    </section>
+  </main>
+
+  <main class="hub-main" id="viewRobot" hidden>
+    <section class="hub-hero">
+      <a class="hub-back" href="#">← All robots</a>
+      <div class="hub-bot" id="botHead" style="--rc:#2bb3a3">
+        <span class="rem" id="botEm" aria-hidden="true"></span>
+        <div><h1 class="hub-title small" id="botName"></h1><p class="hub-welcome" id="botTag"></p></div>
+      </div>
       <label class="hub-name">
         <span>What should we call you?</span>
         <input id="hubName" type="text" maxlength="16" placeholder="Type your name" autocomplete="off" spellcheck="false">
       </label>
     </section>
-
-    <section class="hub-panel" aria-label="Start here">
-      <h2 class="hub-h">1 · Which robot are you building?</h2>
-      <div class="robots" id="robots" role="radiogroup" aria-label="Choose your robot">
-        <button class="robot" role="radio" aria-checked="false" data-robot="chipbot" style="--rc:#2bb3a3"><span class="rem">🤖</span><b>Chip Bot</b><small>The mover</small></button>
-        <button class="robot" role="radio" aria-checked="false" data-robot="peeko" style="--rc:#ff6b5e"><span class="rem">👀</span><b>Peeko</b><small>The face</small></button>
-        <button class="robot" role="radio" aria-checked="false" data-robot="jarvis" style="--rc:#8b7fe8"><span class="rem">🌱</span><b>Jarvis</b><small>The living world</small></button>
-      </div>
-
-      <h2 class="hub-h">2 · Pick where to go</h2>
+    <section class="hub-panel" aria-label="What to do next">
       <nav class="tiles" aria-label="Chip Camp tools">
         <a class="tile" id="tLogic" href="logic.html" style="--tc:#4C97FF">
           <span class="ico" aria-hidden="true">
@@ -50,7 +59,7 @@
             <svg viewBox="0 0 40 40" width="40" height="40"><rect x="5" y="9" width="30" height="22" rx="9" fill="#FF6B5E"/><circle cx="14" cy="20" r="4.5" fill="#fff"/><circle cx="26" cy="20" r="4.5" fill="#fff"/><circle cx="14" cy="20" r="2" fill="#2b2f4a"/><circle cx="26" cy="20" r="2" fill="#2b2f4a"/></svg>
           </span>
           <span class="tt"><b>Peeko's Brain</b><small>Teach Peeko to recognise you with Teachable Machine.</small></span>
-          <span class="prog">Day 2</span>
+          <span class="prog" id="pgBrain">Day 2</span>
         </a>
         <a class="tile" id="tCode" href="blocks.html" style="--tc:#CF63CF">
           <span class="ico" aria-hidden="true">
@@ -60,6 +69,7 @@
           <span class="prog" id="pgCode">Not yet</span>
         </a>
       </nav>
+      <p class="locknote" id="lockNote" hidden>That one opens on day 2. Your facilitator will unlock it.</p>
     </section>
   </main>
 

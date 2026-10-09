@@ -260,6 +260,8 @@ body{background:var(--bg);margin:0}
     },
     design(robot) { const d = read(); return (d.designs && d.designs[robot]) || null; },
     setDesign(robot, design) { if (ROBOTS.indexOf(robot) < 0) return; const d = read(); d.designs = d.designs || {}; d.designs[robot] = design; write(d); },
+    day2() { return !!read().day2; },
+    setDay2(on) { const d = read(); d.day2 = !!on; write(d); },
     robotOrDefault() { return this.get().robot || 'chipbot'; },
     setName(n) { const d = read(); d.name = clean(n); write(d); },
     setRobot(r) { if (ROBOTS.indexOf(r) < 0) return; const d = read(); d.robot = r; write(d); },
@@ -268,6 +270,14 @@ body{background:var(--bg);margin:0}
     codeBlocks(robot, n) { const d = read(); d.code = d.code || {}; d.code[robot] = n; write(d); },
     levelsCompleted() { const l = this.get().levels; return Object.keys(l).filter((k) => l[k] > 0).length; }
   };
+
+  // the home button on every page goes back to the student's robot page
+  if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', function () {
+      var r = root.ChipCamp.get().robot, b = document.querySelector('.homebtn');
+      if (b && r) b.setAttribute('href', 'index.html#' + r);
+    });
+  }
 })(typeof self !== 'undefined' ? self : this);
 
 </script>

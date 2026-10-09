@@ -56,7 +56,7 @@ pages.forEach((p) => {
   const payload = { s: salt.toString('base64'), i: iv.toString('base64'), n: ITER, c: enc.toString('base64') };
   const css = FONTS.tool + R('src/shared.css') + '\n' + R('src/plans.css');
   const html = '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<meta name="robots" content="noindex,nofollow">\n<title>Facilitators · Chip Camp</title>\n<style>\n' + css + '\n</style>\n</head>\n<body>\n' + R('src/plans.html') +
-    '\n<script>window.PLANS_PAYLOAD = ' + JSON.stringify(payload) + ';</script>\n<script>\n' + safe(R('src/plans.js')) + '\n</script>\n</body>\n</html>\n';
+    '\n<script>window.PLANS_PAYLOAD = ' + JSON.stringify(payload) + ';</script>\n<script>\n' + safe(R('src/progress.js')) + '\n</script>\n<script>\n' + safe(R('src/plans.js')) + '\n</script>\n</body>\n</html>\n';
   fs.writeFileSync(path.join(__dirname, 'plans.html'), html);
   console.log('built plans.html (' + Math.round(html.length / 1024) + ' KB, ' + docs.length + ' documents, encrypted)');
 })();

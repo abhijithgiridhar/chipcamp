@@ -49,3 +49,27 @@ body{font-family:var(--hub-font);color:#fff;background:#0d0d10;-webkit-font-smoo
 
 .hub-fac{align-self:flex-start;margin:0 clamp(22px,5.6vw,80px) clamp(18px,3vw,36px);font-size:13px;font-weight:600;color:rgba(255,255,255,.45);text-decoration:none;padding:6px 10px;border-radius:999px}
 .hub-fac:hover,.hub-fac:focus-visible{color:#fff;background:rgba(255,255,255,.12);outline:none}
+
+/* home: three big robot cards */
+.bots{display:flex;flex-direction:column;gap:14px}
+.bot{--rc:#fff;display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;text-decoration:none;color:#fff;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:26px;padding:20px 26px 20px 20px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:transform .15s,background .15s,border-color .15s,box-shadow .15s}
+.bot:hover{transform:translateY(-3px);background:rgba(255,255,255,.12);border-color:var(--rc);box-shadow:0 14px 34px rgba(0,0,0,.35),0 0 0 3px color-mix(in srgb,var(--rc) 32%,transparent)}
+.bot:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.bot .rem,.hub-bot .rem{font-size:40px;width:72px;height:72px;border-radius:22px;display:grid;place-items:center;background:color-mix(in srgb,var(--rc) 30%,transparent);flex:none}
+.bot .bt{display:flex;flex-direction:column;gap:2px}
+.bot .bt b{font-size:clamp(24px,2.4vw,32px);font-weight:600;letter-spacing:-.015em}
+.bot .bt small{font-size:15px;color:rgba(255,255,255,.62)}
+.bot .go{font-size:26px;color:rgba(255,255,255,.55)}
+/* robot page */
+.hub-back{display:inline-block;font-size:14px;font-weight:600;color:rgba(255,255,255,.7);text-decoration:none;padding:6px 12px 6px 0;margin-bottom:clamp(10px,2vw,22px)}
+.hub-back:hover,.hub-back:focus-visible{color:#fff;outline:none;text-decoration:underline}
+.hub-bot{--rc:#fff;display:flex;align-items:center;gap:18px}
+.hub-bot .hub-welcome{margin:6px 0 0}
+.hub-title.small{font-size:clamp(40px,5.4vw,84px)}
+@media (max-width:560px){.bot{grid-template-columns:auto 1fr}.bot .go{display:none}}
+[hidden]{display:none!important}
+
+.tile.locked{opacity:.45;filter:grayscale(.6);cursor:not-allowed}
+.tile.locked:hover{transform:none;background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.16);box-shadow:none}
+.tile.locked .prog{background:rgba(255,191,0,.2);color:#ffd96b}
+.locknote{margin:4px 2px 0;font-size:14px;font-weight:600;color:#ffd96b}
