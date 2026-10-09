@@ -1,6 +1,5 @@
-/* Camp Studio core: the "designs" students make in the Face / Dance / Light studios, and how a design turns into
-   Code Builder blocks. No DOM in here, so Node can test it. A design only ever picks from the tested vocabulary
-   (the faces, moves, colours and notes the base sketches already know), so any design makes a sketch that compiles. */
+/* Studio core: what students design in the Face, Dance and Light studios, and how a design becomes Code Builder blocks.
+   A design only picks faces, moves, colours and notes the base sketches already have, so it always compiles. */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory(require('./core.js'));
   else root.CampStudio = factory(root.CampCore);
@@ -37,7 +36,7 @@
     return { dryPct: 40, dryColor: 'red', dryAlarm: true, darkPct: 30, darkColor: 'blue', okColor: 'green', checkSecs: 2 };
   }
 
-  // Anything stored or pasted is untrusted: rebuild it from scratch, keeping only valid choices and in-range numbers.
+  // Rebuild stored or pasted designs from scratch: valid choices only, numbers in range.
   function clean(proj, d) {
     d = d && typeof d === 'object' ? d : {};
     if (proj === 'peeko') {

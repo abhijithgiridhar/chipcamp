@@ -1,6 +1,6 @@
 //@@HEADER@@
 /*
-  CHIP BOT  —  Arduino Nano + IO shield, Otto-style biped
+  CHIP BOT - Arduino Nano + IO shield, Otto-style biped
   --------------------------------------------------------
   Pins (Otto defaults):
     D2 left hip   D3 right hip   D4 left foot   D5 right foot
@@ -178,6 +178,14 @@ void waitSecs(float secs) { waitMs((uint16_t)(secs * 1000.0)); }
 void beepNote(unsigned int hz, float secs) {
   tone(PIN_BUZZER, hz, (unsigned long)(secs * 1000.0));
   waitSecs(secs);
+}
+
+// Holds every servo at 90 degrees so the servo horns can be fitted straight.
+void centreServos(float secs) {
+  int h[4] = {90, 90, 90, 90};
+  moveServos(300, h);
+  waitSecs(secs);
+  detachServos();
 }
 
 //@@KEEP+

@@ -225,7 +225,7 @@
     running = true; stopFlag = false;
     $('#runBtn').hidden = true; $('#stopBtn').hidden = false; $('#serial').innerHTML = '<b>Serial Monitor</b>';
     try { await fn(makeCtx()); }
-    catch (e) { if (e !== Runtime.STOP) { console.error(e); toast('Oops, the preview hit a problem'); } }
+    catch (e) { if (e !== Runtime.STOP) { console.error(e); toast('The preview hit a problem'); } }
     running = false; $('#runBtn').hidden = false; $('#stopBtn').hidden = true;
   }
   function currentState() { return Studio.toState(S.proj, S.design, { builder: ChipCamp.get().name, robot: '' }); }

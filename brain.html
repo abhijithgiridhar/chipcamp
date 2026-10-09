@@ -1,0 +1,684 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Peeko's Brain · Chip Camp</title>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Nunito:wght@600;800;900&family=JetBrains+Mono:wght@400;700&display=swap");
+:root{
+  --ink:#2b2f4a; --ink-soft:#69709a; --bg:#e8f0ff; --card:#ffffff; --line:#d3def6; --line-soft:#e6edfb;
+  --purple:#7c4dff; --blue:#4c97ff; --green:#3fb950; --green-d:#2c8f3b; --events:#FFBF00;
+  --font-d:"Fredoka","Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;
+  --font-b:"Nunito","Segoe UI","Trebuchet MS",system-ui,sans-serif;
+  --font-m:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --nh:6px; --nx:16px; --nw:26px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-b);font-size:15px;line-height:1.4;-webkit-font-smoothing:antialiased;}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+[hidden]{display:none!important}
+
+/* ---------- top bar ---------- */
+.topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 18px;background:linear-gradient(90deg,#7c4dff,#4c97ff);color:#fff;box-shadow:0 3px 0 rgba(0,0,0,.12);}
+.brand{font-family:var(--font-d);font-size:24px;font-weight:600;letter-spacing:.2px;display:flex;align-items:center;gap:8px;margin-right:6px}
+.brand .logo{display:inline-grid;grid-template-columns:repeat(2,12px);gap:3px;transform:rotate(-8deg)}
+.brand .logo i{width:12px;height:12px;border-radius:4px;display:block}
+.ptabs{display:flex;gap:8px;flex-wrap:wrap}
+.ptab{border:0;cursor:pointer;font-family:var(--font-d);font-size:17px;font-weight:500;padding:8px 16px;border-radius:16px;background:rgba(255,255,255,.2);color:#fff;display:flex;align-items:center;gap:7px;transition:transform .12s, background .15s;}
+.ptab:hover{background:rgba(255,255,255,.32);transform:translateY(-1px)}
+.ptab[aria-selected="true"]{background:#fff;color:var(--pc);box-shadow:0 4px 0 rgba(0,0,0,.18);transform:translateY(-1px)}
+.ptab .em{font-size:20px}
+.spacer{flex:1}
+.viewtabs{display:flex;background:rgba(0,0,0,.18);border-radius:18px;padding:4px;gap:4px}
+.vtab{border:0;cursor:pointer;font-family:var(--font-d);font-size:17px;padding:8px 18px;border-radius:14px;background:transparent;color:#fff;display:flex;align-items:center;gap:6px}
+.vtab[aria-selected="true"]{background:#fff;color:var(--purple);box-shadow:0 3px 0 rgba(0,0,0,.18)}
+
+.btn{border:0;cursor:pointer;font-family:var(--font-d);font-weight:500;font-size:15px;padding:8px 14px;border-radius:14px;background:#fff;color:var(--ink);box-shadow:0 3px 0 #c9d6f2;border:2px solid #d3def6;display:inline-flex;align-items:center;gap:6px;transition:transform .08s, box-shadow .08s;white-space:nowrap}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 0 #c9d6f2}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 #c9d6f2}
+.btn.go{background:var(--green);border-color:var(--green-d);color:#fff;box-shadow:0 4px 0 var(--green-d)}
+.btn.go:hover{box-shadow:0 5px 0 var(--green-d)}
+.btn.go:active{box-shadow:0 1px 0 var(--green-d)}
+.btn.stop{background:#ff6680;border-color:#d94a63;color:#fff;box-shadow:0 4px 0 #d94a63}
+.btn.big{font-size:19px;padding:12px 22px;border-radius:18px}
+.btn.small{font-size:13px;padding:5px 10px;border-radius:11px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* ---------- blocks ---------- */
+.blk{--c:#9966FF;position:relative;filter:drop-shadow(0 2px 0 rgba(0,0,0,.2));user-select:none;touch-action:none}
+.dz>.blk+.blk,.blk+.blk{margin-top:calc(var(--nh) * -1)}
+.blk>.row,.blk>.foot{background:var(--c);color:#fff;font-family:var(--font-d);font-weight:500;font-size:15px;text-shadow:0 1px 0 rgba(0,0,0,.18)}
+.blk>.row{display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-height:46px;padding:8px 10px calc(8px + var(--nh)) 12px;
+  clip-path:polygon(0 0,var(--nx) 0,calc(var(--nx) + 4px) var(--nh),calc(var(--nx) + var(--nw) - 4px) var(--nh),calc(var(--nx) + var(--nw)) 0,100% 0,100% calc(100% - var(--nh)),calc(var(--nx) + var(--nw)) calc(100% - var(--nh)),calc(var(--nx) + var(--nw) - 4px) 100%,calc(var(--nx) + 4px) 100%,var(--nx) calc(100% - var(--nh)),0 calc(100% - var(--nh)));
+  cursor:grab}
+.blk.c>.row{clip-path:polygon(0 0,var(--nx) 0,calc(var(--nx) + 4px) var(--nh),calc(var(--nx) + var(--nw) - 4px) var(--nh),calc(var(--nx) + var(--nw)) 0,100% 0,100% 100%,0 100%);padding-bottom:8px;border-radius:12px 12px 0 0}
+.blk.c>.row.else{clip-path:none;border-radius:0;min-height:34px;padding-top:6px;padding-bottom:6px}
+.blk:not(.c)>.row{border-radius:12px 12px 12px 12px}
+.blk>.foot{height:calc(26px + var(--nh));border-radius:0 0 12px 12px;display:flex;align-items:center;padding:0 12px var(--nh) 12px;gap:8px;
+  clip-path:polygon(0 0,100% 0,100% calc(100% - var(--nh)),calc(var(--nx) + var(--nw)) calc(100% - var(--nh)),calc(var(--nx) + var(--nw) - 4px) 100%,calc(var(--nx) + 4px) 100%,var(--nx) calc(100% - var(--nh)),0 calc(100% - var(--nh)))}
+.cslot{display:flex;background:var(--c)}
+.cslot::before{content:"";width:16px;flex:none;background:var(--c)}
+.cslot>.dz{flex:1;background:#f7f9ff;border-radius:10px 0 0 10px;min-height:44px;margin:0;box-shadow:inset 0 3px 0 rgba(0,0,0,.08)}
+.blk .x{margin-left:auto;border:0;background:rgba(255,255,255,.28);color:#fff;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:12px;line-height:1;padding:0;opacity:.0;transition:opacity .12s}
+.blk:hover>.row .x,.blk>.row .x:focus-visible{opacity:1}
+.blk .x:hover{background:rgba(255,255,255,.5)}
+.blk .tag{font-size:11px;font-weight:700;background:rgba(0,0,0,.16);border-radius:10px;padding:2px 8px;font-family:var(--font-b);text-shadow:none}
+.elsebtn{border:0;cursor:pointer;background:rgba(255,255,255,.28);color:#fff;font-family:var(--font-d);font-size:13px;border-radius:10px;padding:3px 10px}
+.elsebtn:hover{background:rgba(255,255,255,.45)}
+.blk.running>.row,.blk.running>.foot{animation:glow .6s ease-in-out infinite alternate}
+@keyframes glow{from{filter:brightness(1)}to{filter:brightness(1.35) saturate(1.2)}}
+.blk.pop{animation:pop .38s cubic-bezier(.3,1.7,.5,1)}
+@keyframes pop{0%{transform:scale(.6) rotate(-4deg);opacity:.2}100%{transform:scale(1) rotate(0);opacity:1}}
+.blk.lifting{opacity:.3}
+.ghost{position:fixed;z-index:1000;pointer-events:none;transform:rotate(2deg) scale(1.04);filter:drop-shadow(0 10px 12px rgba(40,40,80,.35));opacity:.96}
+.ghost .x{display:none}
+
+/* parameter fields (Scratch style) */
+.pill{display:inline-flex;align-items:center;border-radius:16px;background:#fff;color:var(--ink);text-shadow:none;font-family:var(--font-b);font-weight:800;font-size:14px;padding:0;overflow:hidden;box-shadow:inset 0 -2px 0 rgba(0,0,0,.1)}
+.pill input{border:0;background:transparent;outline:0;font-weight:800;color:var(--ink);padding:3px 9px;min-width:0;text-align:center;font-family:var(--font-b)}
+.pill input[type=number]{width:58px;-moz-appearance:textfield}
+.pill input[type=number]::-webkit-outer-spin-button,.pill input[type=number]::-webkit-inner-spin-button{opacity:.55}
+.pill input[type=text]{width:116px}
+.pill:focus-within{outline:3px solid rgba(255,255,255,.75);outline-offset:1px}
+.drop{display:inline-flex;align-items:center;border-radius:14px;background:rgba(0,0,0,.2);color:#fff;font-family:var(--font-b);font-weight:800;font-size:14px;text-shadow:none;padding:0;position:relative}
+.drop select{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:#fff;font-weight:800;padding:4px 24px 4px 10px;cursor:pointer;outline:0;border-radius:14px;font-family:var(--font-b)}
+.drop select option{color:var(--ink);background:#fff}
+.drop::after{content:"▾";position:absolute;right:9px;pointer-events:none;font-size:12px}
+.drop:focus-within{outline:3px solid rgba(255,255,255,.75);outline-offset:1px}
+.static{display:inline-flex;align-items:center;border-radius:14px;padding:2px 9px;font-weight:800;font-size:13px;font-family:var(--font-b);text-shadow:none}
+.static.p{background:#fff;color:var(--ink)}
+.static.d{background:rgba(0,0,0,.2);color:#fff}
+.palette-blk{margin-bottom:10px;cursor:grab}
+.palette-blk>.row{cursor:grab}
+.palette-blk.c>.foot{height:calc(18px + var(--nh))}
+
+.dz{display:flex;flex-direction:column;min-height:40px;position:relative}
+.dz.over{outline:3px dashed var(--purple);outline-offset:-3px;border-radius:12px;background:rgba(124,77,255,.07)}
+.dz:empty::before,.dz.empty::before{content:"drop blocks here";display:flex;align-items:center;justify-content:center;min-height:44px;color:#9aa4c7;font-weight:800;font-size:13px;border-radius:10px;border:2px dashed #cfd9f3;margin:4px}
+.dropline{height:0;position:relative;z-index:5}
+.dropline::after{content:"";position:absolute;left:-2px;right:-2px;top:-3px;height:6px;border-radius:4px;background:var(--purple);box-shadow:0 0 0 2px #fff}
+/* ---------- misc ---------- */
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#2b2f4a;color:#fff;font-family:var(--font-d);padding:10px 18px;border-radius:16px;opacity:0;pointer-events:none;transition:all .25s;z-index:3000;box-shadow:0 8px 20px rgba(0,0,0,.25)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.modalback{position:fixed;inset:0;background:rgba(43,47,74,.5);display:grid;place-items:center;z-index:2000;padding:16px}
+.modal{background:#fff;border-radius:22px;width:min(560px,100%);max-height:86vh;overflow:auto;padding:18px 20px;box-shadow:0 20px 50px rgba(0,0,0,.3);border:3px solid var(--line)}
+.modal h2{font-family:var(--font-d);font-weight:500;margin:0 0 10px;font-size:22px}
+.modal textarea{width:100%;height:120px;border:2px solid var(--line);border-radius:12px;padding:8px;font-family:var(--font-m);font-size:12px}
+.saverow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:2px solid var(--line-soft)}
+.saverow .who{flex:1;font-weight:800}
+.saverow .who small{display:block;font-weight:600;color:var(--ink-soft)}
+.conf{position:fixed;z-index:2500;font-size:26px;pointer-events:none;animation:conf 1.1s ease-out forwards}
+@keyframes conf{0%{transform:translate(0,0) rotate(0) scale(.6);opacity:1}100%{transform:translate(var(--dx),var(--dy)) rotate(var(--r)) scale(1.2);opacity:0}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+.homebtn{display:inline-grid;place-items:center;width:42px;height:42px;border-radius:14px;background:rgba(255,255,255,.22);color:#fff;text-decoration:none;font-size:21px;box-shadow:0 3px 0 rgba(0,0,0,.14);transition:transform .12s,background .15s;flex:none}
+.homebtn:hover{background:rgba(255,255,255,.36);transform:translateY(-1px)}
+.homebtn:focus-visible{outline:3px solid #fff;outline-offset:2px}
+a.btn{text-decoration:none}
+
+/* ---------- stage ---------- */
+.stagecard{overflow:hidden;position:sticky;top:12px}
+.stagehead{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:2px solid var(--line-soft);background:#f6f9ff;flex-wrap:wrap}
+.stagehead h2{font-family:var(--font-d);font-size:17px;font-weight:500;margin:0;margin-right:auto}
+.speedsel{display:flex;border-radius:12px;overflow:hidden;border:2px solid var(--line)}
+.speedsel button{border:0;background:#fff;padding:3px 9px;font-weight:800;font-size:12px;cursor:pointer;color:var(--ink-soft)}
+.speedsel button[aria-pressed="true"]{background:var(--purple);color:#fff}
+.scene{position:relative;overflow:hidden}
+.sliders{padding:10px 14px;display:flex;flex-direction:column;gap:8px;border-top:2px solid var(--line-soft)}
+.slider{display:grid;grid-template-columns:1fr auto;gap:2px 8px;font-weight:800;font-size:13px}
+.slider input{grid-column:1/-1;accent-color:var(--purple);width:100%}
+.slider output{font-family:var(--font-m);color:var(--purple);grid-row:1;grid-column:2}
+.serial{margin:0 14px 14px;border:2px dashed var(--line);border-radius:14px;background:#fcfdff;font-family:var(--font-m);font-size:12px;padding:8px 10px;height:94px;overflow:auto;color:#3d4668}
+.serial b{font-family:var(--font-b);color:var(--ink-soft);font-size:11px;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:3px}
+.serial div{white-space:pre-wrap}
+.notes{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.fnote{position:absolute;bottom:26%;font-size:30px;font-weight:900;animation:floatup 1.3s ease-out forwards;text-shadow:0 2px 0 rgba(255,255,255,.7)}
+@keyframes floatup{0%{transform:translateY(0) scale(.6);opacity:0}15%{opacity:1}100%{transform:translateY(-130px) scale(1.15) rotate(12deg);opacity:0}}
+
+/* Peeko */
+.pk-scene{position:relative;height:292px;display:grid;place-items:end center;background:linear-gradient(#ffe9d6,#ffd1e0);padding-bottom:26px}
+.pk-bot{--tilt:0deg;transform:rotate(var(--tilt));transform-origin:50% 100%;transition:transform .22s cubic-bezier(.3,1.5,.5,1)}
+.pk-antenna{width:8px;height:30px;background:#d94c40;margin:0 auto -2px;border-radius:4px;position:relative}
+.pk-antenna::after{content:"";position:absolute;top:-12px;left:-8px;width:24px;height:24px;border-radius:50%;background:#ffd93b;border:4px solid #e0a800}
+.pk-head{width:262px;height:176px;border-radius:58px;background:linear-gradient(#ff8c80,#ff6b5e);border:7px solid #d94c40;box-shadow:0 8px 0 #b73c32,0 18px 24px rgba(120,40,40,.25);display:grid;place-items:center}
+.pk-screen{width:210px;height:106px;border-radius:20px;background:#050b14;border:6px solid #1b2236;overflow:hidden;box-shadow:inset 0 0 18px rgba(130,200,255,.18)}
+.pk-screen canvas{width:100%;height:100%;display:block}
+
+/* Chip Bot */
+.cb-scene{--T:1s;position:relative;height:292px;background:linear-gradient(#bfe6ff,#e9f8ff 70%)}
+.cb-sun{position:absolute;right:26px;top:22px;width:54px;height:54px;border-radius:50%;background:#ffd93b;box-shadow:0 0 0 10px rgba(255,217,59,.3)}
+.cb-ground{position:absolute;left:0;right:0;bottom:0;height:76px;background:#7bd389;border-top:6px solid #5cbf6e;overflow:hidden}
+.cb-track{position:absolute;inset:auto 0 18px 0;height:8px;background:repeating-linear-gradient(90deg,#fff 0 28px,transparent 28px 60px);opacity:.85;background-size:60px 8px}
+.moving-f .cb-track{animation:trackf var(--T) linear infinite}
+.moving-b .cb-track{animation:trackb var(--T) linear infinite}
+@keyframes trackf{to{background-position:-60px 0}}
+@keyframes trackb{to{background-position:60px 0}}
+.cb-obstacle{position:absolute;bottom:70px;font-size:50px;transition:left .35s ease;transform:translateX(-50%)}
+.cb-bot{position:absolute;left:17%;bottom:58px;width:92px;display:flex;flex-direction:column;align-items:center;transform-origin:50% 100%}
+.cb-body{width:88px;height:78px;border-radius:26px;background:linear-gradient(#3fd0bf,#2bb3a3);border:5px solid #1e8e80;box-shadow:0 5px 0 #17756a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.cb-eyes{display:flex;gap:14px}
+.cb-eyes i{width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid #17756a;display:block;position:relative}
+.cb-eyes i::after{content:"";position:absolute;width:8px;height:8px;border-radius:50%;background:#17302d;left:5px;top:5px}
+.cb-mouth{width:26px;height:8px;border-radius:0 0 14px 14px;border:3px solid #17756a;border-top:0}
+.cb-legs{display:flex;gap:18px;margin-top:-2px}
+.cb-leg{width:20px;height:26px;border-radius:8px 8px 12px 12px;background:#1e8e80;display:block;transform-origin:50% 0}
+.walking .cb-leg.l{animation:legL var(--T) ease-in-out infinite}
+.walking .cb-leg.r{animation:legR var(--T) ease-in-out infinite}
+.moving-b .walking .cb-leg.l{animation-direction:reverse}
+@keyframes legL{0%,100%{transform:rotate(22deg)}50%{transform:rotate(-22deg)}}
+@keyframes legR{0%,100%{transform:rotate(-22deg)}50%{transform:rotate(22deg)}}
+.walking .cb-body{animation:bob calc(var(--T) / 2) ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-6px)}}
+.turn-l{animation:turnl var(--T) ease-in-out infinite}
+.turn-r{animation:turnr var(--T) ease-in-out infinite}
+@keyframes turnl{0%,100%{transform:rotate(0)}50%{transform:rotate(-14deg) scaleX(.82)}}
+@keyframes turnr{0%,100%{transform:rotate(0)}50%{transform:rotate(14deg) scaleX(.82)}}
+.dancing .cb-body{animation:dance0 var(--T) ease-in-out infinite}
+.dancing.dance-1 .cb-body{animation-name:dance1}
+.dancing.dance-2 .cb-body{animation-name:dance2}
+.dancing.dance-3 .cb-body{animation-name:dance3}
+.dancing .cb-leg.l{animation:legL calc(var(--T) / 2) ease-in-out infinite}
+.dancing .cb-leg.r{animation:legR calc(var(--T) / 2) ease-in-out infinite}
+@keyframes dance0{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+@keyframes dance1{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@keyframes dance2{0%,100%{transform:rotate(-10deg) translateX(-6px)}50%{transform:rotate(10deg) translateX(6px)}}
+@keyframes dance3{0%,100%{transform:scale(1)}25%{transform:scale(1.08,.92)}75%{transform:scale(.94,1.06)}}
+.cb-dist{position:absolute;left:12px;top:12px;background:#fff;border:2px solid #cfe6f7;border-radius:14px;padding:3px 10px;font-weight:800;font-size:13px}
+
+/* Jarvis */
+.jv-scene{position:relative;height:292px;background:linear-gradient(#d9f4ff,#fff6d6)}
+.jv-scene svg{width:100%;height:100%;display:block}
+.jv-scene .plant{transition:transform .5s ease}
+.jv-scene .soil{transition:fill .5s ease}
+.jv-scene .jv-sun{transition:opacity .4s, transform .4s}
+
+/* Peeko's Brain */
+.card{background:var(--card);border:2px solid var(--line);border-radius:20px;box-shadow:0 4px 0 var(--line)}
+.brain{display:grid;grid-template-columns:minmax(420px,1fr) 372px;gap:14px;padding:14px 18px 40px;align-items:start;max-width:1400px;margin:0 auto}
+@media (max-width:1000px){.brain{grid-template-columns:1fr}.stagecard{position:static}}
+.bsteps{padding:8px 18px 18px}
+.bsteps ol{list-style:none;margin:0;padding:0}
+.bstep{padding:14px 0 16px;border-bottom:3px solid var(--line-soft)}
+.bstep:last-child{border-bottom:0}
+.bstep h2{font-family:var(--font-d);font-weight:500;font-size:21px;margin:0 0 6px;display:flex;align-items:center;gap:10px}
+.bstep .n{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--purple);color:#fff;font-size:16px}
+.bstep p{margin:4px 0 10px;font-weight:700;color:#38406a}
+.bstep code{font-family:var(--font-m);font-size:.88em;background:#f1f4ff;border-radius:6px;padding:1px 6px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row input{flex:1;min-width:220px;border:2px solid var(--line);border-radius:12px;padding:9px 12px;font-size:15px;font-weight:700}
+.alt{margin-top:10px;font-weight:700}
+.alt summary{cursor:pointer;color:var(--ink-soft)}
+.status{margin-top:8px;font-weight:800;min-height:20px}
+.status.bad{color:#d94a63}
+.status.good{color:#2c8f3b}
+.mapping{display:flex;flex-direction:column;gap:8px;margin:6px 0 12px}
+.mapping .empty{color:var(--ink-soft)}
+.maprow{display:grid;grid-template-columns:minmax(80px,1fr) auto;gap:4px 10px;align-items:center;background:#fbfaff;border:3px solid #9966FF;border-radius:14px;padding:8px 10px}
+.maprow b{font-family:var(--font-d);font-weight:500;font-size:16px;overflow-wrap:anywhere}
+.maprow select{border:2px solid var(--line);border-radius:10px;padding:6px 8px;font-weight:800;font-size:14px;background:#fff}
+.maprow .bar{grid-column:1/-1;height:8px;border-radius:6px;background:#e9edfb;overflow:hidden}
+.maprow .bar i{display:block;height:100%;width:0;background:#9966FF;transition:width .12s}
+.slider{display:grid;grid-template-columns:1fr auto;gap:2px 8px;font-weight:800;font-size:14px;margin:6px 0 14px}
+.slider input{grid-column:1/-1;accent-color:var(--purple);width:100%}
+.slider output{font-family:var(--font-m);color:var(--purple)}
+.camwrap{padding:10px 14px 0;border-top:2px solid var(--line-soft)}
+.cam{min-height:120px;border-radius:14px;background:#eef2ff;display:grid;place-items:center;overflow:hidden;color:var(--ink-soft);font-weight:800}
+.cam canvas{width:100%;height:auto;display:block}
+.bars{display:flex;flex-direction:column;gap:3px;margin:8px 0 6px;font-size:12px;font-weight:800}
+.bars div{display:grid;grid-template-columns:90px 1fr 40px;gap:6px;align-items:center}
+.bars i{display:block;height:8px;border-radius:5px;background:#9966FF}
+.bars span.p{text-align:right;font-family:var(--font-m)}
+
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="homebtn" href="index.html" title="Back to the Chip Camp welcome screen" aria-label="Home">🏠</a>
+  <div class="brand"><span class="logo" aria-hidden="true"><i style="background:#FF6B5E"></i><i style="background:#FFBF00"></i><i style="background:#9966FF"></i><i style="background:#4C97FF"></i></span>Peeko's Brain</div>
+  <div class="spacer"></div>
+</header>
+
+<main class="brain">
+  <section class="card bsteps" aria-label="Steps">
+    <ol>
+      <li class="bstep">
+        <h2><span class="n">1</span>Teach it</h2>
+        <p>Open Teachable Machine, choose <b>Image Project</b>, then <b>Standard image model</b>. Make 2 to 4 classes, for example <i>Happy me</i>, <i>Sad me</i>, <i>Thumbs up</i> and <i>Nobody</i>. Record about 40 pictures of each, then press <b>Train Model</b>.</p>
+        <a class="btn" href="https://teachablemachine.withgoogle.com/train/image" target="_blank" rel="noopener">Open Teachable Machine ↗</a>
+      </li>
+      <li class="bstep">
+        <h2><span class="n">2</span>Load your model</h2>
+        <p>In Teachable Machine press <b>Export Model</b>, then <b>Upload my model</b>, and copy the link. Paste it here.</p>
+        <div class="row"><input id="link" type="url" placeholder="https://teachablemachine.withgoogle.com/models/..." spellcheck="false" autocomplete="off"><button class="btn go" id="loadLink">Load</button></div>
+        <details class="alt"><summary>No link? Use the downloaded files</summary>
+          <p>Export Model, then <b>Download</b>, unzip it, and choose all three files: <code>model.json</code>, <code>metadata.json</code> and <code>weights.bin</code>.</p>
+          <input id="files" type="file" multiple accept=".json,.bin">
+        </details>
+        <div class="status" id="modelStatus" role="status"></div>
+      </li>
+      <li class="bstep">
+        <h2><span class="n">3</span>Connect Peeko</h2>
+        <p>Plug Peeko into the laptop. You can try everything without it, because the Peeko on the right reacts too.</p>
+        <button class="btn" id="connect">🔌 Connect Peeko</button>
+        <div class="status" id="serialStatus" role="status"></div>
+      </li>
+      <li class="bstep">
+        <h2><span class="n">4</span>What should Peeko do?</h2>
+        <div id="mapping" class="mapping"><p class="empty">Load your model first.</p></div>
+        <label class="slider"><span>How sure must it be?</span><input id="sure" type="range" min="60" max="99" step="1" value="85"><output id="sureOut">85%</output></label>
+        <button class="btn go big" id="start" disabled>▶ Start Peeko's brain</button>
+        <div class="status" id="runStatus" role="status"></div>
+      </li>
+    </ol>
+  </section>
+
+  <aside class="card stagecard" aria-label="Peeko">
+    <div class="stagehead"><h2>👀 Peeko</h2><button class="btn small" id="soundBtn" title="Sound on/off" aria-pressed="false">🔇</button></div>
+    <div class="scene" id="scene"></div>
+    <div class="camwrap"><div id="cam" class="cam"><span class="camhint">Your camera shows here</span></div><div id="bars" class="bars"></div></div>
+    <div class="serial" id="serial"><b>Serial Monitor</b></div>
+  </aside>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* Chip Camp: what each student has chosen and finished, shared by every page (kept in this browser only). */
+(function (root) {
+  'use strict';
+  const KEY = 'chipcamp.v1';
+  const ROBOTS = ['chipbot', 'peeko', 'jarvis'];
+  function read() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
+  function write(d) { try { localStorage.setItem(KEY, JSON.stringify(d)); } catch (e) { /* private window: just don't remember */ } }
+  function clean(s) { return String(s == null ? '' : s).replace(/[^A-Za-z0-9 .,!?'_-]/g, '').replace(/\s+/g, ' ').trim().slice(0, 16); }
+
+  root.ChipCamp = {
+    ROBOTS,
+    get() {
+      const d = read();
+      return { name: clean(d.name), robot: ROBOTS.indexOf(d.robot) >= 0 ? d.robot : null, levels: d.levels || {}, circuits: d.circuits || {}, code: d.code || {} };
+    },
+    design(robot) { const d = read(); return (d.designs && d.designs[robot]) || null; },
+    setDesign(robot, design) { if (ROBOTS.indexOf(robot) < 0) return; const d = read(); d.designs = d.designs || {}; d.designs[robot] = design; write(d); },
+    robotOrDefault() { return this.get().robot || 'chipbot'; },
+    setName(n) { const d = read(); d.name = clean(n); write(d); },
+    setRobot(r) { if (ROBOTS.indexOf(r) < 0) return; const d = read(); d.robot = r; write(d); },
+    levelDone(level, stars) { const d = read(); d.levels = d.levels || {}; d.levels[level] = Math.max(d.levels[level] || 0, stars || 1); write(d); },
+    circuitDone(robot) { const d = read(); d.circuits = d.circuits || {}; d.circuits[robot] = true; write(d); },
+    codeBlocks(robot, n) { const d = read(); d.code = d.code || {}; d.code[robot] = n; write(d); },
+    levelsCompleted() { const l = this.get().levels; return Object.keys(l).filter((k) => l[k] > 0).length; }
+  };
+})(typeof self !== 'undefined' ? self : this);
+
+</script>
+<script>
+/* The on-screen robots. Peeko's faces are drawn the same way as in the Peeko sketch. */
+(function (root, factory) {
+  root.CampStages = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+  const $ = (el, sel) => el.querySelector(sel);
+
+  /* ---------- shared: tiny sound + floating notes ---------- */
+  const Sound = {
+    on: false, ctx: null,
+    beep(hz, secs) {
+      if (!this.on) return;
+      try {
+        this.ctx = this.ctx || new (window.AudioContext || window.webkitAudioContext)();
+        const o = this.ctx.createOscillator(), g = this.ctx.createGain(), t = this.ctx.currentTime;
+        o.type = 'square'; o.frequency.value = hz;
+        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.06, t + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + Math.max(0.05, secs));
+        o.connect(g); g.connect(this.ctx.destination); o.start(t); o.stop(t + secs + 0.05);
+      } catch (e) { /* no audio, no problem */ }
+    }
+  };
+  function floatNote(layer, hz) {
+    const n = document.createElement('span');
+    n.className = 'fnote'; n.textContent = ['♪', '♫', '♩'][Math.floor(Math.random() * 3)];
+    n.style.left = (30 + Math.random() * 40) + '%';
+    n.style.color = 'hsl(' + Math.round((hz % 500) / 500 * 300) + ',80%,55%)';
+    layer.appendChild(n);
+    setTimeout(() => n.remove(), 1400);
+  }
+
+  /* ---------- Peeko ---------- */
+  function peeko(mount, sensors) {
+    mount.innerHTML =
+      '<div class="pk-scene"><div class="pk-bot"><div class="pk-antenna"></div><div class="pk-head">' +
+      '<div class="pk-screen"><canvas width="256" height="128"></canvas></div></div></div><div class="notes"></div></div>';
+    const bot = $(mount, '.pk-bot'), cv = $(mount, 'canvas'), notes = $(mount, '.notes');
+    const g = cv.getContext('2d');
+    const FG = '#e8f6ff', BG = '#050b14';
+    const d = {
+      clear() { g.setTransform(2, 0, 0, 2, 0, 0); g.fillStyle = BG; g.fillRect(0, 0, 128, 64); },
+      fillCircle(cx, cy, r) { g.fillStyle = FG; g.beginPath(); g.arc(cx + 0.5, cy + 0.5, r + 0.5, 0, 6.2832); g.fill(); },
+      drawCircle(cx, cy, r) { g.strokeStyle = FG; g.lineWidth = 1; g.beginPath(); g.arc(cx + 0.5, cy + 0.5, r, 0, 6.2832); g.stroke(); },
+      line(x0, y0, x1, y1) { g.strokeStyle = FG; g.lineWidth = 1.1; g.beginPath(); g.moveTo(x0 + 0.5, y0 + 0.5); g.lineTo(x1 + 0.5, y1 + 0.5); g.stroke(); },
+      pixel(x, y) { g.fillStyle = FG; g.fillRect(x, y, 1, 1); },
+      rect(x, y, w, h) { g.fillStyle = FG; g.fillRect(x, y, w, h); },
+      text(str) {
+        const size = str.length <= 10 ? 2 : 1;
+        g.fillStyle = FG; g.font = 'bold ' + (10 * size) + 'px "Courier New", monospace'; g.textBaseline = 'top';
+        g.fillText(str, (128 - str.length * 6 * size) / 2, (64 - 8 * size) / 2 - size);
+      }
+    };
+    // --- the same shapes as the tested sketch (drawRoundEye, drawHappyEye, ...)
+    const eyes = (r) => { d.fillCircle(40, 28, r); d.fillCircle(88, 28, r); };
+    const happyEye = (cx, cy) => { d.line(cx - 9, cy + 5, cx, cy - 5); d.line(cx - 9, cy + 6, cx, cy - 4); d.line(cx, cy - 5, cx + 9, cy + 5); d.line(cx, cy - 4, cx + 9, cy + 6); };
+    const sadEye = (cx, cy) => { d.line(cx - 9, cy - 3, cx, cy + 6); d.line(cx - 9, cy - 2, cx, cy + 7); d.line(cx, cy + 6, cx + 9, cy - 3); d.line(cx, cy + 7, cx + 9, cy - 2); };
+    const angryEye = (cx, cy) => { d.rect(cx - 8, cy - 2, 16, 6); if (cx < 64) d.line(cx - 9, cy - 12, cx + 9, cy - 6); else d.line(cx + 9, cy - 12, cx - 9, cy - 6); };
+    const smile = (yb, w) => { for (let x = 64 - w; x <= 64 + w; x += 2) { const y = yb + Math.trunc(((x - 64) * (x - 64)) / 55); d.pixel(x, y); d.pixel(x, y + 1); } };
+    const frown = (yb, w) => { for (let x = 64 - w; x <= 64 + w; x += 2) { const y = yb - Math.trunc(((x - 64) * (x - 64)) / 55); d.pixel(x, y); d.pixel(x, y + 1); } };
+    const oMouth = (cx, cy, r) => { d.drawCircle(cx, cy, r); d.drawCircle(cx, cy, r - 1); };
+    const F = {
+      neutral() { d.clear(); eyes(9); },
+      closed() { d.clear(); d.rect(31, 26, 18, 4); d.rect(79, 26, 18, 4); },
+      happy1() { d.clear(); eyes(9); },
+      happy2() { d.clear(); happyEye(40, 28); happyEye(88, 28); smile(46, 12); },
+      happy3() { d.clear(); happyEye(40, 28); happyEye(88, 28); smile(44, 20); },
+      sad2() { d.clear(); sadEye(40, 28); sadEye(88, 28); frown(54, 18); },
+      sad3() { d.clear(); sadEye(40, 28); sadEye(88, 28); frown(54, 18); d.fillCircle(34, 40, 3); },
+      surprised2() { d.clear(); eyes(15); oMouth(64, 50, 6); },
+      angry2() { d.clear(); angryEye(40, 28); angryEye(88, 28); frown(52, 14); }
+    };
+
+    let busy = 0, lastActive = performance.now(), stage;
+    const tilt = (angle) => { bot.style.setProperty('--tilt', ((angle - 90) * 0.4) + 'deg'); };
+    const note = (hz, secs) => { floatNote(notes, hz); Sound.beep(hz, secs); };
+    const happyFace = async (sleep) => { F.happy1(); await sleep(0.15); F.happy2(); await sleep(0.15); F.happy3(); };
+
+    stage = {
+      reset() { busy = 0; F.neutral(); tilt(90); notes.innerHTML = ''; lastActive = performance.now(); },
+      note, print: (t) => sensors.print(t),
+      head(angle) { tilt(angle); },
+      async say(text, secs, sleep) {
+        busy++;
+        try { d.clear(); d.text(text); await sleep(secs); F.neutral(); } finally { busy--; lastActive = performance.now(); }
+      },
+      async react(cmd, sleep) {
+        busy++;
+        try {
+          const C = 90, L = 50, R = 130;
+          switch (cmd) {
+            case 'happy': await happyFace(sleep); tilt(C + 15); note(523, 0.15); await sleep(0.16); note(659, 0.15); await sleep(0.16); note(784, 0.25); await sleep(0.26); tilt(C); break;
+            case 'sad': F.happy1(); await sleep(0.15); F.sad2(); await sleep(0.2); F.sad3(); tilt(C - 20); note(400, 0.3); await sleep(0.32); note(300, 0.3); await sleep(0.32); note(200, 0.5); await sleep(0.52); tilt(C); break;
+            case 'surprised': F.happy1(); await sleep(0.1); F.surprised2(); tilt(C - 25); note(1200, 0.12); await sleep(0.13); await sleep(0.2); tilt(C); break;
+            case 'angry': F.happy1(); await sleep(0.1); F.angry2(); for (let i = 0; i < 3; i++) { tilt(L + 20); await sleep(0.08); tilt(R - 20); await sleep(0.08); } tilt(C); note(150, 0.4); await sleep(0.42); break;
+            case 'sleepy': F.closed(); await sleep(0.6); F.neutral(); break;
+            case 'left': tilt(L); await sleep(0.4); tilt(C); break;
+            case 'right': tilt(R); await sleep(0.4); tilt(C); break;
+            case 'neutral': F.neutral(); tilt(C); break;
+            case 'celebrate':
+              for (let i = 0; i < 2; i++) { await happyFace(sleep); tilt(L + 20); note(784, 0.1); await sleep(0.12); tilt(R - 20); note(988, 0.1); await sleep(0.12); }
+              tilt(C); break;
+          }
+        } finally { busy--; lastActive = performance.now(); }
+      }
+    };
+    F.neutral(); tilt(90);
+    const blink = setInterval(() => {
+      if (!mount.isConnected) { clearInterval(blink); return; }
+      if (busy === 0 && performance.now() - lastActive > 4000) { F.closed(); setTimeout(() => { if (busy === 0) F.neutral(); }, 150); lastActive = performance.now(); }
+    }, 500);
+    return { stage, controls: '' };
+  }
+
+  /* ---------- Chip Bot ---------- */
+  function chipbot(mount, sensors) {
+    mount.innerHTML =
+      '<div class="cb-scene"><div class="cb-sun"></div><div class="cb-ground"><div class="cb-track"></div></div>' +
+      '<div class="cb-obstacle"><span>📦</span></div>' +
+      '<div class="cb-bot"><div class="cb-body"><div class="cb-eyes"><i></i><i></i></div><div class="cb-mouth"></div></div>' +
+      '<div class="cb-legs"><b class="cb-leg l"></b><b class="cb-leg r"></b></div></div>' +
+      '<div class="cb-dist">📏 <b>50</b> cm</div><div class="notes"></div></div>';
+    const scene = $(mount, '.cb-scene'), bot = $(mount, '.cb-bot'), notes = $(mount, '.notes');
+    const obs = $(mount, '.cb-obstacle'), distEl = $(mount, '.cb-dist b');
+    const apply = () => {
+      const dcm = sensors.distance;
+      distEl.textContent = Math.round(dcm);
+      obs.style.left = (30 + (dcm / 50) * 52) + '%';
+    };
+    sensors.on('distance', apply); apply();
+    const clear = () => { scene.className = 'cb-scene'; bot.className = 'cb-bot'; };
+    const stage = {
+      reset() { clear(); notes.innerHTML = ''; scene.style.setProperty('--T', '1s'); },
+      idle() { clear(); },
+      walk(dir, T) { clear(); scene.style.setProperty('--T', T + 's'); scene.classList.add(dir === 'fwd' ? 'moving-f' : 'moving-b'); bot.classList.add('walking'); },
+      turn(dir, T) { clear(); scene.style.setProperty('--T', T + 's'); bot.classList.add(dir === 'left' ? 'turn-l' : 'turn-r'); },
+      dance(m, per) { clear(); scene.style.setProperty('--T', Math.max(0.5, per) + 's'); bot.classList.add('dancing', 'dance-' + (Number(m) % 4)); },
+      note(hz, secs) { floatNote(notes, hz); Sound.beep(hz, secs); },
+      print: (t) => sensors.print(t)
+    };
+    const controls = '<label class="slider"><span>📏 Something in front of Chip Bot</span><input type="range" min="3" max="50" step="1" data-s="distance"><output></output></label>';
+    return { stage, controls };
+  }
+
+  /* ---------- Jarvis ---------- */
+  const LED = { red: '#ff3b3b', green: '#35d07f', blue: '#3b82ff', yellow: '#ffd93b', cyan: '#2de2e6', purple: '#b06bff', white: '#ffffff', off: '#59606e' };
+  function jarvis(mount, sensors) {
+    mount.innerHTML =
+      '<div class="jv-scene"><svg viewBox="0 0 320 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Terrarium">' +
+      '<defs><filter id="jvglow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="9"/></filter></defs>' +
+      '<g class="jv-sun"><circle cx="58" cy="52" r="26" fill="#ffd93b"/><g stroke="#ffd93b" stroke-width="5" stroke-linecap="round">' +
+      '<path d="M58 8v10M58 86v10M14 52h10M92 52h10M27 21l7 7M82 76l7 7M89 21l-7 7M34 76l-7 7"/></g></g>' +
+      '<g class="jv-lamp"><rect x="244" y="26" width="10" height="30" rx="4" fill="#b8bfd0"/><circle class="glow" cx="249" cy="30" r="26" fill="#59606e" filter="url(#jvglow)" opacity="0"/>' +
+      '<circle class="bulb" cx="249" cy="30" r="15" fill="#59606e" stroke="#fff" stroke-width="3"/></g>' +
+      '<path d="M70 120h180c8 0 12 5 12 12v112c0 14-10 24-24 24H82c-14 0-24-10-24-24V132c0-7 4-12 12-12z" fill="#e6f6ff" fill-opacity=".55" stroke="#9cc4e4" stroke-width="5"/>' +
+      '<rect class="soil" x="62" y="204" width="196" height="60" rx="14" fill="#8a5a2b"/>' +
+      '<g class="plant"><path class="stem" d="M160 210 C160 180 160 160 160 140" stroke="#3aa85c" stroke-width="7" fill="none" stroke-linecap="round"/>' +
+      '<g class="leafL"><ellipse cx="136" cy="152" rx="26" ry="12" fill="#43c06b"/></g><g class="leafR"><ellipse cx="184" cy="148" rx="26" ry="12" fill="#43c06b"/></g>' +
+      '<ellipse class="leafT" cx="160" cy="132" rx="12" ry="22" fill="#4fd079"/></g>' +
+      '<text class="jv-buzz" x="286" y="152" font-size="26" opacity="0">🔔</text></svg><div class="notes"></div></div>';
+    const q = (s) => mount.querySelector(s), notes = $(mount, '.notes');
+    const soilEl = q('.soil'), plant = q('.plant'), sun = q('.jv-sun'), bulb = q('.bulb'), glow = q('.glow');
+    const leaves = mount.querySelectorAll('.leafL ellipse,.leafR ellipse,.leafT');
+    const lerp = (a, b, t) => Math.round(a + (b - a) * t);
+    const mix = (c1, c2, t) => 'rgb(' + c1.map((v, i) => lerp(v, c2[i], t)).join(',') + ')';
+    const update = () => {
+      const w = sensors.soil / 100, l = sensors.light / 100;
+      soilEl.setAttribute('fill', mix([201, 162, 106], [96, 60, 30], w));
+      const leafCol = mix([196, 172, 70], [67, 192, 107], Math.min(1, w * 1.4));
+      leaves.forEach((e) => e.setAttribute('fill', leafCol));
+      plant.style.transformOrigin = '160px 210px';
+      plant.style.transform = 'rotate(' + ((1 - w) * 12) + 'deg) scaleY(' + (0.8 + w * 0.2) + ')';
+      sun.style.opacity = 0.2 + l * 0.8;
+      sun.style.transformOrigin = '58px 52px';
+      sun.style.transform = 'scale(' + (0.8 + l * 0.35) + ')';
+    };
+    sensors.on('soil', update); sensors.on('light', update); update();
+    let buzzT = 0;
+    const stage = {
+      reset() { stage.led('off'); notes.innerHTML = ''; },
+      led(color) { const c = LED[color] || LED.off; bulb.setAttribute('fill', c); glow.setAttribute('fill', c); glow.setAttribute('opacity', color === 'off' ? 0 : 0.85); },
+      note(hz, secs) {
+        floatNote(notes, hz); Sound.beep(hz, secs);
+        const b = q('.jv-buzz'); b.setAttribute('opacity', 1); clearTimeout(buzzT); buzzT = setTimeout(() => b.setAttribute('opacity', 0), secs * 1000 + 100);
+      },
+      print: (t) => sensors.print(t)
+    };
+    stage.led('off');
+    const controls =
+      '<label class="slider"><span>🌱 Soil wetness</span><input type="range" min="0" max="100" step="1" data-s="soil"><output></output></label>' +
+      '<label class="slider"><span>☀️ Light</span><input type="range" min="0" max="100" step="1" data-s="light"><output></output></label>';
+    return { stage, controls };
+  }
+
+  return { make: { peeko, chipbot, jarvis }, Sound };
+});
+
+</script>
+<script>
+/* Peeko's Brain: turns what the Teachable Machine model sees into a Peeko command. */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.CampBrain = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+  // the words Peeko's sketch already understands over USB
+  const REACTIONS = [
+    ['happy', '😊 happy'], ['sad', '😢 sad'], ['surprised', '😲 surprised'], ['angry', '😠 angry'], ['sleepy', '😴 sleepy'],
+    ['celebrate', '🎉 celebrate'], ['neutral', '😐 neutral'], ['left', '⬅️ look left'], ['right', '➡️ look right'], ['nothing', '🚫 do nothing']
+  ];
+  const IDS = REACTIONS.map((r) => r[0]);
+  const MODEL_URL = /^https:\/\/teachablemachine\.withgoogle\.com\/models\/([A-Za-z0-9_-]+)\/?$/;
+
+  function modelBase(link) {
+    const m = String(link || '').trim().match(MODEL_URL);
+    return m ? 'https://teachablemachine.withgoogle.com/models/' + m[1] + '/' : null;
+  }
+  function cleanMapping(labels, mapping) {
+    const out = {};
+    labels.forEach((l) => { out[l] = mapping && IDS.indexOf(mapping[l]) >= 0 ? mapping[l] : 'nothing'; });
+    return out;
+  }
+  function newState() { return { candidate: null, count: 0, current: null, lastTime: -1e9, lastSent: -1e9 }; }
+
+  // preds: [{className, probability}]. Returns a command to send, or null.
+  // A class has to win a few frames in a row, so one blurry frame doesn't trigger Peeko.
+  function decide(preds, mapping, opts, st, now) {
+    const o = Object.assign({ threshold: 0.85, frames: 3, repeatMs: 6000, gapMs: 1800 }, opts);
+    let top = null;
+    (preds || []).forEach((p) => { if (!top || p.probability > top.probability) top = p; });
+    if (!top || top.probability < o.threshold) { st.candidate = null; st.count = 0; st.current = null; return null; }
+    if (top.className === st.candidate) st.count++; else { st.candidate = top.className; st.count = 1; }
+    if (st.count < o.frames) return null;
+    const changed = st.current !== top.className, due = now - st.lastTime >= o.repeatMs;
+    if (!changed && !due) return null;
+    if (now - st.lastSent < o.gapMs) return null;
+    st.current = top.className; st.lastTime = now;
+    const react = mapping && mapping[top.className];
+    if (!react || react === 'nothing' || IDS.indexOf(react) < 0) return null;
+    st.lastSent = now;
+    return react;
+  }
+
+  return { REACTIONS, modelBase, cleanMapping, newState, decide };
+});
+
+</script>
+<script>
+/* Peeko's Brain: a Teachable Machine model watches the camera and Peeko reacts. */
+(function () {
+  'use strict';
+  const Brain = CampBrain;
+  const $ = (s) => document.querySelector(s);
+  const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+  const TF = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js';
+  const TM = 'https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js';
+
+  const S = { model: null, webcam: null, labels: [], mapping: {}, writer: null, port: null, running: false, st: Brain.newState() };
+  let toastT = 0;
+  function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2400); }
+  function say(id, msg, kind) { const n = $(id); n.textContent = msg; n.className = 'status' + (kind ? ' ' + kind : ''); }
+
+  /* ---------- the on-screen Peeko ---------- */
+  const sensors = { print(t) { const s = $('#serial'), d = el('div'); d.textContent = t; s.appendChild(d); while (s.children.length > 30) s.children[1].remove(); s.scrollTop = s.scrollHeight; } };
+  const stage = CampStages.make.peeko($('#scene'), sensors).stage;
+  stage.reset();
+  const sleep = (sec) => new Promise((r) => setTimeout(r, sec * 1000));
+  $('#soundBtn').onclick = () => { CampStages.Sound.on = !CampStages.Sound.on; $('#soundBtn').textContent = CampStages.Sound.on ? '🔊' : '🔇'; $('#soundBtn').setAttribute('aria-pressed', CampStages.Sound.on); };
+
+  /* ---------- the libraries load only when they are needed ---------- */
+  function loadScript(src) {
+    return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('Could not load ' + src)); document.head.appendChild(s); });
+  }
+  async function ensureLibs() {
+    if (window.tmImage) return;
+    say('#modelStatus', 'Getting the AI tools ready (needs the internet)...');
+    await loadScript(TF); await loadScript(TM);
+  }
+
+  /* ---------- step 2: load the model ---------- */
+  function gotModel(model) {
+    S.model = model; S.labels = model.getClassLabels(); S.mapping = Brain.cleanMapping(S.labels, {}); S.st = Brain.newState();
+    renderMapping(); renderBars(S.labels.map((l) => ({ className: l, probability: 0 })));
+    say('#modelStatus', 'Loaded: ' + S.labels.length + ' classes (' + S.labels.join(', ') + ')', 'good');
+    $('#start').disabled = false;
+  }
+  $('#loadLink').onclick = async () => {
+    const base = Brain.modelBase($('#link').value);
+    if (!base) { say('#modelStatus', 'That is not a Teachable Machine link. It starts with https://teachablemachine.withgoogle.com/models/', 'bad'); return; }
+    try { await ensureLibs(); say('#modelStatus', 'Loading your model...'); gotModel(await tmImage.load(base + 'model.json', base + 'metadata.json')); }
+    catch (e) { console.error(e); say('#modelStatus', 'Could not load that model. Check the link and the internet, then try again.', 'bad'); }
+  };
+  $('#files').onchange = async (e) => {
+    const f = Array.from(e.target.files), by = (re) => f.find((x) => re.test(x.name));
+    const m = by(/^model.*\.json$/i), md = by(/^metadata.*\.json$/i), w = by(/\.bin$/i);
+    if (!m || !md || !w) { say('#modelStatus', 'Choose all three files: model.json, metadata.json and weights.bin', 'bad'); return; }
+    try { await ensureLibs(); gotModel(await tmImage.loadFromFiles(m, w, md)); }
+    catch (err) { console.error(err); say('#modelStatus', 'Could not read those files.', 'bad'); }
+  };
+
+  /* ---------- step 3: Peeko over USB ---------- */
+  $('#connect').onclick = async () => {
+    if (!('serial' in navigator)) { say('#serialStatus', 'This browser cannot talk to Peeko. Use Chrome or Edge.', 'bad'); return; }
+    try {
+      S.port = await navigator.serial.requestPort();
+      await S.port.open({ baudRate: 9600 });
+      S.writer = S.port.writable.getWriter();
+      say('#serialStatus', 'Connected. Give Peeko two seconds to wake up.', 'good');
+    } catch (e) { say('#serialStatus', 'Could not connect: ' + (e && e.name === 'NotFoundError' ? 'no port was chosen.' : 'is the Arduino IDE or another tab using it?'), 'bad'); }
+  };
+  async function send(cmd) {
+    if (!S.writer) return;
+    try { await S.writer.write(new TextEncoder().encode(cmd + '\n')); } catch (e) { say('#serialStatus', 'Lost the connection to Peeko.', 'bad'); S.writer = null; }
+  }
+
+  /* ---------- step 4: what Peeko does ---------- */
+  function renderMapping() {
+    const box = $('#mapping'); box.innerHTML = '';
+    S.labels.forEach((l) => {
+      const row = el('div', 'maprow'), name = el('b'); name.textContent = l;
+      const sel = el('select'); Brain.REACTIONS.forEach((r) => { const o = el('option'); o.value = r[0]; o.textContent = r[1]; sel.appendChild(o); });
+      sel.value = S.mapping[l]; sel.setAttribute('aria-label', 'What Peeko does for ' + l);
+      sel.onchange = () => { S.mapping[l] = sel.value; };
+      const bar = el('div', 'bar', '<i></i>'); bar.dataset.label = l;
+      row.appendChild(name); row.appendChild(sel); row.appendChild(bar); box.appendChild(row);
+    });
+  }
+  function renderBars(preds) {
+    preds.forEach((p) => { const b = document.querySelector('.bar[data-label="' + CSS.escape(p.className) + '"] i'); if (b) b.style.width = Math.round(p.probability * 100) + '%'; });
+    const box = $('#bars'); box.innerHTML = '';
+    preds.forEach((p) => { const d = el('div'); d.innerHTML = '<span></span><i></i><span class="p"></span>'; d.children[0].textContent = p.className; d.children[1].style.width = Math.round(p.probability * 100) + '%'; d.children[2].textContent = Math.round(p.probability * 100) + '%'; box.appendChild(d); });
+  }
+  $('#sure').oninput = () => { $('#sureOut').textContent = $('#sure').value + '%'; };
+
+  /* ---------- the loop ---------- */
+  function react(cmd) {
+    say('#runStatus', 'Peeko: ' + cmd, 'good');
+    stage.react(cmd, sleep);
+    send(cmd);
+  }
+  function step(preds) {
+    renderBars(preds);
+    const cmd = Brain.decide(preds, S.mapping, { threshold: Number($('#sure').value) / 100 }, S.st, performance.now());
+    if (cmd) react(cmd);
+  }
+  async function loop() {
+    if (!S.running) return;
+    S.webcam.update();
+    try { step(await S.model.predict(S.webcam.canvas)); } catch (e) { console.error(e); }
+    requestAnimationFrame(loop);
+  }
+  $('#start').onclick = async () => {
+    if (S.running) { S.running = false; if (S.webcam) S.webcam.stop(); $('#cam').innerHTML = '<span class="camhint">Your camera shows here</span>'; $('#start').textContent = "▶ Start Peeko's brain"; say('#runStatus', 'Stopped.'); return; }
+    try {
+      say('#runStatus', 'Starting the camera...');
+      S.webcam = new tmImage.Webcam(224, 224, true);
+      await S.webcam.setup(); await S.webcam.play();
+      $('#cam').innerHTML = ''; $('#cam').appendChild(S.webcam.canvas);
+      S.st = Brain.newState(); S.running = true; $('#start').textContent = '■ Stop'; say('#runStatus', 'Watching...', 'good');
+      requestAnimationFrame(loop);
+    } catch (e) { console.error(e); say('#runStatus', 'Could not start the camera. Allow camera access and try again.', 'bad'); }
+  };
+
+  window.__brain = { S, step, gotModel };
+})();
+
+</script>
+</body>
+</html>

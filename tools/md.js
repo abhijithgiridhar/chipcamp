@@ -1,5 +1,4 @@
-// A tiny Markdown to HTML converter, just enough for the session-plan files:
-// headings, tables, lists (with checkboxes), blockquotes, code fences, rules, bold, italics, code and links.
+// Small Markdown to HTML converter for the session-plan files.
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 function inline(s) {

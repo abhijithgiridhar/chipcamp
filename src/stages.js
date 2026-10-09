@@ -1,5 +1,4 @@
-/* Camp Blocks stages: the little on-screen robots that run the student's blocks.
-   Peeko's faces are a canvas port of the drawing code in the tested Peeko sketch. */
+/* The on-screen robots. Peeko's faces are drawn the same way as in the Peeko sketch. */
 (function (root, factory) {
   root.CampStages = factory();
 })(typeof self !== 'undefined' ? self : this, function () {

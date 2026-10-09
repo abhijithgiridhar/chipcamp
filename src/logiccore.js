@@ -1,4 +1,4 @@
-/* The CHIP Challenge: levels + engine. No DOM here so Node can prove every level is solvable. */
+/* CHIP Challenge: levels and the maze engine. */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.LogicCore = factory();

@@ -392,7 +392,7 @@
       sleep: async (sec) => { let left = sec * 1000 / S.speed; while (left > 0) { if (stopFlag) throw Runtime.STOP; const dt = Math.min(left, 40); await new Promise((r) => setTimeout(r, dt)); left -= dt; } }
     };
     try { await Runtime.runProgram(S.proj, st, ctx); }
-    catch (e) { console.error(e); toast('Oops, the preview hit a problem'); }
+    catch (e) { console.error(e); toast('The preview hit a problem'); }
     $$('.blk.running').forEach((b) => b.classList.remove('running'));
     running = false; $('#runBtn').hidden = false; $('#stopBtn').hidden = true;
   }

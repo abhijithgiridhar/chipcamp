@@ -313,8 +313,8 @@ a.btn{text-decoration:none}
 
 </script>
 <script>
-/* Camp Blocks core: block definitions + code generator. No DOM in here, so Node can test it.
-   The tested base sketches live in ../firmware/*.base.ino; this file only fills in the student parts. */
+/* Code Builder core: block definitions and the sketch generator.
+   The base sketches are in ../firmware/*.base.ino. This file only fills in the student parts. */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory(require('fs'), require('path'));
   else root.CampCore = factory(null, null);
@@ -388,9 +388,13 @@ a.btn{text-decoration:none}
   const noteBlock = (fn, who) => B('note', 'sound', [who, choice('note', 'C', NOTES.map((n) => [n[0], n[1]])), ' for ', num('secs', 0.3, 0.1, 3, 0.1), ' seconds'], {
     code: (p) => [fn + '(' + noteHz(p.note) + ', ' + V(fmtF(p.secs)) + ');  // ' + V(noteName(p.note))]
   });
-  const helloBlock = (cat) => B('hello', cat, ['say hello in the Serial Monitor'], {
-    code: () => ['Serial.print(F("Hi! I\'m "));', 'Serial.print(ROBOT_NAME);', 'Serial.print(F(", built by "));', 'Serial.println(BUILDER_NAME);']
-  });
+  // flash = true when the name constants live in PROGMEM (Peeko), which needs the cast to print
+  const helloBlock = (cat, flash) => {
+    const nm = (x) => (flash ? '(const __FlashStringHelper*)' + x : x);
+    return B('hello', cat, ['say hello in the Serial Monitor'], {
+      code: () => ['Serial.print(F("Hi! I\'m "));', 'Serial.print(' + nm('ROBOT_NAME') + ');', 'Serial.print(F(", built by "));', 'Serial.println(' + nm('BUILDER_NAME') + ');']
+    });
+  };
 
   /* ---------- the three projects ---------- */
   const PROJECTS = {
@@ -422,6 +426,7 @@ a.btn{text-decoration:none}
           code: (p) => ['headServo.write(' + V(p.deg) + ');']
         }),
         noteBlock('playNote', 'play note '),
+        helloBlock('looks', true),
         WAIT, REPEAT,
         B('if_coin', 'chance', ['if coin flip lands ', choice('side', 'heads', [['heads', 'heads'], ['tails', 'tails']])], {
           shape: 'c', canElse: true,
@@ -473,6 +478,7 @@ a.btn{text-decoration:none}
         B('dance', 'motion', ['dance ', choice('move', '0', [['0', 'swing'], ['1', 'tiptoe swing'], ['2', 'up and down'], ['3', 'jitter'], ['4', 'moonwalk left'], ['5', 'moonwalk right'], ['6', 'flapping'], ['7', 'shake right leg'], ['8', 'shake left leg'], ['9', 'bend right'], ['10', 'bend left']]), ' ', num('reps', 2, 1, 8, 1), ' times'], {
           code: (p) => ['doDance(' + V(p.move) + ', ' + V(p.reps) + ');']
         }),
+        B('centre', 'motion', ['hold the legs at 90° for ', num('secs', 20, 5, 60, 5), ' seconds'], { code: (p) => ['centreServos(' + V(p.secs) + ');   // fit the servo horns now'] }),
         B('stand', 'motion', ['stand still'], { code: () => ['doRest();'] }),
         B('speed', 'motion', ['walk speed ', choice('level', '1', [['0', 'slow'], ['1', 'normal'], ['2', 'fast']])], {
           code: (p) => ['doSpeed(' + V(p.level) + ');']
@@ -638,7 +644,7 @@ a.btn{text-decoration:none}
     const rule = '// ============================================================';
     const header = [
       rule,
-      '//  ' + P.name.toUpperCase() + '  —  built by ' + V(builder),
+      '//  ' + P.name.toUpperCase() + ' - built by ' + V(builder),
       '//  Robot name: ' + V(robot),
       '//  Made with Camp Blocks' + (date ? ' · ' + V(date) : ''),
       rule
@@ -679,9 +685,8 @@ a.btn{text-decoration:none}
 
 </script>
 <script>
-/* Camp Studio core: the "designs" students make in the Face / Dance / Light studios, and how a design turns into
-   Code Builder blocks. No DOM in here, so Node can test it. A design only ever picks from the tested vocabulary
-   (the faces, moves, colours and notes the base sketches already know), so any design makes a sketch that compiles. */
+/* Studio core: what students design in the Face, Dance and Light studios, and how a design becomes Code Builder blocks.
+   A design only picks faces, moves, colours and notes the base sketches already have, so it always compiles. */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory(require('./core.js'));
   else root.CampStudio = factory(root.CampCore);
@@ -718,7 +723,7 @@ a.btn{text-decoration:none}
     return { dryPct: 40, dryColor: 'red', dryAlarm: true, darkPct: 30, darkColor: 'blue', okColor: 'green', checkSecs: 2 };
   }
 
-  // Anything stored or pasted is untrusted: rebuild it from scratch, keeping only valid choices and in-range numbers.
+  // Rebuild stored or pasted designs from scratch: valid choices only, numbers in range.
   function clean(proj, d) {
     d = d && typeof d === 'object' ? d : {};
     if (proj === 'peeko') {
@@ -808,8 +813,7 @@ a.btn{text-decoration:none}
 
 </script>
 <script>
-/* Camp Blocks runtime: runs the block tree against a "stage" (the on-screen robot) so students can
-   watch their logic before flashing. No DOM here, so Node can test it with a mock stage. */
+/* Code Builder runtime: runs the blocks on the on-screen robot so students can watch the logic before they upload. */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory(require('./core.js'));
   else root.CampRuntime = factory(root.CampCore);
@@ -857,6 +861,7 @@ a.btn{text-decoration:none}
         for (let i = 0; i < p.reps; i++) { c.stage.dance(m, per); await c.sleep(per); }
         c.stage.idle();
       },
+      centre: async (p, c) => { c.stage.idle(); await c.sleep(p.secs); },
       stand: async (p, c) => { c.stage.idle(); await c.sleep(0.5); },
       speed: async (p, c) => { c.speedLevel = Number(p.level); },
       cond_if_dist: (p, c) => (p.cmp === 'less' ? c.sensors.distance < p.cm : c.sensors.distance > p.cm)
@@ -917,8 +922,7 @@ a.btn{text-decoration:none}
 
 </script>
 <script>
-/* Camp Blocks stages: the little on-screen robots that run the student's blocks.
-   Peeko's faces are a canvas port of the drawing code in the tested Peeko sketch. */
+/* The on-screen robots. Peeko's faces are drawn the same way as in the Peeko sketch. */
 (function (root, factory) {
   root.CampStages = factory();
 })(typeof self !== 'undefined' ? self : this, function () {
@@ -1343,7 +1347,7 @@ a.btn{text-decoration:none}
     running = true; stopFlag = false;
     $('#runBtn').hidden = true; $('#stopBtn').hidden = false; $('#serial').innerHTML = '<b>Serial Monitor</b>';
     try { await fn(makeCtx()); }
-    catch (e) { if (e !== Runtime.STOP) { console.error(e); toast('Oops, the preview hit a problem'); } }
+    catch (e) { if (e !== Runtime.STOP) { console.error(e); toast('The preview hit a problem'); } }
     running = false; $('#runBtn').hidden = false; $('#stopBtn').hidden = true;
   }
   function currentState() { return Studio.toState(S.proj, S.design, { builder: ChipCamp.get().name, robot: '' }); }

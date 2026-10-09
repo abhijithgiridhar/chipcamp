@@ -272,8 +272,8 @@ body{background:var(--bg);margin:0}
 
 </script>
 <script>
-/* Circuit Lab core: parts, board + breadboard geometry, the netlist (what is connected to what), the wiring checker
-   for each robot, and a known-good solution. No DOM here so Node can test every rule. */
+/* Circuit Lab core: parts, board and breadboard layout, the netlist, the wiring checker for each robot, and the
+   finished circuit for each. */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.LabCore = factory();

@@ -1,5 +1,4 @@
-/* Camp Blocks runtime: runs the block tree against a "stage" (the on-screen robot) so students can
-   watch their logic before flashing. No DOM here, so Node can test it with a mock stage. */
+/* Code Builder runtime: runs the blocks on the on-screen robot so students can watch the logic before they upload. */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory(require('./core.js'));
   else root.CampRuntime = factory(root.CampCore);
@@ -47,6 +46,7 @@
         for (let i = 0; i < p.reps; i++) { c.stage.dance(m, per); await c.sleep(per); }
         c.stage.idle();
       },
+      centre: async (p, c) => { c.stage.idle(); await c.sleep(p.secs); },
       stand: async (p, c) => { c.stage.idle(); await c.sleep(0.5); },
       speed: async (p, c) => { c.speedLevel = Number(p.level); },
       cond_if_dist: (p, c) => (p.cmp === 'less' ? c.sensors.distance < p.cm : c.sensors.distance > p.cm)

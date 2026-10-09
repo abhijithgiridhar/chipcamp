@@ -22,6 +22,7 @@
 
     const SN = { chipbot: ['Dance Studio', 'Choose the moves for ' + label + '.'], peeko: ['Face Studio', 'Choose the faces for ' + label + '.'], jarvis: ['Light Studio', 'Choose the lights for ' + label + '.'] };
     $('#nStudio').textContent = r ? SN[r][0] : 'Studio'; $('#sStudio').textContent = r ? SN[r][1] : 'Design how your robot looks, moves or lights up.';
+    $('#tBrain').hidden = r !== 'peeko';
     const dz = r && ChipCamp.design(r); const ps = $('#pgStudio'); ps.textContent = dz ? 'Designed ✓' : 'Not yet'; ps.classList.toggle('done', !!dz);
 
     $('#sCode').textContent = r ? 'Build ' + label + "'s logic with blocks, then copy the code." : 'Build the logic with blocks, then copy your code.';

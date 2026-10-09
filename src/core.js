@@ -1,5 +1,5 @@
-/* Camp Blocks core: block definitions + code generator. No DOM in here, so Node can test it.
-   The tested base sketches live in ../firmware/*.base.ino; this file only fills in the student parts. */
+/* Code Builder core: block definitions and the sketch generator.
+   The base sketches are in ../firmware/*.base.ino. This file only fills in the student parts. */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory(require('fs'), require('path'));
   else root.CampCore = factory(null, null);
@@ -73,9 +73,13 @@
   const noteBlock = (fn, who) => B('note', 'sound', [who, choice('note', 'C', NOTES.map((n) => [n[0], n[1]])), ' for ', num('secs', 0.3, 0.1, 3, 0.1), ' seconds'], {
     code: (p) => [fn + '(' + noteHz(p.note) + ', ' + V(fmtF(p.secs)) + ');  // ' + V(noteName(p.note))]
   });
-  const helloBlock = (cat) => B('hello', cat, ['say hello in the Serial Monitor'], {
-    code: () => ['Serial.print(F("Hi! I\'m "));', 'Serial.print(ROBOT_NAME);', 'Serial.print(F(", built by "));', 'Serial.println(BUILDER_NAME);']
-  });
+  // flash = true when the name constants live in PROGMEM (Peeko), which needs the cast to print
+  const helloBlock = (cat, flash) => {
+    const nm = (x) => (flash ? '(const __FlashStringHelper*)' + x : x);
+    return B('hello', cat, ['say hello in the Serial Monitor'], {
+      code: () => ['Serial.print(F("Hi! I\'m "));', 'Serial.print(' + nm('ROBOT_NAME') + ');', 'Serial.print(F(", built by "));', 'Serial.println(' + nm('BUILDER_NAME') + ');']
+    });
+  };
 
   /* ---------- the three projects ---------- */
   const PROJECTS = {
@@ -107,6 +111,7 @@
           code: (p) => ['headServo.write(' + V(p.deg) + ');']
         }),
         noteBlock('playNote', 'play note '),
+        helloBlock('looks', true),
         WAIT, REPEAT,
         B('if_coin', 'chance', ['if coin flip lands ', choice('side', 'heads', [['heads', 'heads'], ['tails', 'tails']])], {
           shape: 'c', canElse: true,
@@ -158,6 +163,7 @@
         B('dance', 'motion', ['dance ', choice('move', '0', [['0', 'swing'], ['1', 'tiptoe swing'], ['2', 'up and down'], ['3', 'jitter'], ['4', 'moonwalk left'], ['5', 'moonwalk right'], ['6', 'flapping'], ['7', 'shake right leg'], ['8', 'shake left leg'], ['9', 'bend right'], ['10', 'bend left']]), ' ', num('reps', 2, 1, 8, 1), ' times'], {
           code: (p) => ['doDance(' + V(p.move) + ', ' + V(p.reps) + ');']
         }),
+        B('centre', 'motion', ['hold the legs at 90° for ', num('secs', 20, 5, 60, 5), ' seconds'], { code: (p) => ['centreServos(' + V(p.secs) + ');   // fit the servo horns now'] }),
         B('stand', 'motion', ['stand still'], { code: () => ['doRest();'] }),
         B('speed', 'motion', ['walk speed ', choice('level', '1', [['0', 'slow'], ['1', 'normal'], ['2', 'fast']])], {
           code: (p) => ['doSpeed(' + V(p.level) + ');']
@@ -323,7 +329,7 @@
     const rule = '// ============================================================';
     const header = [
       rule,
-      '//  ' + P.name.toUpperCase() + '  —  built by ' + V(builder),
+      '//  ' + P.name.toUpperCase() + ' - built by ' + V(builder),
       '//  Robot name: ' + V(robot),
       '//  Made with Camp Blocks' + (date ? ' · ' + V(date) : ''),
       rule

@@ -1,0 +1,48 @@
+<header class="topbar">
+  <a class="homebtn" href="index.html" title="Back to the Chip Camp welcome screen" aria-label="Home">🏠</a>
+  <div class="brand"><span class="logo" aria-hidden="true"><i style="background:#FF6B5E"></i><i style="background:#FFBF00"></i><i style="background:#9966FF"></i><i style="background:#4C97FF"></i></span>Peeko's Brain</div>
+  <div class="spacer"></div>
+</header>
+
+<main class="brain">
+  <section class="card bsteps" aria-label="Steps">
+    <ol>
+      <li class="bstep">
+        <h2><span class="n">1</span>Teach it</h2>
+        <p>Open Teachable Machine, choose <b>Image Project</b>, then <b>Standard image model</b>. Make 2 to 4 classes, for example <i>Happy me</i>, <i>Sad me</i>, <i>Thumbs up</i> and <i>Nobody</i>. Record about 40 pictures of each, then press <b>Train Model</b>.</p>
+        <a class="btn" href="https://teachablemachine.withgoogle.com/train/image" target="_blank" rel="noopener">Open Teachable Machine ↗</a>
+      </li>
+      <li class="bstep">
+        <h2><span class="n">2</span>Load your model</h2>
+        <p>In Teachable Machine press <b>Export Model</b>, then <b>Upload my model</b>, and copy the link. Paste it here.</p>
+        <div class="row"><input id="link" type="url" placeholder="https://teachablemachine.withgoogle.com/models/..." spellcheck="false" autocomplete="off"><button class="btn go" id="loadLink">Load</button></div>
+        <details class="alt"><summary>No link? Use the downloaded files</summary>
+          <p>Export Model, then <b>Download</b>, unzip it, and choose all three files: <code>model.json</code>, <code>metadata.json</code> and <code>weights.bin</code>.</p>
+          <input id="files" type="file" multiple accept=".json,.bin">
+        </details>
+        <div class="status" id="modelStatus" role="status"></div>
+      </li>
+      <li class="bstep">
+        <h2><span class="n">3</span>Connect Peeko</h2>
+        <p>Plug Peeko into the laptop. You can try everything without it, because the Peeko on the right reacts too.</p>
+        <button class="btn" id="connect">🔌 Connect Peeko</button>
+        <div class="status" id="serialStatus" role="status"></div>
+      </li>
+      <li class="bstep">
+        <h2><span class="n">4</span>What should Peeko do?</h2>
+        <div id="mapping" class="mapping"><p class="empty">Load your model first.</p></div>
+        <label class="slider"><span>How sure must it be?</span><input id="sure" type="range" min="60" max="99" step="1" value="85"><output id="sureOut">85%</output></label>
+        <button class="btn go big" id="start" disabled>▶ Start Peeko's brain</button>
+        <div class="status" id="runStatus" role="status"></div>
+      </li>
+    </ol>
+  </section>
+
+  <aside class="card stagecard" aria-label="Peeko">
+    <div class="stagehead"><h2>👀 Peeko</h2><button class="btn small" id="soundBtn" title="Sound on/off" aria-pressed="false">🔇</button></div>
+    <div class="scene" id="scene"></div>
+    <div class="camwrap"><div id="cam" class="cam"><span class="camhint">Your camera shows here</span></div><div id="bars" class="bars"></div></div>
+    <div class="serial" id="serial"><b>Serial Monitor</b></div>
+  </aside>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>

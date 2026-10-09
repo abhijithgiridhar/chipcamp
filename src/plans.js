@@ -1,4 +1,4 @@
-/* Facilitator area: decrypts the session plans with the password (the page itself only holds the encrypted text). */
+/* Facilitator area. The page only holds the encrypted plans; the password decrypts them here. */
 (function () {
   'use strict';
   const $ = (s) => document.querySelector(s);

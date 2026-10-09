@@ -1,4 +1,4 @@
-// node tests/studio_tests.js   Designer studios: every design makes valid blocks, valid code, and runs in the preview
+// node tests/studio_tests.js
 const assert = require('assert');
 const Core = require('../src/core.js');
 const Studio = require('../src/studiocore.js');
