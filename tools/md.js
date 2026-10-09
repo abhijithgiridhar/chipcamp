@@ -9,6 +9,7 @@ function inline(s) {
   s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (m, text, href) => {
     const doc = href.match(/^(?:\.\.?\/)?([\w-]+)\.md(?:#.*)?$/);
     if (doc) return '<a href="#doc=' + doc[1] + '">' + text + '</a>';
+    if (/^[\w-]+\.html$/.test(href)) return '<a href="' + href + '">' + text + '</a>';
     return /^https?:/.test(href) ? '<a href="' + href + '" target="_blank" rel="noopener">' + text + '</a>' : text;
   });
   return s;

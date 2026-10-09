@@ -1,0 +1,35 @@
+<main class="lock" id="lockView">
+  <form class="lockcard card" id="lockForm" autocomplete="off">
+    <div class="lockico" aria-hidden="true">🔒</div>
+    <h1>Presentations</h1>
+    <p>Slides for the camp team.</p>
+    <label for="pin">Password</label>
+    <input id="pin" type="password" inputmode="numeric" autocomplete="off" autofocus>
+    <button class="btn go big" type="submit">Unlock</button>
+    <div class="lockmsg" id="lockMsg" role="status" aria-live="polite"></div>
+  </form>
+</main>
+
+<section class="decks" id="indexView" hidden>
+  <header class="dtop">
+    <a class="homebtn" href="plans.html" title="Back to the facilitator area" aria-label="Back">←</a>
+    <h1>Presentations</h1>
+    <p>Open a deck, or download it as PowerPoint. Keys: arrows to move, N for speaker notes, F for full screen, G for the slide list.</p>
+  </header>
+  <div class="dgrid" id="dgrid"></div>
+</section>
+
+<section class="show" id="showView" hidden>
+  <div class="viewport" id="viewport"><div class="stage" id="stage"></div></div>
+  <div class="hud" id="hud">
+    <a class="hbtn" href="#" id="hIndex" title="All decks">⌂</a>
+    <div class="acts" id="acts"></div>
+    <span class="count" id="count"></span>
+    <button class="hbtn" id="hNotes" title="Speaker notes (N)">📝</button>
+    <button class="hbtn" id="hGrid" title="Slide list (G)">▦</button>
+    <button class="hbtn" id="hFull" title="Full screen (F)">⛶</button>
+  </div>
+  <div class="bar"><i id="bar"></i></div>
+  <aside class="speaker" id="notes" hidden></aside>
+  <aside class="grid" id="grid" hidden></aside>
+</section>

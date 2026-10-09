@@ -27,7 +27,7 @@
   function day2Label() { $('#day2Btn').textContent = ChipCamp.day2() ? '✓ Day 2 tools are unlocked on this laptop (tap to lock)' : '🔓 Unlock day 2 tools on this laptop'; }
   $('#day2Btn').onclick = () => { ChipCamp.setDay2(!ChipCamp.day2()); day2Label(); };
   function open(d) {
-    docs = d; $('#lockView').hidden = true; $('#plansView').hidden = false; $('#lockBtn').hidden = false; $('#day2Btn').hidden = false; day2Label(); show();
+    docs = d; $('#lockView').hidden = true; $('#plansView').hidden = false; $('#lockBtn').hidden = false; $('#day2Btn').hidden = false; $('#slidesBtn').hidden = false; day2Label(); show();
   }
   async function attempt(pin, quiet) {
     const msg = $('#lockMsg');
@@ -44,7 +44,7 @@
     }
   }
   $('#lockForm').onsubmit = (e) => { e.preventDefault(); $('#lockMsg').textContent = ''; attempt($('#pin').value.trim()); };
-  $('#lockBtn').onclick = () => { docs = null; try { sessionStorage.removeItem('chipcamp.plans'); } catch (e) { /* fine */ } $('#plansView').hidden = true; $('#lockView').hidden = false; $('#lockBtn').hidden = true; $('#day2Btn').hidden = true; $('#planBody').innerHTML = ''; $('#pin').value = ''; $('#pin').focus(); };
+  $('#lockBtn').onclick = () => { docs = null; try { sessionStorage.removeItem('chipcamp.plans'); } catch (e) { /* fine */ } $('#plansView').hidden = true; $('#lockView').hidden = false; $('#lockBtn').hidden = true; $('#day2Btn').hidden = true; $('#slidesBtn').hidden = true; $('#planBody').innerHTML = ''; $('#pin').value = ''; $('#pin').focus(); };
   window.addEventListener('hashchange', () => { if (docs) show(); });
   let saved = null; try { saved = sessionStorage.getItem('chipcamp.plans'); } catch (e) { /* fine */ }
   if (saved) attempt(saved, true);

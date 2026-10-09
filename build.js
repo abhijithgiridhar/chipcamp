@@ -60,3 +60,26 @@ pages.forEach((p) => {
   fs.writeFileSync(path.join(__dirname, 'plans.html'), html);
   console.log('built plans.html (' + Math.round(html.length / 1024) + ' KB, ' + docs.length + ' documents, encrypted)');
 })();
+
+// ---- Presentations: the decks (and their PowerPoint files, if made) encrypted the same way.
+// Run `python3 tools/make_pptx.py` first to make the PowerPoint files, then `node build.js`.
+(function buildSlides() {
+  const crypto = require('crypto');
+  let pin = process.env.PLANS_PIN || '';
+  if (!pin && exists('.plans-pin')) pin = R('.plans-pin').trim();
+  if (!exists('session-plan/decks') || !pin) { console.log('skip slides.html (needs session-plan/decks and PLANS_PIN or .plans-pin)'); return; }
+  const order = ['kickoff', 'chipbot', 'peeko', 'jarvis'];
+  const decks = order.filter((id) => exists('session-plan/decks/' + id + '.js')).map((id) => require('./session-plan/decks/' + id + '.js'));
+  const pptx = {};
+  decks.forEach((d) => { const f = 'session-plan/pptx/' + d.id + '.pptx'; if (exists(f)) pptx[d.id] = fs.readFileSync(path.join(__dirname, f)).toString('base64'); });
+  const salt = crypto.randomBytes(16), iv = crypto.randomBytes(12), ITER = 250000;
+  const key = crypto.pbkdf2Sync(pin, salt, ITER, 32, 'sha256');
+  const c = crypto.createCipheriv('aes-256-gcm', key, iv);
+  const enc = Buffer.concat([c.update(JSON.stringify({ decks, pptx }), 'utf8'), c.final(), c.getAuthTag()]);
+  const payload = { s: salt.toString('base64'), i: iv.toString('base64'), n: ITER, c: enc.toString('base64') };
+  const css = FONTS.tool + R('src/shared.css') + '\n' + R('src/stage.css') + '\n' + R('src/slides.css');
+  const html = '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<meta name="robots" content="noindex,nofollow">\n<title>Presentations · Chip Camp</title>\n<style>\n' + css + '\n</style>\n</head>\n<body>\n' + R('src/slides.html') +
+    '\n<script>window.DECKS_PAYLOAD = ' + JSON.stringify(payload) + ';</script>\n' + ['stages.js', 'art.js', 'slides.js'].map((j) => '<script>\n' + safe(R('src/' + j)) + '\n</script>').join('\n') + '\n</body>\n</html>\n';
+  fs.writeFileSync(path.join(__dirname, 'slides.html'), html);
+  console.log('built slides.html (' + Math.round(html.length / 1024) + ' KB, ' + decks.length + ' decks, ' + Object.keys(pptx).length + ' PowerPoint files, encrypted)');
+})();
