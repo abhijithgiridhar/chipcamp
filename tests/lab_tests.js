@@ -122,6 +122,13 @@ PROJECTS.forEach((proj) => {
   const resistors = sol.parts.filter((p) => p.type === 'resistor');
   const r10 = resistors.find((r) => r.ohms === 10000), r220 = resistors.filter((r) => r.ohms === 220);
   ok(resistors.length === 4 && r220.length === 3, 'solution should use one 10k and three 220 ohm resistors');
+  // the kit shows both resistors as separate parts, with the right number of each
+  const kit = Lab.INV.jarvis.filter((i) => i.type === 'resistor');
+  ok(kit.length === 2 && kit.some((i) => i.ohms === 10000 && i.qty === 1) && kit.some((i) => i.ohms === 220 && i.qty === 3), 'the Jarvis kit has a 10k resistor and three 220 ohm resistors');
+  const fresh = Lab.newState('jarvis');
+  const k10 = Lab.addPart(fresh, 'r10k'), k220 = [1, 2, 3].map(() => Lab.addPart(fresh, 'r220'));
+  ok(k10.ohms === 10000 && k220.every((r) => r.ohms === 220), 'each resistor comes with its own value');
+  ok(Lab.addPart(fresh, 'r10k') === null && Lab.addPart(fresh, 'r220') === null, 'you cannot take more resistors than the kit has');
   // 10k pull-down swapped for 220
   let s = clone(sol); s.parts.find((p) => p.id === r10.id).ohms = 220; let r = Lab.check('jarvis', s);
   ok(!r.complete && find(r, 'ldr.pulldown').status === 'bad' && /10kΩ/.test(find(r, 'ldr.pulldown').msg), 'wrong divider resistor value explained: ' + find(r, 'ldr.pulldown').msg);

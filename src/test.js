@@ -69,7 +69,7 @@
   function ledHelp() {
     return '<ol>' +
       '<li><b>Know your LED.</b> It has four legs. The <b>longest leg (K)</b> is the shared ground. The other three are red, green and blue.</li>' +
-      '<li><b>Know your resistors.</b> A resistor stops the LED from burning out. The three for the LED are <b>220 Ω</b>: bands <i>red, red, brown</i>. The one for the light sensor is <b>10 kΩ</b>: bands <i>brown, black, orange</i>. In the Circuit Lab, click a resistor to set its value and check the bands.</li>' +
+      '<li><b>Know your resistors.</b> A resistor stops the LED from burning out. The three for the LED are <b>220 Ω</b>: bands <i>red, red, brown</i>. The one for the light sensor is <b>10 kΩ</b>: bands <i>brown, black, orange</i>. Your kit in the Circuit Lab has both kinds. Match the bands.</li>' +
       '<li><b>Build one colour at a time.</b> Do red first: pin D9, then a 220 Ω resistor, then the LED\'s red leg. Upload the test sketch and check red comes on. Then add green (D10), then blue (D11). If a colour is wrong, you only have one wire to look at.</li>' +
       '<li><b>Last: the long leg to ground.</b> Connect the long leg (K) to the ground rail (the blue − line). Nothing lights without this step.</li></ol>' +
       '<div class="tip">The finished layout is in the Circuit Lab. Your facilitator can press <b>Show finished circuit</b> to compare.</div>';

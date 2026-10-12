@@ -73,7 +73,7 @@
     hcsr04: { name: 'Ultrasonic sensor (HC-SR04)', kind: 'pins', w: 124, h: 60, terms: { vcc: [-42, 32], trig: [-14, 32], echo: [14, 32], gnd: [42, 32] }, labels: { vcc: 'VCC', trig: 'TRIG', echo: 'ECHO', gnd: 'GND' }, note: 'Chip Bot\'s eyes. It measures distance with sound.' },
     oled: { name: 'OLED screen', kind: 'pins', w: 100, h: 66, terms: { gnd: [-36, -37], vcc: [-12, -37], scl: [12, -37], sda: [36, -37] }, labels: { gnd: 'GND', vcc: 'VCC', scl: 'SCL', sda: 'SDA' }, note: 'Peeko\'s eyes live on this little screen.' },
     ldr: { name: 'Light sensor (LDR)', kind: 'legs', w: 40, h: 30, legs: { a: [0, 0], b: [2 * P, 0] }, seatPitch: 2, note: 'Its resistance changes with light. It needs a partner resistor.' },
-    resistor: { name: 'Resistor', kind: 'legs', w: 66, h: 14, legs: { a: [0, 0], b: [4 * P, 0] }, seatPitch: 4, note: 'Click it to change its value.' },
+    resistor: { name: 'Resistor', kind: 'legs', w: 66, h: 14, legs: { a: [0, 0], b: [4 * P, 0] }, seatPitch: 4, note: 'The coloured bands tell you the value. 220 Ω is red, red, brown. 10 kΩ is brown, black, orange.' },
     rgb: { name: 'RGB LED', kind: 'legs', w: 56, h: 50, legs: { r: [0, 0], k: [P, 0], g: [2 * P, 0], b: [3 * P, 0] }, seatPitch: 1, note: 'Red, green, blue and one shared ground (the long leg, K).' },
     breadboard: { name: 'Breadboard', kind: 'breadboard', w: L.bb.w, h: L.bb.h, note: 'Holes in the same column are joined underneath.' }
   };
@@ -110,7 +110,8 @@
       { key: 'breadboard', type: 'breadboard', label: 'Breadboard', qty: 1 },
       { key: 'soil', type: 'soil', label: 'Soil moisture sensor', qty: 1 },
       { key: 'ldr', type: 'ldr', label: 'Light sensor (LDR)', qty: 1 },
-      { key: 'resistor', type: 'resistor', label: 'Resistors (from the box)', qty: 5, multi: true },
+      { key: 'r220', type: 'resistor', ohms: 220, label: 'Resistor 220 Ω', sub: 'red, red, brown · for the LED', qty: 3 },
+      { key: 'r10k', type: 'resistor', ohms: 10000, label: 'Resistor 10 kΩ', sub: 'brown, black, orange · for the light sensor', qty: 1 },
       { key: 'rgb', type: 'rgb', label: 'RGB LED', qty: 1 },
       { key: 'buzzer', type: 'buzzer', label: 'Buzzer', qty: 1 }
     ]
@@ -124,7 +125,7 @@
     const have = st.parts.filter((p) => p.key === key).length; if (have >= inv.qty) return null;
     const id = inv.type + (++st.n);
     const part = { id, key, type: inv.type, role: inv.role || null, x: x || 0, y: y || 0, plug: null, plugPos: null, seat: null };
-    if (inv.type === 'resistor') part.ohms = 220;
+    if (inv.type === 'resistor') part.ohms = inv.ohms || 220;
     st.parts.push(part); return part;
   }
   function addWire(st, a, b) {
@@ -218,12 +219,12 @@
   function resistorBetween(ctx, group, idSuffix, a, b, ohms, text) {
     const res = ctx.state.parts.filter((p) => p.type === 'resistor');
     const it = base(idSuffix, group, text, { focus: [a, b], ghost: [] });
-    if (!res.length) { it.msg = 'Take a ' + ohmLabel(ohms) + ' resistor from the box and place it on the breadboard.'; it.focus = ['bin:resistor']; return it; }
+    if (!res.length) { it.msg = 'Take a ' + ohmLabel(ohms) + ' resistor from your kit (' + (ohms === 10000 ? 'brown, black, orange' : 'red, red, brown') + ') and place it on the breadboard.'; it.focus = ['bin:' + (ohms === 10000 ? 'r10k' : 'r220')]; return it; }
     const joins = (r) => (ctx.nets.same(r.id + '.a', a) && ctx.nets.same(r.id + '.b', b)) || (ctx.nets.same(r.id + '.a', b) && ctx.nets.same(r.id + '.b', a));
     const good = res.find((r) => joins(r) && r.ohms === ohms);
     if (good && !ctx.nets.same(a, b)) { it.status = 'ok'; return it; }
     const wrongVal = res.find((r) => joins(r) && r.ohms !== ohms);
-    if (wrongVal) { it.status = 'bad'; it.msg = 'That resistor is ' + ohmLabel(wrongVal.ohms) + ' but this job needs ' + ohmLabel(ohms) + '. Click the resistor to change it.'; return it; }
+    if (wrongVal) { it.status = 'bad'; it.msg = 'That resistor is ' + ohmLabel(wrongVal.ohms) + ' but this job needs ' + ohmLabel(ohms) + '. Swap it for the ' + ohmLabel(ohms) + ' resistor in your kit (' + (ohms === 10000 ? 'brown, black, orange' : 'red, red, brown') + ').'; return it; }
     if (ctx.nets.same(a, b)) { it.status = 'bad'; it.msg = 'These two are joined directly with no resistor in between. Without it things can burn out!'; return it; }
     it.msg = 'Connect them through a ' + ohmLabel(ohms) + ' resistor.';
     return it;
@@ -357,12 +358,12 @@
       const so = add('soil', 250, 130); w(so.id + '.s', 'A0.S'); w(so.id + '.v', bb.id + '#T+3'); w(so.id + '.g', bb.id + '#T-3');
       const bz = add('buzzer', 470, 130); w(bz.id + '.p', 'D8.S'); w(bz.id + '.n', bb.id + '#T-5');
       const ldr = add('ldr'); seat(ldr.id, 2, 'c');
-      const r10 = add('resistor'); seat(r10.id, 4, 'd', 10000);
+      const r10 = add('r10k'); seat(r10.id, 4, 'd', 10000);
       w(bb.id + '#T+2', bb.id + '#2a'); w('A1.S', bb.id + '#4a'); w(bb.id + '#T-8', bb.id + '#8a');
       const led = add('rgb'); seat(led.id, 13, 'a');
-      const rr = add('resistor'); seat(rr.id, 9, 'b', 220);
-      const rg = add('resistor'); seat(rg.id, 11, 'c', 220);
-      const rb = add('resistor'); seat(rb.id, 12, 'd', 220);
+      const rr = add('r220'); seat(rr.id, 9, 'b', 220);
+      const rg = add('r220'); seat(rg.id, 11, 'c', 220);
+      const rb = add('r220'); seat(rb.id, 12, 'd', 220);
       w('D9.S', bb.id + '#9a'); w('D10.S', bb.id + '#11a'); w('D11.S', bb.id + '#12a'); w(bb.id + '#T-14', bb.id + '#14b');
     }
     return st;

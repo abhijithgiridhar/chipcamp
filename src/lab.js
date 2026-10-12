@@ -29,7 +29,7 @@
       if (p.plug && typeof p.plug.to === 'string' && (p.type === 'usb' || Lab.boardKind(proj) === 'shield')) part.plug = { to: p.plug.to, flip: !!p.plug.flip };
       if (p.plugPos) part.plugPos = { x: +p.plugPos.x || 0, y: +p.plugPos.y || 0 };
       if (p.seat && Lab.legsKind(p.type)) part.seat = { bb: String(p.seat.bb), col: +p.seat.col, row: String(p.seat.row) };
-      if (p.type === 'resistor') part.ohms = Lab.OHMS.indexOf(p.ohms) >= 0 ? p.ohms : 220;
+      if (p.type === 'resistor') part.ohms = inv.ohms || 220;
       out.parts.push(part);
     });
     const ids = new Set(out.parts.map((p) => p.id));
@@ -310,7 +310,7 @@
     const bin = $('#bin'); bin.innerHTML = '';
     Lab.INV[S.proj].forEach((inv) => {
       const used = S.st.parts.filter((p) => p.key === inv.key).length, left = inv.qty - used;
-      const c = el('div', 'chip' + (left <= 0 ? ' used' : ''), '<span class="em">' + EMOJI[inv.type] + '</span><span>' + esc(inv.label) + '<small>' + (left <= 0 ? 'on the board' : (inv.qty > 1 ? left + ' left' : PARTS[inv.type].name)) + '</small></span>');
+      const c = el('div', 'chip' + (left <= 0 ? ' used' : ''), '<span class="em">' + EMOJI[inv.type] + '</span><span>' + esc(inv.label) + '<small>' + (left <= 0 ? 'on the board' : (inv.sub ? esc(inv.sub) + (inv.qty > 1 ? ' · ' + left + ' left' : '') : inv.qty > 1 ? left + ' left' : PARTS[inv.type].name)) + '</small></span>');
       c.style.setProperty('--cc', CHIPCOL[inv.type]); c.dataset.key = inv.key; c.title = PARTS[inv.type].note || '';
       bin.appendChild(c);
     });
@@ -427,7 +427,6 @@
       }
     } else if (d.kind === 'part') {
       const p = d.part;
-      if (!d.moved && p.type === 'resistor') { p.ohms = Lab.OHMS[(Lab.OHMS.indexOf(p.ohms) + 1) % Lab.OHMS.length]; pushUndo(d.before); }
       if (d.moved) { if (Lab.legsKind(p.type)) trySeat(p); else p.seat = null; pushUndo(d.before); }
     }
     render();
