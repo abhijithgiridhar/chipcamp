@@ -212,7 +212,8 @@
         s += bound(100, 60) + '<rect x="-52" y="-6" width="104" height="9" rx="2" fill="#2f6fa8"/><rect x="-43" y="-21" width="86" height="42" rx="6" fill="#3b82c4" stroke="#1f5b94" stroke-width="2"/><circle cx="22" cy="0" r="12" fill="#f3f4f8" stroke="#9aa3b5" stroke-width="2"/><g class="horn"><rect x="12" y="-3.5" width="26" height="7" rx="3.5" fill="#fff" stroke="#9aa3b5"/></g><text y="38" text-anchor="middle" font-size="12" font-weight="900" fill="#38406a">' + esc(labelFor(p)) + '</text>';
         break;
       case 'buzzer':
-        s += bound(46, 46) + '<circle r="23" fill="#2b2f4a" stroke="#0d0f1a" stroke-width="2"/><circle r="8" fill="#0d0f1a"/><circle r="15" fill="none" stroke="#3a3f5e" stroke-width="2"/><text x="-12" y="-11" font-size="12" font-weight="900" fill="#ff9a9a">+</text><text y="40" text-anchor="middle" font-size="12" font-weight="900" fill="#38406a">Buzzer</text>';
+        s += bound(56, 80, 0, 10) + '<path d="M-12 16 V40" stroke="#9aa3b5" stroke-width="4" stroke-linecap="round"/><path d="M12 16 V30" stroke="#9aa3b5" stroke-width="4" stroke-linecap="round"/><circle r="23" fill="#2b2f4a" stroke="#0d0f1a" stroke-width="2"/><circle r="8" fill="#0d0f1a"/><circle r="15" fill="none" stroke="#3a3f5e" stroke-width="2"/><text x="-19" y="-9" font-size="14" font-weight="900" fill="#ff9a9a">+</text><text y="-30" text-anchor="middle" font-size="11" font-weight="900" fill="#38406a">Buzzer</text>';
+        Object.keys(def.terms).forEach((t) => { const pos = Lab.termPos(p.id + '.' + t, S.st); s += '</g>' + pinDot(p.id + '.' + t, pos, def.labels[t], 17) + '<g transform="translate(' + o.x + ',' + o.y + ')">'; });
         break;
       case 'soil':
         s += bound(56, 90, 0, 0) + '<rect x="-28" y="-44" width="56" height="42" rx="6" fill="#2fa86a" stroke="#1f7a4c" stroke-width="2"/><rect x="-18" y="-2" width="12" height="40" rx="3" fill="#d4af37" stroke="#9c8023"/><rect x="6" y="-2" width="12" height="40" rx="3" fill="#d4af37" stroke="#9c8023"/><circle cx="0" cy="-28" r="6" fill="#0d0f1a"/><text y="56" text-anchor="middle" font-size="12" font-weight="900" fill="#38406a">Soil sensor</text>';
@@ -296,7 +297,7 @@
     gParts.innerHTML = S.st.parts.map(partMarkup).join('');
     gWires.innerHTML = wiresMarkup();
     gOver.innerHTML = overlayMarkup();
-    renderBin(); renderCheck(); save();
+    renderBin(); renderCheck(); save(); if (window.CampFlow) CampFlow.render('wire');
     $('#delBtn').disabled = !S.sel;
     const sp = S.sel && S.sel.kind === 'part' ? getPart(S.sel.id) : null;
     $('#flipBtn').hidden = !(sp && sp.plug && sp.plug.to !== 'USB');
@@ -456,7 +457,7 @@
     const pr = $('#problems'); pr.innerHTML = r.problems.map((p) => '<div class="problem">' + esc(p.msg) + '</div>').join('');
     const firstTodo = r.items.find((i) => i.status === 'todo' && !i.optional);
     const box = $('#checklist'); box.innerHTML = '';
-    if (r.complete) box.appendChild(el('div', 'celebrate', '🎉 Everything is wired correctly! Press <b>⚡ Power on!</b>' + '<br><a class="btn small go" href="blocks.html" style="text-decoration:none">Next: build the code ➜</a>'));
+    if (r.complete) box.appendChild(el('div', 'celebrate', '🎉 Everything is wired correctly! Press <b>⚡ Power on!</b>' + '<br><a class="btn small go" href="test.html" style="text-decoration:none">Next: test your robot ➜</a>'));
     let group = null;
     r.items.forEach((it) => {
       if (it.group !== group) { group = it.group; box.appendChild(el('div', 'grp', esc(group))); }
@@ -465,7 +466,7 @@
       c.onclick = () => showHint(it);
       box.appendChild(c);
     });
-    if (r.complete && !wasComplete) { wasComplete = true; ChipCamp.circuitDone(S.proj); }
+    if (r.complete && !wasComplete) { wasComplete = true; ChipCamp.circuitDone(S.proj); CampFlow.render('wire'); }
     if (!r.complete) wasComplete = false;
   }
   function pulseFor(it) {

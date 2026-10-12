@@ -78,8 +78,12 @@ PROJECTS.forEach((proj) => {
   const sw = clone(sol); sw.parts.find((p) => p.key === 'lhip').plug.to = 'D3'; sw.parts.find((p) => p.key === 'rhip').plug.to = 'D2';
   const rs = Lab.check('chipbot', sw); ok(find(rs, 'lhip.plug').status === 'bad' && find(rs, 'rhip.plug').status === 'bad', 'swapped hip servos are both flagged');
   // the optional buzzer: absent is fine, wrong is not
-  const nb = clone(sol); nb.parts = nb.parts.filter((p) => p.key !== 'buzzer'); ok(Lab.check('chipbot', nb).complete, 'Chip Bot is complete without the optional buzzer');
-  const wb = clone(sol); wb.parts.find((p) => p.key === 'buzzer').plug.to = 'D12'; ok(!Lab.check('chipbot', wb).complete, 'a wrongly plugged bonus buzzer must still be fixed');
+  const nb = clone(sol); nb.parts = nb.parts.filter((p) => p.key !== 'buzzer'); nb.wires = nb.wires.filter((w) => !/buzzer/.test(w.a)); ok(Lab.check('chipbot', nb).complete, 'Chip Bot is complete without the optional buzzer');
+  const bz = sol.parts.find((p) => p.key === 'buzzer'), wb = clone(sol); wb.wires.forEach((w) => { if (w.a === bz.id + '.p') w.b = 'D12.S'; }); ok(!Lab.check('chipbot', wb).complete, 'a wrongly wired bonus buzzer must still be fixed');
+  // the 2-legged buzzer: + and − the wrong way round gets a clear message
+  const swp = clone(sol); swp.wires.forEach((w) => { if (w.a === bz.id + '.p') w.b = 'D13.G'; if (w.a === bz.id + '.n') w.b = 'D13.S'; });
+  const rsw = Lab.check('chipbot', swp); ok(!rsw.complete, 'a buzzer with + and − swapped must be caught'); ok(/\+ \(long leg\)/.test(find(rsw, 'buzzer.p').text) && find(rsw, 'buzzer.p').status === 'bad' && /ground/.test(find(rsw, 'buzzer.p').msg), 'swapped buzzer legs need a helpful message');
+  ok(find(Lab.check('chipbot', sol), 'buzzer.p').status === 'ok' && find(Lab.check('chipbot', sol), 'buzzer.n').status === 'ok', 'both buzzer legs tick when right');
 })();
 
 /* ---------- Peeko specifics (plain Arduino Uno, jumper wires, breadboard rails) ---------- */
@@ -109,7 +113,7 @@ PROJECTS.forEach((proj) => {
   const nf = clone(sol); nf.wires = nf.wires.filter((w) => w.a !== 'PWR.5V'); ok(!Lab.check('peeko', nf).complete, 'cutting the 5V feed to the rail breaks the circuit');
   // the optional buzzer: absent is fine, wrong is not
   const nb = clone(sol); nb.parts = nb.parts.filter((p) => p.key !== 'buzzer'); nb.wires = nb.wires.filter((w) => !/buzzer/.test(w.a)); ok(Lab.check('peeko', nb).complete, 'Peeko is complete without the optional buzzer');
-  const bz = sol.parts.find((p) => p.key === 'buzzer'), wb = clone(sol); wb.wires.forEach((w) => { if (w.a === bz.id + '.s') w.b = 'D12.S'; }); ok(!Lab.check('peeko', wb).complete, 'a wrongly wired bonus buzzer must still be fixed');
+  const bz = sol.parts.find((p) => p.key === 'buzzer'), wb = clone(sol); wb.wires.forEach((w) => { if (w.a === bz.id + '.p') w.b = 'D12.S'; }); ok(!Lab.check('peeko', wb).complete, 'a wrongly wired bonus buzzer must still be fixed');
 })();
 
 /* ---------- Jarvis specifics ---------- */

@@ -4,7 +4,17 @@
   const $ = (s) => document.querySelector(s);
   const P = window.PLANS_PAYLOAD;
   const b64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
-  let docs = null;
+  let docs = null, currentPin = '';
+  const PRO = 'chipcamp.prokey';
+  async function proKey(pin) {
+    const enc = (s) => new TextEncoder().encode(s);
+    const km = await crypto.subtle.importKey('raw', enc(pin + ':pro'), 'PBKDF2', false, ['deriveBits']);
+    const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: enc('chipcamp-pro-v1'), iterations: 250000, hash: 'SHA-256' }, km, 256);
+    return btoa(String.fromCharCode.apply(null, new Uint8Array(bits)));
+  }
+  const hasPro = () => { try { return !!localStorage.getItem(PRO); } catch (e) { return false; } };
+  function proLabel() { $('#proBtn').textContent = hasPro() ? '✓ Pro code is unlocked on this laptop (tap to lock)' : '🔓 Unlock the Pro code on this laptop'; }
+  $('#proBtn').onclick = async () => { try { if (hasPro()) localStorage.removeItem(PRO); else localStorage.setItem(PRO, await proKey(currentPin)); } catch (e) { /* fine */ } proLabel(); };
 
   async function decrypt(pin) {
     const km = await crypto.subtle.importKey('raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveKey']);
@@ -27,13 +37,13 @@
   function day2Label() { $('#day2Btn').textContent = ChipCamp.day2() ? '✓ Day 2 tools are unlocked on this laptop (tap to lock)' : '🔓 Unlock day 2 tools on this laptop'; }
   $('#day2Btn').onclick = () => { ChipCamp.setDay2(!ChipCamp.day2()); day2Label(); };
   function open(d) {
-    docs = d; $('#lockView').hidden = true; $('#plansView').hidden = false; $('#lockBtn').hidden = false; $('#day2Btn').hidden = false; $('#slidesBtn').hidden = false; day2Label(); show();
+    docs = d; $('#lockView').hidden = true; $('#plansView').hidden = false; $('#lockBtn').hidden = false; $('#day2Btn').hidden = false; $('#proBtn').hidden = false; $('#slidesBtn').hidden = false; day2Label(); proLabel(); show();
   }
   async function attempt(pin, quiet) {
     const msg = $('#lockMsg');
     if (!window.crypto || !crypto.subtle) { msg.textContent = 'This browser cannot unlock the page here. Open it over https or in a current Chrome, Edge or Safari.'; return; }
     try {
-      open(await decrypt(pin));
+      open(await decrypt(pin)); currentPin = pin;
       try { sessionStorage.setItem('chipcamp.plans', pin); } catch (e) { /* fine */ }
     } catch (e) {
       try { sessionStorage.removeItem('chipcamp.plans'); } catch (e2) { /* fine */ }
@@ -44,7 +54,7 @@
     }
   }
   $('#lockForm').onsubmit = (e) => { e.preventDefault(); $('#lockMsg').textContent = ''; attempt($('#pin').value.trim()); };
-  $('#lockBtn').onclick = () => { docs = null; try { sessionStorage.removeItem('chipcamp.plans'); } catch (e) { /* fine */ } $('#plansView').hidden = true; $('#lockView').hidden = false; $('#lockBtn').hidden = true; $('#day2Btn').hidden = true; $('#slidesBtn').hidden = true; $('#planBody').innerHTML = ''; $('#pin').value = ''; $('#pin').focus(); };
+  $('#lockBtn').onclick = () => { docs = null; try { sessionStorage.removeItem('chipcamp.plans'); } catch (e) { /* fine */ } $('#plansView').hidden = true; $('#lockView').hidden = false; $('#lockBtn').hidden = true; $('#day2Btn').hidden = true; $('#proBtn').hidden = true; $('#slidesBtn').hidden = true; currentPin = ''; $('#planBody').innerHTML = ''; $('#pin').value = ''; $('#pin').focus(); };
   window.addEventListener('hashchange', () => { if (docs) show(); });
   let saved = null; try { saved = sessionStorage.getItem('chipcamp.plans'); } catch (e) { /* fine */ }
   if (saved) attempt(saved, true);

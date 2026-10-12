@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test it · Chip Camp</title>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Nunito:wght@600;800;900&family=JetBrains+Mono:wght@400;700&display=swap");
+:root{
+  --ink:#2b2f4a; --ink-soft:#69709a; --bg:#e8f0ff; --card:#ffffff; --line:#d3def6; --line-soft:#e6edfb;
+  --purple:#7c4dff; --blue:#4c97ff; --green:#3fb950; --green-d:#2c8f3b; --events:#FFBF00;
+  --font-d:"Fredoka","Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;
+  --font-b:"Nunito","Segoe UI","Trebuchet MS",system-ui,sans-serif;
+  --font-m:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --nh:6px; --nx:16px; --nw:26px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-b);font-size:15px;line-height:1.4;-webkit-font-smoothing:antialiased;}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+[hidden]{display:none!important}
+
+/* ---------- top bar ---------- */
+.topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 18px;background:linear-gradient(90deg,#7c4dff,#4c97ff);color:#fff;box-shadow:0 3px 0 rgba(0,0,0,.12);}
+.brand{font-family:var(--font-d);font-size:24px;font-weight:600;letter-spacing:.2px;display:flex;align-items:center;gap:8px;margin-right:6px}
+.brand .logo{display:inline-grid;grid-template-columns:repeat(2,12px);gap:3px;transform:rotate(-8deg)}
+.brand .logo i{width:12px;height:12px;border-radius:4px;display:block}
+.ptabs{display:flex;gap:8px;flex-wrap:wrap}
+.ptab{border:0;cursor:pointer;font-family:var(--font-d);font-size:17px;font-weight:500;padding:8px 16px;border-radius:16px;background:rgba(255,255,255,.2);color:#fff;display:flex;align-items:center;gap:7px;transition:transform .12s, background .15s;}
+.ptab:hover{background:rgba(255,255,255,.32);transform:translateY(-1px)}
+.ptab[aria-selected="true"]{background:#fff;color:var(--pc);box-shadow:0 4px 0 rgba(0,0,0,.18);transform:translateY(-1px)}
+.ptab .em{font-size:20px}
+.spacer{flex:1}
+.viewtabs{display:flex;background:rgba(0,0,0,.18);border-radius:18px;padding:4px;gap:4px}
+.vtab{border:0;cursor:pointer;font-family:var(--font-d);font-size:17px;padding:8px 18px;border-radius:14px;background:transparent;color:#fff;display:flex;align-items:center;gap:6px}
+.vtab[aria-selected="true"]{background:#fff;color:var(--purple);box-shadow:0 3px 0 rgba(0,0,0,.18)}
+
+.btn{border:0;cursor:pointer;font-family:var(--font-d);font-weight:500;font-size:15px;padding:8px 14px;border-radius:14px;background:#fff;color:var(--ink);box-shadow:0 3px 0 #c9d6f2;border:2px solid #d3def6;display:inline-flex;align-items:center;gap:6px;transition:transform .08s, box-shadow .08s;white-space:nowrap}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 0 #c9d6f2}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 #c9d6f2}
+.btn.go{background:var(--green);border-color:var(--green-d);color:#fff;box-shadow:0 4px 0 var(--green-d)}
+.btn.go:hover{box-shadow:0 5px 0 var(--green-d)}
+.btn.go:active{box-shadow:0 1px 0 var(--green-d)}
+.btn.stop{background:#ff6680;border-color:#d94a63;color:#fff;box-shadow:0 4px 0 #d94a63}
+.btn.big{font-size:19px;padding:12px 22px;border-radius:18px}
+.btn.small{font-size:13px;padding:5px 10px;border-radius:11px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* ---------- blocks ---------- */
+.blk{--c:#9966FF;position:relative;filter:drop-shadow(0 2px 0 rgba(0,0,0,.2));user-select:none;touch-action:none}
+.dz>.blk+.blk,.blk+.blk{margin-top:calc(var(--nh) * -1)}
+.blk>.row,.blk>.foot{background:var(--c);color:#fff;font-family:var(--font-d);font-weight:500;font-size:15px;text-shadow:0 1px 0 rgba(0,0,0,.18)}
+.blk>.row{display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-height:46px;padding:8px 10px calc(8px + var(--nh)) 12px;
+  clip-path:polygon(0 0,var(--nx) 0,calc(var(--nx) + 4px) var(--nh),calc(var(--nx) + var(--nw) - 4px) var(--nh),calc(var(--nx) + var(--nw)) 0,100% 0,100% calc(100% - var(--nh)),calc(var(--nx) + var(--nw)) calc(100% - var(--nh)),calc(var(--nx) + var(--nw) - 4px) 100%,calc(var(--nx) + 4px) 100%,var(--nx) calc(100% - var(--nh)),0 calc(100% - var(--nh)));
+  cursor:grab}
+.blk.c>.row{clip-path:polygon(0 0,var(--nx) 0,calc(var(--nx) + 4px) var(--nh),calc(var(--nx) + var(--nw) - 4px) var(--nh),calc(var(--nx) + var(--nw)) 0,100% 0,100% 100%,0 100%);padding-bottom:8px;border-radius:12px 12px 0 0}
+.blk.c>.row.else{clip-path:none;border-radius:0;min-height:34px;padding-top:6px;padding-bottom:6px}
+.blk:not(.c)>.row{border-radius:12px 12px 12px 12px}
+.blk>.foot{height:calc(26px + var(--nh));border-radius:0 0 12px 12px;display:flex;align-items:center;padding:0 12px var(--nh) 12px;gap:8px;
+  clip-path:polygon(0 0,100% 0,100% calc(100% - var(--nh)),calc(var(--nx) + var(--nw)) calc(100% - var(--nh)),calc(var(--nx) + var(--nw) - 4px) 100%,calc(var(--nx) + 4px) 100%,var(--nx) calc(100% - var(--nh)),0 calc(100% - var(--nh)))}
+.cslot{display:flex;background:var(--c)}
+.cslot::before{content:"";width:16px;flex:none;background:var(--c)}
+.cslot>.dz{flex:1;background:#f7f9ff;border-radius:10px 0 0 10px;min-height:44px;margin:0;box-shadow:inset 0 3px 0 rgba(0,0,0,.08)}
+.blk .x{margin-left:auto;border:0;background:rgba(255,255,255,.28);color:#fff;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:12px;line-height:1;padding:0;opacity:.0;transition:opacity .12s}
+.blk:hover>.row .x,.blk>.row .x:focus-visible{opacity:1}
+.blk .x:hover{background:rgba(255,255,255,.5)}
+.blk .tag{font-size:11px;font-weight:700;background:rgba(0,0,0,.16);border-radius:10px;padding:2px 8px;font-family:var(--font-b);text-shadow:none}
+.elsebtn{border:0;cursor:pointer;background:rgba(255,255,255,.28);color:#fff;font-family:var(--font-d);font-size:13px;border-radius:10px;padding:3px 10px}
+.elsebtn:hover{background:rgba(255,255,255,.45)}
+.blk.running>.row,.blk.running>.foot{animation:glow .6s ease-in-out infinite alternate}
+@keyframes glow{from{filter:brightness(1)}to{filter:brightness(1.35) saturate(1.2)}}
+.blk.pop{animation:pop .38s cubic-bezier(.3,1.7,.5,1)}
+@keyframes pop{0%{transform:scale(.6) rotate(-4deg);opacity:.2}100%{transform:scale(1) rotate(0);opacity:1}}
+.blk.lifting{opacity:.3}
+.ghost{position:fixed;z-index:1000;pointer-events:none;transform:rotate(2deg) scale(1.04);filter:drop-shadow(0 10px 12px rgba(40,40,80,.35));opacity:.96}
+.ghost .x{display:none}
+
+/* parameter fields (Scratch style) */
+.pill{display:inline-flex;align-items:center;border-radius:16px;background:#fff;color:var(--ink);text-shadow:none;font-family:var(--font-b);font-weight:800;font-size:14px;padding:0;overflow:hidden;box-shadow:inset 0 -2px 0 rgba(0,0,0,.1)}
+.pill input{border:0;background:transparent;outline:0;font-weight:800;color:var(--ink);padding:3px 9px;min-width:0;text-align:center;font-family:var(--font-b)}
+.pill input[type=number]{width:58px;-moz-appearance:textfield}
+.pill input[type=number]::-webkit-outer-spin-button,.pill input[type=number]::-webkit-inner-spin-button{opacity:.55}
+.pill input[type=text]{width:116px}
+.pill:focus-within{outline:3px solid rgba(255,255,255,.75);outline-offset:1px}
+.drop{display:inline-flex;align-items:center;border-radius:14px;background:rgba(0,0,0,.2);color:#fff;font-family:var(--font-b);font-weight:800;font-size:14px;text-shadow:none;padding:0;position:relative}
+.drop select{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:#fff;font-weight:800;padding:4px 24px 4px 10px;cursor:pointer;outline:0;border-radius:14px;font-family:var(--font-b)}
+.drop select option{color:var(--ink);background:#fff}
+.drop::after{content:"▾";position:absolute;right:9px;pointer-events:none;font-size:12px}
+.drop:focus-within{outline:3px solid rgba(255,255,255,.75);outline-offset:1px}
+.static{display:inline-flex;align-items:center;border-radius:14px;padding:2px 9px;font-weight:800;font-size:13px;font-family:var(--font-b);text-shadow:none}
+.static.p{background:#fff;color:var(--ink)}
+.static.d{background:rgba(0,0,0,.2);color:#fff}
+.palette-blk{margin-bottom:10px;cursor:grab}
+.palette-blk>.row{cursor:grab}
+.palette-blk.c>.foot{height:calc(18px + var(--nh))}
+
+.dz{display:flex;flex-direction:column;min-height:40px;position:relative}
+.dz.over{outline:3px dashed var(--purple);outline-offset:-3px;border-radius:12px;background:rgba(124,77,255,.07)}
+.dz:empty::before,.dz.empty::before{content:"drop blocks here";display:flex;align-items:center;justify-content:center;min-height:44px;color:#9aa4c7;font-weight:800;font-size:13px;border-radius:10px;border:2px dashed #cfd9f3;margin:4px}
+.dropline{height:0;position:relative;z-index:5}
+.dropline::after{content:"";position:absolute;left:-2px;right:-2px;top:-3px;height:6px;border-radius:4px;background:var(--purple);box-shadow:0 0 0 2px #fff}
+/* ---------- misc ---------- */
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#2b2f4a;color:#fff;font-family:var(--font-d);padding:10px 18px;border-radius:16px;opacity:0;pointer-events:none;transition:all .25s;z-index:3000;box-shadow:0 8px 20px rgba(0,0,0,.25)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.modalback{position:fixed;inset:0;background:rgba(43,47,74,.5);display:grid;place-items:center;z-index:2000;padding:16px}
+.modal{background:#fff;border-radius:22px;width:min(560px,100%);max-height:86vh;overflow:auto;padding:18px 20px;box-shadow:0 20px 50px rgba(0,0,0,.3);border:3px solid var(--line)}
+.modal h2{font-family:var(--font-d);font-weight:500;margin:0 0 10px;font-size:22px}
+.modal textarea{width:100%;height:120px;border:2px solid var(--line);border-radius:12px;padding:8px;font-family:var(--font-m);font-size:12px}
+.saverow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:2px solid var(--line-soft)}
+.saverow .who{flex:1;font-weight:800}
+.saverow .who small{display:block;font-weight:600;color:var(--ink-soft)}
+.conf{position:fixed;z-index:2500;font-size:26px;pointer-events:none;animation:conf 1.1s ease-out forwards}
+@keyframes conf{0%{transform:translate(0,0) rotate(0) scale(.6);opacity:1}100%{transform:translate(var(--dx),var(--dy)) rotate(var(--r)) scale(1.2);opacity:0}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+.homebtn{display:inline-grid;place-items:center;width:42px;height:42px;border-radius:14px;background:rgba(255,255,255,.22);color:#fff;text-decoration:none;font-size:21px;box-shadow:0 3px 0 rgba(0,0,0,.14);transition:transform .12s,background .15s;flex:none}
+.homebtn:hover{background:rgba(255,255,255,.36);transform:translateY(-1px)}
+.homebtn:focus-visible{outline:3px solid #fff;outline-offset:2px}
+a.btn{text-decoration:none}
+
+/* ---------- the step bar ---------- */
+.flow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 18px;background:#fff;border-bottom:2px solid var(--line-soft)}
+.fstep{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink-soft);font-family:var(--font-d);font-size:16px;padding:5px 14px 5px 6px;border-radius:999px;border:2px solid var(--line);background:#fff;transition:transform .12s}
+.fstep:hover{transform:translateY(-1px)}
+.fstep i{width:26px;height:26px;border-radius:50%;background:#e6edfb;display:grid;place-items:center;font-style:normal;font-size:14px;color:var(--ink-soft)}
+.fstep small{font-family:var(--font-b);font-weight:800;font-size:11px;background:#fff1c9;color:#7a5b00;border-radius:8px;padding:1px 6px}
+.fstep.done{border-color:#9bdca4;background:#effbf1;color:#23702f}
+.fstep.done i{background:var(--green);color:#fff}
+.fstep.cur{border-color:var(--purple);color:var(--purple);box-shadow:0 0 0 3px rgba(124,77,255,.18);background:#fff}
+.fstep.cur i{background:var(--purple);color:#fff}
+.fstep.lock{opacity:.55;pointer-events:none}
+@media (max-width:760px){.flow{padding:8px 10px}.fstep{font-size:14px}}
+
+/* Test it */
+.card{background:var(--card);border:2px solid var(--line);border-radius:20px;box-shadow:0 4px 0 var(--line)}
+.testpage{display:grid;grid-template-columns:minmax(380px,1fr) minmax(360px,520px);gap:14px;padding:14px 18px 40px;align-items:start;max-width:1500px;margin:0 auto}
+@media (max-width:1000px){.testpage{grid-template-columns:1fr}}
+.tmain{padding:20px 22px 24px}
+.tmain h1{font-family:var(--font-d);font-weight:500;font-size:30px;margin:0 0 4px}
+.tmain h2{font-family:var(--font-d);font-weight:500;font-size:20px;margin:18px 0 8px}
+.tsay{margin:0 0 14px;font-weight:700;color:#38406a;font-size:16px}
+.tsteps{list-style:none;counter-reset:s;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.tsteps li{counter-increment:s;display:flex;gap:12px;align-items:flex-start;font-size:15px;font-weight:600}
+.tsteps li::before{content:counter(s);flex:none;width:30px;height:30px;border-radius:50%;background:var(--purple);color:#fff;display:grid;place-items:center;font-family:var(--font-d);font-size:16px;box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.tsteps code,.helper code{background:#f1f5ff;border:1px solid var(--line);border-radius:7px;padding:1px 6px;font-family:var(--font-m);font-size:12.5px}
+.labstate{font-weight:800}
+.labstate.ok{color:#23702f}
+.labstate.no{color:#a65f00}
+.helper{margin:10px 0;border:2px solid #f1e6c4;background:#fffdf3;border-radius:16px;padding:8px 14px}
+.helper summary{cursor:pointer;font-family:var(--font-d);font-size:17px;color:#5a4a00}
+.helper div{padding:6px 2px 8px;font-size:14.5px;font-weight:600;color:#38406a}
+.helper ol,.helper ul{margin:6px 0 6px 4px;padding-left:20px}
+.helper li{margin:5px 0}
+.helper .tip{background:#fff;border:2px dashed #f1e6c4;border-radius:12px;padding:8px 12px;margin:8px 0}
+.checks{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.check{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;background:#fbfdff;border:2px solid var(--line);border-radius:18px;padding:12px 16px}
+.check.on{border-color:#9bdca4;background:#effbf1}
+.check input{width:28px;height:28px;accent-color:var(--green);grid-row:1/3;align-self:center;cursor:pointer}
+.check b{font-family:var(--font-d);font-weight:500;font-size:19px}
+.check .see{font-size:14.5px;font-weight:700;color:#38406a}
+.check .fix{grid-column:2;font-size:13.5px;font-weight:700;color:#8a5a00;background:#fff6e0;border-radius:10px;padding:5px 10px}
+.cta{margin-top:18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.cta .note{font-weight:800;color:var(--ink-soft);font-size:13px}
+.tcode{padding:14px 16px;position:sticky;top:12px}
+.tcodehead{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tcodehead h2{font-family:var(--font-d);font-weight:500;font-size:20px;margin:0 auto 0 0}
+.tcode .small{font-size:12.5px;color:var(--ink-soft);margin:8px 0}
+.tcode .codepane{max-height:62vh;overflow:auto;border:2px solid #f1e6c4;border-radius:14px;background:#fffdf6;padding:8px 0;font-family:var(--font-m);font-size:12.5px;line-height:1.6}
+.tcode .ln{display:flex}
+.tcode .ln .no{width:40px;flex:none;text-align:right;padding-right:12px;color:#c0b79a;user-select:none}
+.tcode .ln .tx{flex:1;white-space:pre;padding-right:14px;color:#3e4766}
+.tk-k{color:#8a3ffc;font-weight:700}.tk-t{color:#0a8aa3}.tk-n{color:#d9611a}.tk-s{color:#1f9d55}.tk-p{color:#d6458a}.tk-c{color:#8a93a6;font-style:italic}.tk-f{color:#2f6fe0}
+
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="homebtn" href="index.html" title="Back to the Chip Camp welcome screen" aria-label="Home">🏠</a>
+  <div class="brand"><span class="logo" aria-hidden="true"><i style="background:#59C059"></i><i style="background:#FFBF00"></i><i style="background:#4C97FF"></i><i style="background:#e5484d"></i></span>Test it</div>
+  <nav class="ptabs" id="ptabs" aria-label="Choose a robot"></nav>
+  <div class="spacer"></div>
+</header>
+<nav class="flow" id="flow" aria-label="Steps"></nav>
+
+<main class="testpage">
+  <section class="card tmain" aria-label="Test your robot">
+    <h1 id="tTitle">Test your robot</h1>
+    <p class="tsay" id="tSay"></p>
+
+    <details class="helper" id="buzzHelper">
+      <summary>🔊 How do I wire the buzzer? (it has two legs)</summary>
+      <div id="buzzBody"></div>
+    </details>
+    <details class="helper" id="ledHelper" hidden>
+      <summary>💡 How do I build the LED and the resistors? (4 easy steps)</summary>
+      <div id="ledBody"></div>
+    </details>
+
+    <h2>Your 3 steps</h2>
+    <ol class="tsteps">
+      <li><span>The Circuit Lab says your wiring is <b>complete</b>. <span class="labstate" id="labState"></span> <a class="btn small" href="circuits.html">Open the Circuit Lab</a></span></li>
+      <li><span>Put the test sketch on your robot (on the right): <b>Copy</b>, paste into the Arduino IDE, <b id="tBoard"></b>, pick the Port, Upload. Then open <b>Tools → Serial Monitor</b> at <code>9600 baud</code>.</span></li>
+      <li><span>Watch and listen. Tick each part when it works. If it says <b>CHECK</b>, read the tip under it.</span></li>
+    </ol>
+
+    <div class="checks" id="checks"></div>
+    <div class="cta">
+      <button class="btn go big" id="doneBtn" disabled>Robot tested ✓ Next ➜</button>
+      <span class="note" id="doneNote"></span>
+    </div>
+  </section>
+
+  <aside class="card tcode" aria-label="The test sketch">
+    <div class="tcodehead"><h2>The test sketch</h2>
+      <button class="btn" id="dlTest">⬇ Download .ino</button>
+      <button class="btn go" id="copyTest">📋 Copy code</button>
+    </div>
+    <p class="small" id="tLibs"></p>
+    <div class="codepane" id="tPane" tabindex="0"></div>
+  </aside>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>window.TEST_SKETCHES = {"chipbot":"/*\n  CHIP BOT - test my robot            Board: Arduino Nano\n  Run this after the wiring is done and the Circuit Lab says \"complete\".\n  Open the Serial Monitor (9600 baud). Every part gets a test, one at a time, and the whole round repeats.\n\n    D2 left hip    D3 right hip    D4 left foot    D5 right foot     (servos)\n    D8 TRIG        D9 ECHO                                          (distance sensor)\n    D13 buzzer: long leg (+) to D13, short leg (-) to ground\n*/\n#include <Servo.h>\n\nconst uint8_t SERVO_PIN[4] = {2, 3, 4, 5};\nconst char* const SERVO_NAME[4] = {\"left hip (D2)\", \"right hip (D3)\", \"left foot (D4)\", \"right foot (D5)\"};\nconst uint8_t PIN_TRIG = 8, PIN_ECHO = 9, PIN_BUZZER = 13;\nServo servo[4];\n\nlong readCm() {\n  digitalWrite(PIN_TRIG, LOW);  delayMicroseconds(2);\n  digitalWrite(PIN_TRIG, HIGH); delayMicroseconds(10);\n  digitalWrite(PIN_TRIG, LOW);\n  unsigned long us = pulseIn(PIN_ECHO, HIGH, 25000UL);\n  if (us == 0) return -1;                       // no echo came back\n  return (long)(us / 58UL);\n}\n\nvoid beep(unsigned int hz, unsigned int ms) { tone(PIN_BUZZER, hz, ms); delay(ms + 40); }\n\nvoid testBuzzer() {\n  Serial.println(F(\"TEST 1 of 3: buzzer on D13\"));\n  digitalWrite(PIN_BUZZER, HIGH); delay(400); digitalWrite(PIN_BUZZER, LOW); delay(250);   // plain on / off\n  beep(440, 300); beep(880, 300);                                                          // two different pitches\n  Serial.println(F(\"  Did you hear 3 beeps?  (the Arduino cannot hear, so you decide)\"));\n  Serial.println(F(\"  Silent?  Flip the two legs: the long leg (+) goes to D13.\"));\n  Serial.println(F(\"  All beeps the same pitch?  Your buzzer is the always-beep type. That is fine.\"));\n}\n\nvoid testServos() {\n  Serial.println(F(\"TEST 2 of 3: the four servos, one at a time\"));\n  for (uint8_t i = 0; i < 4; i++) {\n    Serial.print(F(\"  moving the \")); Serial.println(SERVO_NAME[i]);\n    servo[i].attach(SERVO_PIN[i]);\n    servo[i].write(90);  delay(400);\n    servo[i].write(65);  delay(500);\n    servo[i].write(115); delay(500);\n    servo[i].write(90);  delay(400);\n    servo[i].detach();\n    delay(300);\n  }\n  Serial.println(F(\"  Did every servo move, one after the other?\"));\n  Serial.println(F(\"  One did nothing?  Check its plug: yellow wire on the S pin.\"));\n}\n\nvoid testDistance() {\n  Serial.println(F(\"TEST 3 of 3: distance sensor. Wave your hand about 10 cm in front of it.\"));\n  int heard = 0, close = 0;\n  for (uint8_t i = 0; i < 20; i++) {\n    long cm = readCm();\n    if (cm < 0) {\n      Serial.println(F(\"  no echo\"));\n    } else {\n      heard++;\n      Serial.print(F(\"  distance \")); Serial.print(cm); Serial.println(F(\" cm\"));\n      if (cm < 15) { close++; beep(988, 80); }\n    }\n    delay(250);\n  }\n  if (heard == 0) Serial.println(F(\"[CHECK] Distance sensor: never heard an echo. Check VCC, GND, TRIG (D8) and ECHO (D9).\"));\n  else if (close == 0) Serial.println(F(\"[PASS] Distance sensor works. Wave a hand closer than 15 cm to hear it beep.\"));\n  else Serial.println(F(\"[PASS] Distance sensor works and saw your hand.\"));\n}\n\nvoid setup() {\n  Serial.begin(9600);\n  pinMode(PIN_TRIG, OUTPUT); pinMode(PIN_ECHO, INPUT); pinMode(PIN_BUZZER, OUTPUT);\n  delay(500);\n  Serial.println(F(\"=== Chip Bot test ===\"));\n}\n\nvoid loop() {\n  testBuzzer();   delay(800);\n  testServos();   delay(800);\n  testDistance(); delay(800);\n  Serial.println(F(\"--- round finished. Starting again in 4 seconds ---\"));\n  delay(4000);\n}\n","peeko":"/*\n  PEEKO - test my robot               Board: Arduino Uno\n  Run this after the wiring is done and the Circuit Lab says \"complete\".\n  Open the Serial Monitor (9600 baud). Every part gets a test, one at a time, and the whole round repeats.\n  Libraries: Adafruit GFX Library and Adafruit SH110X.\n\n    OLED screen: SDA to A4, SCL to A5, VCC to 5V, GND to ground (I2C address 0x3C)\n    Head servo: signal to D9\n    Buzzer on D8: long leg (+) to D8, short leg (-) to ground\n*/\n#include <Wire.h>\n#include <Adafruit_GFX.h>\n#include <Adafruit_SH110X.h>\n#include <Servo.h>\n\nAdafruit_SH1106G display(128, 64, &Wire, -1);\nServo headServo;\nconst uint8_t PIN_HEAD = 9, PIN_BUZZER = 8;\nbool screenOk = false;\n\nvoid beep(unsigned int hz, unsigned int ms) { tone(PIN_BUZZER, hz, ms); delay(ms + 40); }\n\nvoid showText(const __FlashStringHelper* line1, const __FlashStringHelper* line2) {\n  if (!screenOk) return;\n  display.clearDisplay();\n  display.setTextColor(SH110X_WHITE);\n  display.setTextSize(2); display.setCursor(4, 8);  display.print(line1);\n  display.setTextSize(1); display.setCursor(4, 40); display.print(line2);\n  display.display();\n}\n\nvoid testScreen() {\n  Serial.println(F(\"TEST 1 of 3: OLED screen\"));\n  Wire.beginTransmission(0x3C);\n  bool found = (Wire.endTransmission() == 0);          // does anything answer at the screen's address?\n  if (!found) {\n    screenOk = false;\n    Serial.println(F(\"[CHECK] OLED: nothing answered. Check SDA (A4), SCL (A5), VCC (5V) and GND.\"));\n    Serial.println(F(\"        Swapped SDA and SCL is the most common mistake.\"));\n    return;\n  }\n  if (!screenOk) { display.begin(0x3C, true); screenOk = true; }\n  Serial.println(F(\"[PASS] OLED answered. Look at the screen: it should say HELLO and show two eyes.\"));\n  display.clearDisplay();\n  display.setTextColor(SH110X_WHITE); display.setTextSize(2); display.setCursor(30, 4); display.print(F(\"HELLO\"));\n  display.fillCircle(40, 40, 10, SH110X_WHITE); display.fillCircle(88, 40, 10, SH110X_WHITE);\n  display.display();\n  delay(2500);\n}\n\nvoid testHead() {\n  Serial.println(F(\"TEST 2 of 3: head servo on D9\"));\n  showText(F(\"HEAD\"), F(\"watch it turn\"));\n  headServo.attach(PIN_HEAD);\n  headServo.write(90);  delay(500);\n  headServo.write(50);  delay(700);\n  headServo.write(130); delay(900);\n  headServo.write(90);  delay(500);\n  headServo.detach();\n  Serial.println(F(\"  Did the head turn left, then right, then back to the middle?\"));\n  Serial.println(F(\"  Nothing?  Check the servo plug (signal on D9, power on 5V, ground on GND).\"));\n}\n\nvoid testBuzzer() {\n  Serial.println(F(\"TEST 3 of 3: buzzer on D8\"));\n  showText(F(\"BEEP\"), F(\"listen\"));\n  digitalWrite(PIN_BUZZER, HIGH); delay(400); digitalWrite(PIN_BUZZER, LOW); delay(250);\n  beep(440, 300); beep(880, 300);\n  Serial.println(F(\"  Did you hear 3 beeps?  (the Arduino cannot hear, so you decide)\"));\n  Serial.println(F(\"  Silent?  Flip the two legs: the long leg (+) goes to D8.\"));\n  Serial.println(F(\"  All beeps the same pitch?  Your buzzer is the always-beep type. That is fine.\"));\n}\n\nvoid setup() {\n  Serial.begin(9600);\n  pinMode(PIN_BUZZER, OUTPUT);\n  Wire.begin();\n  delay(500);\n  Serial.println(F(\"=== Peeko test ===\"));\n}\n\nvoid loop() {\n  testScreen(); delay(800);\n  testHead();   delay(800);\n  testBuzzer(); delay(800);\n  showText(F(\"DONE\"), F(\"again soon\"));\n  Serial.println(F(\"--- round finished. Starting again in 4 seconds ---\"));\n  delay(4000);\n}\n","jarvis":"/*\n  JARVIS - test my robot              Board: Arduino Uno\n  Run this after the wiring is done and the Circuit Lab says \"complete\".\n  Open the Serial Monitor (9600 baud). Every part gets a test, one at a time, and the whole round repeats.\n\n    A0 soil sensor      A1 light sensor (LDR with a 10k resistor)\n    D9 red, D10 green, D11 blue: the RGB LED (a 220 ohm resistor on each colour, long leg to ground)\n    D8 buzzer: long leg (+) to D8, short leg (-) to ground\n*/\nconst uint8_t PIN_SOIL = A0, PIN_LIGHT = A1, PIN_R = 9, PIN_G = 10, PIN_B = 11, PIN_BUZZER = 8;\n\nvoid rgb(bool r, bool g, bool b) {\n  digitalWrite(PIN_R, r ? HIGH : LOW);\n  digitalWrite(PIN_G, g ? HIGH : LOW);\n  digitalWrite(PIN_B, b ? HIGH : LOW);\n}\nvoid beep(unsigned int hz, unsigned int ms) { tone(PIN_BUZZER, hz, ms); delay(ms + 40); }\n\n// returns the average and how far the readings wandered\nint readAvg(uint8_t pin, int &spread) {\n  long sum = 0; int lo = 1023, hi = 0;\n  for (uint8_t i = 0; i < 12; i++) {\n    int v = analogRead(pin);\n    sum += v; if (v < lo) lo = v; if (v > hi) hi = v;\n    delay(8);\n  }\n  spread = hi - lo;\n  return (int)(sum / 12);\n}\n\nvoid testLed() {\n  Serial.println(F(\"TEST 1 of 4: RGB LED. Watch the colours.\"));\n  Serial.println(F(\"  RED...\"));   rgb(1, 0, 0); delay(1500);\n  Serial.println(F(\"  GREEN...\")); rgb(0, 1, 0); delay(1500);\n  Serial.println(F(\"  BLUE...\"));  rgb(0, 0, 1); delay(1500);\n  Serial.println(F(\"  WHITE (all three)...\")); rgb(1, 1, 1); delay(1500);\n  rgb(0, 0, 0);\n  Serial.println(F(\"  Did you see red, green, blue, then white?\"));\n  Serial.println(F(\"  One colour missing?  That colour's 220 ohm resistor or wire is the problem.\"));\n  Serial.println(F(\"  Nothing at all?  The LED's long leg must go to ground.\"));\n  Serial.println(F(\"  Colours the wrong way round (off when it should be on)?  Tell your facilitator: the LED is common anode.\"));\n}\n\nvoid testSoil() {\n  Serial.println(F(\"TEST 2 of 4: soil sensor on A0. Hold it in the air, then dip the probe in water.\"));\n  for (uint8_t i = 0; i < 6; i++) {\n    int spread; int v = readAvg(PIN_SOIL, spread);\n    Serial.print(F(\"  soil raw \")); Serial.print(v); Serial.println(v > 700 ? F(\"  (dry)\") : v < 400 ? F(\"  (wet)\") : F(\"  (damp)\"));\n    delay(900);\n  }\n  int spread; int v = readAvg(PIN_SOIL, spread);\n  if (v <= 3 || v >= 1020) Serial.println(F(\"[CHECK] Soil sensor: stuck at the very top or bottom. Check the signal wire on A0, and the 5V and GND wires.\"));\n  else Serial.println(F(\"[PASS] Soil sensor gives a reading. The number should DROP when you dip it in water.\"));\n}\n\nvoid testLight() {\n  Serial.println(F(\"TEST 3 of 4: light sensor on A1. Cover it with your hand, then uncover it.\"));\n  for (uint8_t i = 0; i < 6; i++) {\n    int spread; int v = readAvg(PIN_LIGHT, spread);\n    Serial.print(F(\"  light raw \")); Serial.println(v);\n    delay(900);\n  }\n  int spread; int v = readAvg(PIN_LIGHT, spread);\n  if (v <= 3 || v >= 1020) Serial.println(F(\"[CHECK] Light sensor: stuck at the very top or bottom. The LDR goes between 5V and A1, and the 10k resistor between A1 and ground.\"));\n  else if (spread > 120) Serial.println(F(\"[CHECK] Light sensor: readings are jumping around. A1 is probably not joined to the LDR and the 10k resistor.\"));\n  else Serial.println(F(\"[PASS] Light sensor gives a steady reading. The number should change when you cover it.\"));\n}\n\nvoid testBuzzer() {\n  Serial.println(F(\"TEST 4 of 4: buzzer on D8\"));\n  digitalWrite(PIN_BUZZER, HIGH); delay(400); digitalWrite(PIN_BUZZER, LOW); delay(250);\n  beep(440, 300); beep(880, 300);\n  Serial.println(F(\"  Did you hear 3 beeps?  (the Arduino cannot hear, so you decide)\"));\n  Serial.println(F(\"  Silent?  Flip the two legs: the long leg (+) goes to D8.\"));\n  Serial.println(F(\"  All beeps the same pitch?  Your buzzer is the always-beep type. That is fine.\"));\n}\n\nvoid setup() {\n  Serial.begin(9600);\n  pinMode(PIN_R, OUTPUT); pinMode(PIN_G, OUTPUT); pinMode(PIN_B, OUTPUT); pinMode(PIN_BUZZER, OUTPUT);\n  rgb(0, 0, 0);\n  delay(500);\n  Serial.println(F(\"=== Jarvis test ===\"));\n}\n\nvoid loop() {\n  testLed();    delay(800);\n  testSoil();   delay(800);\n  testLight();  delay(800);\n  testBuzzer(); delay(800);\n  Serial.println(F(\"--- round finished. Starting again in 4 seconds ---\"));\n  delay(4000);\n}\n"};</script>
+<script>
+/* Chip Camp: what each student has chosen and finished, shared by every page (kept in this browser only). */
+(function (root) {
+  'use strict';
+  const KEY = 'chipcamp.v1';
+  const ROBOTS = ['chipbot', 'peeko', 'jarvis'];
+  function read() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
+  function write(d) { try { localStorage.setItem(KEY, JSON.stringify(d)); } catch (e) { /* private window: just don't remember */ } }
+  function clean(s) { return String(s == null ? '' : s).replace(/[^A-Za-z0-9 .,!?'_-]/g, '').replace(/\s+/g, ' ').trim().slice(0, 16); }
+
+  root.ChipCamp = {
+    ROBOTS,
+    get() {
+      const d = read();
+      return { name: clean(d.name), robot: ROBOTS.indexOf(d.robot) >= 0 ? d.robot : null, levels: d.levels || {}, circuits: d.circuits || {}, code: d.code || {}, tests: d.tests || {}, copied: d.copied || {} };
+    },
+    design(robot) { const d = read(); return (d.designs && d.designs[robot]) || null; },
+    setDesign(robot, design) { if (ROBOTS.indexOf(robot) < 0) return; const d = read(); d.designs = d.designs || {}; d.designs[robot] = design; write(d); },
+    testDone(robot, on) { const d = read(); d.tests = d.tests || {}; d.tests[robot] = on !== false; write(d); },
+    codeCopied(robot) { const d = read(); d.copied = d.copied || {}; d.copied[robot] = true; write(d); },
+    proUnlocked() { try { return !!localStorage.getItem('chipcamp.prokey'); } catch (e) { return false; } },
+    day2() { return !!read().day2; },
+    setDay2(on) { const d = read(); d.day2 = !!on; write(d); },
+    robotOrDefault() { return this.get().robot || 'chipbot'; },
+    setName(n) { const d = read(); d.name = clean(n); write(d); },
+    setRobot(r) { if (ROBOTS.indexOf(r) < 0) return; const d = read(); d.robot = r; write(d); },
+    levelDone(level, stars) { const d = read(); d.levels = d.levels || {}; d.levels[level] = Math.max(d.levels[level] || 0, stars || 1); write(d); },
+    circuitDone(robot) { const d = read(); d.circuits = d.circuits || {}; d.circuits[robot] = true; write(d); },
+    codeBlocks(robot, n) { const d = read(); d.code = d.code || {}; d.code[robot] = n; write(d); },
+    levelsCompleted() { const l = this.get().levels; return Object.keys(l).filter((k) => l[k] > 0).length; }
+  };
+
+  // the home button on every page goes back to the student's robot page
+  if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', function () {
+      var r = root.ChipCamp.get().robot, b = document.querySelector('.homebtn');
+      if (b && r) b.setAttribute('href', 'index.html#' + r);
+    });
+  }
+})(typeof self !== 'undefined' ? self : this);
+
+</script>
+<script>
+/* The step bar on every tool page: Wire it, Test it, Design it, Build it, Make the code, Pro code. */
+(function (root) {
+  'use strict';
+  const STEPS = [
+    { id: 'wire', label: 'Wire it', href: 'circuits.html' },
+    { id: 'test', label: 'Test it', href: 'test.html' },
+    { id: 'design', label: 'Design it', href: 'studio.html' },
+    { id: 'build', label: 'Build it', href: 'blocks.html#build' },
+    { id: 'code', label: 'Make the code', href: 'blocks.html#code' },
+    { id: 'pro', label: 'Pro code', href: 'blocks.html#pro' }
+  ];
+  const LOCKED_DESIGN = { chipbot: true, jarvis: true };   // the Studio opens on day 2 for these two robots
+  function doneFor(id, r, p) {
+    if (id === 'wire') return !!p.circuits[r];
+    if (id === 'test') return !!p.tests[r];
+    if (id === 'design') return !!ChipCamp.design(r);
+    if (id === 'build') return (p.code[r] || 0) > 0;
+    if (id === 'code') return !!p.copied[r];
+    if (id === 'pro') return ChipCamp.proUnlocked();
+    return false;
+  }
+  function render(current) {
+    const nav = document.getElementById('flow'); if (!nav) return;
+    const p = ChipCamp.get(), r = p.robot || 'chipbot';
+    nav.innerHTML = '';
+    STEPS.forEach((s, i) => {
+      const a = document.createElement('a');
+      const locked = (s.id === 'design' && LOCKED_DESIGN[r] && !ChipCamp.day2());
+      a.className = 'fstep' + (s.id === current ? ' cur' : '') + (doneFor(s.id, r, p) ? ' done' : '') + (locked ? ' lock' : '');
+      a.href = s.href;
+      a.innerHTML = '<i>' + (doneFor(s.id, r, p) && s.id !== current ? '\u2713' : (i + 1)) + '</i>' + s.label + (locked ? ' <small>Day 2</small>' : '') + (s.id === 'pro' && !ChipCamp.proUnlocked() ? ' <small>\ud83d\udd12</small>' : '');
+      if (s.id === current) a.setAttribute('aria-current', 'step');
+      nav.appendChild(a);
+    });
+  }
+  root.CampFlow = { render, STEPS };
+})(typeof self !== 'undefined' ? self : this);
+
+</script>
+<script>
+/* Test it: a test sketch for each robot, and a checklist of what you should see and hear. */
+(function () {
+  'use strict';
+  const $ = (s) => document.querySelector(s);
+  const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const ROBOTS = { chipbot: { name: 'Chip Bot', emoji: '🤖', color: '#2bb3a3' }, peeko: { name: 'Peeko', emoji: '👀', color: '#ff6b5e' }, jarvis: { name: 'Jarvis', emoji: '🌱', color: '#8b7fe8' } };
+  const BOARD = { chipbot: 'Tools → Board → <u>Arduino Nano</u> (if the upload fails: Processor → ATmega328P (Old Bootloader))', peeko: 'Tools → Board → <u>Arduino Uno</u>', jarvis: 'Tools → Board → <u>Arduino Uno</u>' };
+  const LIBS = { chipbot: 'No extra libraries needed.', peeko: 'Libraries needed (Tools → Manage Libraries): Adafruit GFX Library and Adafruit SH110X (say yes to BusIO too).', jarvis: 'No extra libraries needed.' };
+  const SAY = {
+    chipbot: 'Chip Bot checks its buzzer, its four servos and its distance sensor, one after the other.',
+    peeko: 'Peeko checks its screen, its head servo and its buzzer, one after the other.',
+    jarvis: 'Jarvis checks its LED, its soil sensor, its light sensor and its buzzer, one after the other.'
+  };
+  const CHECKS = {
+    chipbot: [
+      { id: 'buzzer', title: 'Buzzer on D13', see: 'Three beeps: one plain, then two different pitches. (An always-beep buzzer makes the same pitch each time. That is fine.)', fix: 'Silent? Flip the two legs: the long leg (+) goes to D13 and the short leg (−) to ground.' },
+      { id: 'servo', title: 'All four servos', see: 'Each servo swings left and right, one at a time: left hip, right hip, left foot, right foot.', fix: 'One does nothing? Check its plug: the yellow wire goes on the S pin. All four dead? Try another USB cable or charger.' },
+      { id: 'dist', title: 'Distance sensor', see: 'The Serial Monitor prints "distance ... cm", and the buzzer beeps when your hand is closer than 15 cm.', fix: 'It says "no echo"? Check VCC, GND, TRIG (D8) and ECHO (D9).' }
+    ],
+    peeko: [
+      { id: 'screen', title: 'OLED screen', see: 'The screen says HELLO and shows two round eyes. The Serial Monitor says [PASS] OLED answered.', fix: 'Blank, and [CHECK]? SDA goes to A4 and SCL goes to A5 (swapped is the most common mistake). Then check VCC to 5V and GND.' },
+      { id: 'head', title: 'Head servo', see: 'The head turns left, then right, then back to the middle.', fix: 'Nothing? Check the signal wire on D9, power on 5V and ground on GND.' },
+      { id: 'buzzer', title: 'Buzzer on D8', see: 'Three beeps: one plain, then two different pitches.', fix: 'Silent? Flip the two legs: the long leg (+) goes to D8 and the short leg (−) to ground.' }
+    ],
+    jarvis: [
+      { id: 'led', title: 'RGB LED', see: 'Red, then green, then blue, then white (all three), each for about a second and a half.', fix: 'A colour is missing? That colour\'s 220 Ω resistor or wire is wrong. Nothing lights? The long leg of the LED must go to ground.' },
+      { id: 'soil', title: 'Soil sensor', see: 'The soil number changes, and it drops when you dip the probe in water. The Serial Monitor says [PASS].', fix: '[CHECK]? Check the signal wire on A0, and the power and ground wires.' },
+      { id: 'light', title: 'Light sensor', see: 'The light number changes when you cover the sensor with your hand. The Serial Monitor says [PASS].', fix: '[CHECK]? The LDR goes between 5V and A1, and the 10 kΩ resistor goes between A1 and ground.' },
+      { id: 'buzzer', title: 'Buzzer on D8', see: 'Three beeps: one plain, then two different pitches.', fix: 'Silent? Flip the two legs: the long leg (+) goes to D8 and the short leg (−) to ground.' }
+    ]
+  };
+  const PIN = { chipbot: 'D13', peeko: 'D8', jarvis: 'D8' };
+
+  const S = { proj: ChipCamp.robotOrDefault() };
+  let toastT = 0;
+  function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2200); }
+  const key = () => 'chipcamp.testchecks.' + S.proj;
+  function loadChecks() { try { return JSON.parse(localStorage.getItem(key())) || {}; } catch (e) { return {}; } }
+  function saveChecks(o) { try { localStorage.setItem(key(), JSON.stringify(o)); } catch (e) { /* fine */ } }
+
+  /* ---------- syntax colours for the sketch ---------- */
+  const TYPES = new Set(['void', 'int', 'long', 'unsigned', 'bool', 'char', 'uint8_t', 'byte', 'const', 'Servo', 'Adafruit_SH1106G']);
+  const KW = new Set(['if', 'else', 'for', 'while', 'return', 'true', 'false', 'HIGH', 'LOW', 'OUTPUT', 'INPUT']);
+  const TOK = /(\/\/[^\n]*)|("(?:[^"\\]|\\.)*")|(#\s*\w+)|(\b\d+(?:\.\d+)?\b)|([A-Za-z_]\w*)/g;
+  function hl(line) {
+    let out = '', last = 0, m; TOK.lastIndex = 0;
+    while ((m = TOK.exec(line))) {
+      out += esc(line.slice(last, m.index));
+      const t = m[0]; let cls = null;
+      if (m[1]) cls = 'c'; else if (m[2]) cls = 's'; else if (m[3]) cls = 'p'; else if (m[4]) cls = 'n';
+      else cls = TYPES.has(t) ? 't' : KW.has(t) ? 'k' : (line.charAt(TOK.lastIndex) === '(' ? 'f' : null);
+      out += cls ? '<span class="tk-' + cls + '">' + esc(t) + '</span>' : esc(t);
+      last = TOK.lastIndex;
+    }
+    return out + esc(line.slice(last));
+  }
+
+  /* ---------- helpers ---------- */
+  function buzzerHelp() {
+    const pin = PIN[S.proj], chip = S.proj === 'chipbot';
+    const sig = chip ? 'the <b>S</b> pin of the <b>' + pin + '</b> header on the shield' : 'pin <b>' + pin + '</b>';
+    const gnd = chip ? 'the <b>G</b> pin of the same ' + pin + ' header' : 'any <b>GND</b> pin (or the ground rail of the breadboard)';
+    return '<p>Your buzzer is small with <b>two legs</b>. The <b>longer leg is +</b> and the shorter leg is −. It has no power pin, so we only need two wires:</p>' +
+      '<ul><li><b>+ (long leg)</b> goes to ' + sig + '.</li><li><b>− (short leg)</b> goes to ' + gnd + '.</li></ul>' +
+      '<div class="tip"><b>How to hold the legs:</b><ol><li><b>With a breadboard:</b> push each leg into a different column. Run one jumper wire from the + column to the signal pin, and one from the − column to ground.</li><li><b>No breadboard:</b> push each leg into the end of a jumper wire, wrap a little tape round the join, and plug the other ends into the pins. The tape stops the leg from wiggling out.</li></ol></div>' +
+      '<p>The Circuit Lab shows the buzzer as a part with two legs, so you can wire it there first.</p>';
+  }
+  function ledHelp() {
+    return '<ol>' +
+      '<li><b>Know your LED.</b> It has four legs. The <b>longest leg (K)</b> is the shared ground. The other three are red, green and blue.</li>' +
+      '<li><b>Know your resistors.</b> A resistor stops the LED from burning out. The three for the LED are <b>220 Ω</b>: bands <i>red, red, brown</i>. The one for the light sensor is <b>10 kΩ</b>: bands <i>brown, black, orange</i>. In the Circuit Lab, click a resistor to set its value and check the bands.</li>' +
+      '<li><b>Build one colour at a time.</b> Do red first: pin D9, then a 220 Ω resistor, then the LED\'s red leg. Upload the test sketch and check red comes on. Then add green (D10), then blue (D11). If a colour is wrong, you only have one wire to look at.</li>' +
+      '<li><b>Last: the long leg to ground.</b> Connect the long leg (K) to the ground rail (the blue − line). Nothing lights without this step.</li></ol>' +
+      '<div class="tip">The finished layout is in the Circuit Lab. Your facilitator can press <b>Show finished circuit</b> to compare.</div>';
+  }
+
+  /* ---------- the page ---------- */
+  function renderTabs() {
+    const nav = $('#ptabs'); nav.innerHTML = '';
+    Object.keys(ROBOTS).forEach((id) => {
+      const r = ROBOTS[id], b = el('button', 'ptab', '<span class="em">' + r.emoji + '</span>' + esc(r.name));
+      b.setAttribute('aria-selected', id === S.proj ? 'true' : 'false'); b.style.setProperty('--pc', r.color);
+      b.onclick = () => { if (id === S.proj) return; S.proj = id; ChipCamp.setRobot(id); renderAll(); };
+      nav.appendChild(b);
+    });
+  }
+  function renderChecks() {
+    const box = $('#checks'), saved = loadChecks(); box.innerHTML = '';
+    CHECKS[S.proj].forEach((c) => {
+      const row = el('label', 'check' + (saved[c.id] ? ' on' : ''));
+      const cb = el('input'); cb.type = 'checkbox'; cb.checked = !!saved[c.id];
+      cb.onchange = () => { const s = loadChecks(); s[c.id] = cb.checked; saveChecks(s); renderChecks(); };
+      row.appendChild(cb);
+      row.appendChild(el('div', null, '<b>' + esc(c.title) + '</b><div class="see">' + esc(c.see) + '</div>'));
+      row.appendChild(el('div', 'fix', '💡 ' + esc(c.fix)));
+      box.appendChild(row);
+    });
+    const all = CHECKS[S.proj].every((c) => saved[c.id]);
+    $('#doneBtn').disabled = !all;
+    $('#doneNote').textContent = all ? 'Everything works. Great!' : 'Tick every part to carry on.';
+    ChipCamp.testDone(S.proj, all);
+    CampFlow.render('test');
+  }
+  function renderCode() {
+    const text = (window.TEST_SKETCHES || {})[S.proj] || '';
+    const pane = $('#tPane'); pane.innerHTML = '';
+    text.split('\n').forEach((t, i) => { const row = el('div', 'ln'); row.innerHTML = '<span class="no">' + (i + 1) + '</span><span class="tx">' + hl(t || ' ') + '</span>'; pane.appendChild(row); });
+    $('#copyTest').onclick = () => { copy(text).then(() => toast('Copied the whole test sketch! Paste it into the Arduino IDE.')); };
+    $('#dlTest').onclick = () => { const a = el('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' })); a.download = ROBOTS[S.proj].name.replace(/ /g, '') + '_test.ino'; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 400); toast('Downloaded. Open it with the Arduino IDE.'); };
+  }
+  function copy(text) {
+    const fallback = () => { const ta = el('textarea'); ta.value = text; ta.style.cssText = 'position:fixed;opacity:0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (e) { /* ignore */ } ta.remove(); };
+    if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text).catch(fallback);
+    fallback(); return Promise.resolve();
+  }
+  function renderAll() {
+    const r = ROBOTS[S.proj];
+    document.title = 'Test it · ' + r.name + ' · Chip Camp';
+    $('#tTitle').textContent = 'Test ' + r.name;
+    $('#tSay').textContent = SAY[S.proj];
+    $('#buzzBody').innerHTML = buzzerHelp();
+    const lh = $('#ledHelper'); lh.hidden = S.proj !== 'jarvis'; $('#ledBody').innerHTML = S.proj === 'jarvis' ? ledHelp() : '';
+    $('#tBoard').innerHTML = BOARD[S.proj];
+    $('#tLibs').textContent = LIBS[S.proj];
+    const done = ChipCamp.get().circuits[S.proj];
+    const ls = $('#labState'); ls.textContent = done ? '✓ Your Circuit Lab is complete.' : 'Not finished yet. Do that first.'; ls.className = 'labstate ' + (done ? 'ok' : 'no');
+    renderTabs(); renderChecks(); renderCode();
+  }
+  $('#doneBtn').onclick = () => {
+    const next = (S.proj !== 'peeko' && !ChipCamp.day2()) ? 'blocks.html#build' : 'studio.html';
+    location.href = next;
+  };
+  renderAll();
+})();
+
+</script>
+</body>
+</html>

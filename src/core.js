@@ -154,20 +154,17 @@
         { id: 'sensing', label: 'Sensing', color: '#3FB8DE' }
       ],
       blocks: [
-        B('walk', 'motion', ['walk ', choice('dir', 'fwd', [['fwd', 'forward'], ['back', 'backward']]), ' ', num('steps', 4, 1, 10, 1), ' steps'], {
+        B('walk', 'motion', ['walk ', choice('dir', 'fwd', [['fwd', 'forward'], ['back', 'backward']]), ' ', num('steps', 4, 1, 6, 1), ' steps'], {
           code: (p) => ['doWalk(' + V(p.dir === 'fwd' ? 0 : 1) + ', ' + V(p.steps) + ');']
         }),
-        B('turn', 'motion', ['turn ', choice('dir', 'left', [['left', 'left'], ['right', 'right']]), ' ', num('steps', 3, 1, 10, 1), ' steps'], {
+        B('turn', 'motion', ['turn ', choice('dir', 'left', [['left', 'left'], ['right', 'right']]), ' ', num('steps', 3, 1, 6, 1), ' steps'], {
           code: (p) => ['doTurn(' + V(p.dir === 'left' ? 0 : 1) + ', ' + V(p.steps) + ');']
         }),
-        B('dance', 'motion', ['dance ', choice('move', '0', [['0', 'swing'], ['1', 'tiptoe swing'], ['2', 'up and down'], ['3', 'jitter'], ['4', 'moonwalk left'], ['5', 'moonwalk right'], ['6', 'flapping'], ['7', 'shake right leg'], ['8', 'shake left leg'], ['9', 'bend right'], ['10', 'bend left']]), ' ', num('reps', 2, 1, 8, 1), ' times'], {
+        B('dance', 'motion', ['dance ', choice('move', '0', [['0', 'swing'], ['2', 'up and down'], ['3', 'jitter'], ['6', 'flapping']]), ' ', num('reps', 2, 1, 4, 1), ' times'], {
           code: (p) => ['doDance(' + V(p.move) + ', ' + V(p.reps) + ');']
         }),
         B('centre', 'motion', ['hold the legs at 90° for ', num('secs', 20, 5, 60, 5), ' seconds'], { code: (p) => ['centreServos(' + V(p.secs) + ');   // fit the servo horns now'] }),
         B('stand', 'motion', ['stand still'], { code: () => ['doRest();'] }),
-        B('speed', 'motion', ['walk speed ', choice('level', '1', [['0', 'slow'], ['1', 'normal'], ['2', 'fast']])], {
-          code: (p) => ['doSpeed(' + V(p.level) + ');']
-        }),
         noteBlock('beepNote', 'beep note '),
         helloBlock('talk'),
         WAIT, REPEAT,
@@ -315,8 +312,9 @@
     });
   }
 
+  // opts.pro = { title, patches, extra, wake, forever } makes the advanced "Pro" sketch from the same base code
   function generate(projId, state, opts) {
-    const P = PROJECTS[projId];
+    const P = PROJECTS[projId], pro = opts && opts.pro;
     const robot = cleanText(state.robot, 16, P.robotDefault);
     const builder = cleanText(state.builder, 16, 'a CHIP Camp student');
     const builderConst = cleanText(state.builder, 16, 'Friend');
@@ -331,7 +329,8 @@
       rule,
       '//  ' + P.name.toUpperCase() + ' - built by ' + V(builder),
       '//  Robot name: ' + V(robot),
-      '//  Made with Camp Blocks' + (date ? ' · ' + V(date) : ''),
+      '//  Made with Camp Blocks' + (date ? ' - ' + V(date) : ''),
+      ...(pro ? ['//  ' + pro.title] : []),
       rule
     ];
     const constants = P.id === 'peeko'
@@ -346,15 +345,19 @@
 
     const lines = [];
     let keep = false;
-    TEMPLATES[projId].split('\n').forEach(function (ln) {
+    let tpl = TEMPLATES[projId];
+    if (pro) (pro.patches || []).forEach(function (pt) { if (tpl.indexOf(pt[0]) < 0) throw new Error('pro patch does not fit the base sketch: ' + pt[0].slice(0, 40)); tpl = tpl.replace(pt[0], pt[1]); });
+    const tlines = tpl.split('\n');
+    tlines.forEach(function (ln, ti) {
       const m = ln.trim();
+      if (pro && pro.extra && m === '//@@KEEP+' && /STUDENT PART: WHAT/.test(tlines[ti + 1] || '')) pro.extra.split('\n').forEach((t) => lines.push({ t, src: 'student', cat: 'control', keep: true }));
       if (m === '//@@KEEP+') { keep = true; return; }
       if (m === '//@@KEEP-') { keep = false; return; }
       if (m === '//@@HEADER@@') { header.forEach((t) => lines.push({ t, src: 'student', cat: 'name', keep: true })); return; }
       if (m === '//@@CONSTANTS@@') { constants.forEach((t) => lines.push({ t, src: 'student', cat: 'name', keep: true })); return; }
       if (m === '//@@SETTINGS@@') { settingsLines.forEach((t) => lines.push({ t, src: 'settings', keep: false })); return; }
-      if (m === '//@@WAKE@@') { (wakeOut.length ? wakeOut : empty('wake-up')).forEach((l) => lines.push(l)); return; }
-      if (m === '//@@FOREVER@@') { (foreverOut.length ? foreverOut : empty('forever')).forEach((l) => lines.push(l)); return; }
+      if (m === '//@@WAKE@@') { (pro ? pro.wake.split('\n').map((t) => ({ t, src: 'student', cat: 'control', keep: true })) : (wakeOut.length ? wakeOut : empty('wake-up'))).forEach((l) => lines.push(l)); return; }
+      if (m === '//@@FOREVER@@') { (pro ? pro.forever.split('\n').map((t) => ({ t, src: 'student', cat: 'control', keep: true })) : (foreverOut.length ? foreverOut : empty('forever'))).forEach((l) => lines.push(l)); return; }
       lines.push({ t: ln, src: 'base', keep });
     });
     const textOut = stripMarks(lines.map((l) => l.t).join('\n'));

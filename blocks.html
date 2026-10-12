@@ -119,6 +119,19 @@ button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .homebtn:focus-visible{outline:3px solid #fff;outline-offset:2px}
 a.btn{text-decoration:none}
 
+/* ---------- the step bar ---------- */
+.flow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 18px;background:#fff;border-bottom:2px solid var(--line-soft)}
+.fstep{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink-soft);font-family:var(--font-d);font-size:16px;padding:5px 14px 5px 6px;border-radius:999px;border:2px solid var(--line);background:#fff;transition:transform .12s}
+.fstep:hover{transform:translateY(-1px)}
+.fstep i{width:26px;height:26px;border-radius:50%;background:#e6edfb;display:grid;place-items:center;font-style:normal;font-size:14px;color:var(--ink-soft)}
+.fstep small{font-family:var(--font-b);font-weight:800;font-size:11px;background:#fff1c9;color:#7a5b00;border-radius:8px;padding:1px 6px}
+.fstep.done{border-color:#9bdca4;background:#effbf1;color:#23702f}
+.fstep.done i{background:var(--green);color:#fff}
+.fstep.cur{border-color:var(--purple);color:var(--purple);box-shadow:0 0 0 3px rgba(124,77,255,.18);background:#fff}
+.fstep.cur i{background:var(--purple);color:#fff}
+.fstep.lock{opacity:.55;pointer-events:none}
+@media (max-width:760px){.flow{padding:8px 10px}.fstep{font-size:14px}}
+
 /* ---------- stage ---------- */
 .stagecard{overflow:hidden;position:sticky;top:12px}
 .stagehead{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:2px solid var(--line-soft);background:#f6f9ff;flex-wrap:wrap}
@@ -277,19 +290,44 @@ mark.v{background:#ffe14d;color:#3a2b00;border-radius:5px;padding:0 3px;font-wei
 .facil input[type=number]{width:84px;border:2px solid var(--line);border-radius:10px;padding:4px 8px;font-weight:800}
 .facil label{display:contents}
 
+/* ---------- friendlier layout: starters, sketch check, pro ---------- */
+.starters{display:flex;gap:8px;flex-wrap:wrap;align-items:stretch;margin:0 0 14px}
+.starters .slabel{font-family:var(--font-d);font-size:15px;color:var(--ink-soft);align-self:center;margin-right:2px}
+.schip{border:2px solid var(--line);background:#fff;border-radius:18px;padding:7px 14px 7px 9px;display:flex;align-items:center;gap:9px;cursor:pointer;text-align:left;font-family:var(--font-b);color:var(--ink);box-shadow:0 3px 0 var(--line);transition:transform .1s}
+.schip:hover{transform:translateY(-2px);border-color:var(--purple)}
+.schip .e{font-size:26px;line-height:1}
+.schip b{display:block;font-family:var(--font-d);font-weight:500;font-size:16px}
+.schip small{display:block;font-size:12px;color:var(--ink-soft);font-weight:700;max-width:170px;line-height:1.2}
+.schip.armed{border-color:#ff9f1a;background:#fff6e0}
+.schip.armed small{color:#a65f00}
+.cta{margin-top:20px}
+.cta .toolbar{margin:0 0 0 auto}
+.sketchok{margin:0 0 12px;background:#e9f9ec;border:2px solid #9bdca4;border-radius:14px;padding:9px 14px;font-weight:800;color:#23702f;font-size:14px}
+.sketchok.bad{background:#ffe9ec;border-color:#ff9aa8;color:#b32a3f}
+.prolock{max-width:520px;margin:40px auto;padding:26px 28px;text-align:center}
+.prolock .proico{font-size:44px}
+.prolock h2{font-family:var(--font-d);font-weight:500;font-size:28px;margin:4px 0 6px}
+.prolock p{color:#4a5072;font-weight:700;margin:0 0 16px}
+.prolock label{display:block;text-align:left;font-weight:800;font-size:12px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.prolock input{width:100%;border:3px solid var(--line);border-radius:14px;padding:11px 14px;font-size:22px;font-weight:800;letter-spacing:.3em;text-align:center;margin-bottom:14px}
+.prolock .lockmsg{min-height:22px;margin-top:10px;font-weight:800;color:#d94a63}
+.feat{margin:8px 0 0;padding-left:20px;font-size:14px;font-weight:700;color:#38406a}
+.feat li{margin:4px 0}
+/* bigger, calmer blocks on a projector */
+.blk>.row{font-size:16.5px}
+.fly{padding:6px 14px 24px}
+.palette-blk{margin-bottom:12px}
+
 </style>
 </head>
 <body>
 <header class="topbar">
   <a class="homebtn" href="index.html" title="Back to the Chip Camp welcome screen" aria-label="Home">🏠</a>
-  <div class="brand"><span class="logo" aria-hidden="true"><i style="background:#FFBF00"></i><i style="background:#4C97FF"></i><i style="background:#CF63CF"></i><i style="background:#59C059"></i></span>Camp Blocks</div>
+  <div class="brand"><span class="logo" aria-hidden="true"><i style="background:#FFBF00"></i><i style="background:#4C97FF"></i><i style="background:#CF63CF"></i><i style="background:#59C059"></i></span>Code Builder</div>
   <nav class="ptabs" id="ptabs" aria-label="Choose a robot"></nav>
   <div class="spacer"></div>
-  <div class="viewtabs" role="tablist" aria-label="Build or Code">
-    <button class="vtab" role="tab" data-view="build" aria-selected="true">🧩 Build</button>
-    <button class="vtab" role="tab" data-view="code" aria-selected="false">⚡ Code</button>
-  </div>
 </header>
+<nav class="flow" id="flow" aria-label="Steps"></nav>
 
 <main id="buildView" class="build">
   <aside class="card palwrap" aria-label="Blocks">
@@ -299,12 +337,13 @@ mark.v{background:#ffe14d;color:#3a2b00;border-radius:5px;padding:0 3px;font-wei
 
   <section class="card ws" aria-label="Your program">
     <div class="namebar" id="namebar"></div>
-    <div class="toolbar" id="toolbar"></div>
+    <div class="starters" id="starters"></div>
     <div class="story" id="story"></div>
     <div class="script" id="script"></div>
     <div class="cta">
-      <button class="btn go big" id="makeCode">⚡ Make the code</button>
+      <button class="btn go big" id="makeCode">Next: make the code ➜</button>
       <span class="note" id="blockCount" style="color:#69709a;font-weight:800"></span>
+      <div class="toolbar" id="toolbar"></div>
     </div>
   </section>
 
@@ -329,8 +368,10 @@ mark.v{background:#ffe14d;color:#3a2b00;border-radius:5px;padding:0 3px;font-wei
     <h2 id="codeTitle">Your sketch</h2>
     <button class="btn" id="backBtn">← Back to blocks</button>
     <label class="btn small" style="cursor:pointer"><input type="checkbox" id="showAll"> show all tested code</label>
+    <button class="btn" id="dlBtn">⬇ Download .ino</button>
     <button class="btn go big" id="copyBtn">📋 Copy code</button>
   </div>
+  <div class="sketchok" id="sketchOk"></div>
   <div class="codegrid">
     <div class="codecard">
       <div class="legend" id="legend"></div>
@@ -340,15 +381,49 @@ mark.v{background:#ffe14d;color:#3a2b00;border-radius:5px;padding:0 3px;font-wei
       <div class="card sidecard">
         <h3>Put it on the robot</h3>
         <ol>
-          <li><span>Press <b>Copy code</b>.</span></li>
+          <li><span>Press <b>Copy code</b> (the big button, not by selecting the text) or <b>Download .ino</b>.</span></li>
           <li><span>Open the <b>Arduino IDE</b> and make a new sketch. Select everything (<code>Ctrl/⌘ + A</code>) and paste.</span></li>
           <li><span id="boardStep"></span></li>
           <li><span><b>Tools → Port</b>: pick the USB port, then press <b>Upload</b> ➜</span></li>
           <li><span>Open <b>Tools → Serial Monitor</b> at <code>9600 baud</code> to see anything the robot prints.</span></li>
         </ol>
         <p class="small" id="libNote"></p>
+        <p class="small"><b>Error says "undefined reference to setup and loop"?</b> The paste was not the whole sketch. Press Copy code again and paste over everything.</p>
       </div>
       <div class="card sidecard" id="facilCard" hidden></div>
+    </div>
+  </div>
+</section>
+
+<section id="proView" class="codeview" hidden aria-label="Pro code">
+  <div class="card prolock" id="proLock">
+    <div class="proico" aria-hidden="true">🔒</div>
+    <h2>The Pro code</h2>
+    <p>This is the final, more complex program for your robot. It is the same robot with a much cleverer brain. Finish your own program first, then ask your facilitator to unlock it.</p>
+    <form id="proForm" autocomplete="off"><label for="proPin">Facilitator password</label><input id="proPin" type="password" inputmode="numeric" autocomplete="off"><button class="btn go big" type="submit">Unlock</button></form>
+    <div class="lockmsg" id="proMsg" role="status" aria-live="polite"></div>
+  </div>
+  <div id="proBody" hidden>
+    <div class="codetop">
+      <h2 id="proTitle">Pro code</h2>
+      <button class="btn" id="proBack">← Back to my program</button>
+      <button class="btn" id="proDl">⬇ Download .ino</button>
+      <button class="btn go big" id="proCopy">📋 Copy Pro code</button>
+    </div>
+    <div class="codegrid">
+      <div class="codecard"><div class="legend"><span>The Pro code, built on the same tested base as your program.</span></div><div class="codepane" id="proPane" tabindex="0"></div></div>
+      <div>
+        <div class="card sidecard"><h3>What is new in it</h3><p class="small" id="proBlurb"></p><ul class="feat" id="proFeat"></ul></div>
+        <div class="card sidecard">
+          <h3>Put it on the robot</h3>
+          <ol>
+            <li><span>Press <b>Copy Pro code</b>.</span></li>
+            <li><span>In the <b>Arduino IDE</b> make a new sketch, select everything and paste.</span></li>
+            <li><span id="proBoard"></span></li>
+            <li><span>Pick the <b>Port</b>, press <b>Upload</b>, and open the Serial Monitor at <code>9600 baud</code>.</span></li>
+          </ol>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -356,6 +431,7 @@ mark.v{background:#ffe14d;color:#3a2b00;border-radius:5px;padding:0 3px;font-wei
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>var CAMP_TEMPLATES = {"peeko":"//@@HEADER@@\n/*\n  PEEKO — final action layer (v2: distinct, animated faces)\n  ---------------------------------------------------------\n  Same command protocol as before — send one of:\n  happy / sad / surprised / angry / sleepy / left / right / neutral / celebrate\n  followed by a newline, over Serial.\n\n  What changed: each face is now its own shape (not just a bigger/\n  smaller circle), and each one plays out as a short animation —\n  a few frames drawn in sequence — instead of one static image.\n*/\n\n#include <Wire.h>\n#include <Adafruit_GFX.h>\n#include <Adafruit_SH110X.h>\n#include <Servo.h>\n\nAdafruit_SH1106G display(128, 64, &Wire, -1);\nServo headServo;\n\nconst int buzzerPin = 8;\nconst int HEAD_CENTER = 90;\nconst int HEAD_LEFT   = 50;\nconst int HEAD_RIGHT  = 130;\n\nunsigned long lastBlinkTime = 0;\nunsigned long blinkInterval = 4000;\nbool isPlayingAction = false;\nString inputLine = \"\";\n\n//@@KEEP+\n// ===================== STUDENT PART: NAMES =====================\n// PROGMEM keeps these words in flash memory, so they do not use up RAM.\n//@@CONSTANTS@@\n//@@KEEP-\n\n// ===================== DRAWING HELPERS =====================\n// Small reusable pieces — an eye shape, a mouth curve — built once,\n// then combined differently for each expression.\n\nvoid drawRoundEye(int cx, int cy, int r) {\n  display.fillCircle(cx, cy, r, SH110X_WHITE);\n}\n\nvoid drawHappyEye(int cx, int cy) {\n  // upward-curving \"^\" eye, drawn as two thickened diagonal lines\n  display.drawLine(cx - 9, cy + 5, cx, cy - 5, SH110X_WHITE);\n  display.drawLine(cx - 9, cy + 6, cx, cy - 4, SH110X_WHITE);\n  display.drawLine(cx, cy - 5, cx + 9, cy + 5, SH110X_WHITE);\n  display.drawLine(cx, cy - 4, cx + 9, cy + 6, SH110X_WHITE);\n}\n\nvoid drawSadEye(int cx, int cy) {\n  // downward-drooping eye, opposite curve of the happy eye\n  display.drawLine(cx - 9, cy - 3, cx, cy + 6, SH110X_WHITE);\n  display.drawLine(cx - 9, cy - 2, cx, cy + 7, SH110X_WHITE);\n  display.drawLine(cx, cy + 6, cx + 9, cy - 3, SH110X_WHITE);\n  display.drawLine(cx, cy + 7, cx + 9, cy - 2, SH110X_WHITE);\n}\n\nvoid drawAngryEye(int cx, int cy) {\n  // narrow eye + angled eyebrow above it\n  display.fillRoundRect(cx - 8, cy - 2, 16, 6, 2, SH110X_WHITE);\n  if (cx < 64) display.drawLine(cx - 9, cy - 12, cx + 9, cy - 6, SH110X_WHITE);\n  else         display.drawLine(cx + 9, cy - 12, cx - 9, cy - 6, SH110X_WHITE);\n}\n\nvoid drawSmile(int yBase, int width) {\n  for (int x = 64 - width; x <= 64 + width; x += 2) {\n    int y = yBase + ((x - 64) * (x - 64)) / 55;\n    display.drawPixel(x, y, SH110X_WHITE);\n    display.drawPixel(x, y + 1, SH110X_WHITE);\n  }\n}\n\nvoid drawFrown(int yBase, int width) {\n  for (int x = 64 - width; x <= 64 + width; x += 2) {\n    int y = yBase - ((x - 64) * (x - 64)) / 55;\n    display.drawPixel(x, y, SH110X_WHITE);\n    display.drawPixel(x, y + 1, SH110X_WHITE);\n  }\n}\n\nvoid drawTear(int cx, int cy) {\n  display.fillCircle(cx, cy, 3, SH110X_WHITE);\n}\n\nvoid drawOMouth(int cx, int cy, int r) {\n  display.drawCircle(cx, cy, r, SH110X_WHITE);\n  display.drawCircle(cx, cy, r - 1, SH110X_WHITE);\n}\n\n// ===================== FACES (each one is a short animation) =====================\n\nvoid faceNeutral() {\n  display.clearDisplay();\n  drawRoundEye(40, 28, 9);\n  drawRoundEye(88, 28, 9);\n  display.display();\n}\n\nvoid faceClosed() {\n  display.clearDisplay();\n  display.fillRect(31, 26, 18, 4, SH110X_WHITE);\n  display.fillRect(79, 26, 18, 4, SH110X_WHITE);\n  display.display();\n}\n\nvoid faceHappy() {\n  // Frame 1: eyes still round, no mouth yet\n  display.clearDisplay();\n  drawRoundEye(40, 28, 9);\n  drawRoundEye(88, 28, 9);\n  display.display();\n  delay(150);\n\n  // Frame 2: eyes curve upward into \"^ ^\", small smile appears\n  display.clearDisplay();\n  drawHappyEye(40, 28);\n  drawHappyEye(88, 28);\n  drawSmile(46, 12);\n  display.display();\n  delay(150);\n\n  // Frame 3: full wide smile, held\n  display.clearDisplay();\n  drawHappyEye(40, 28);\n  drawHappyEye(88, 28);\n  drawSmile(44, 20);\n  display.display();\n}\n\nvoid faceSad() {\n  // Frame 1: eyes still round\n  display.clearDisplay();\n  drawRoundEye(40, 28, 9);\n  drawRoundEye(88, 28, 9);\n  display.display();\n  delay(150);\n\n  // Frame 2: eyes droop downward, frown appears\n  display.clearDisplay();\n  drawSadEye(40, 28);\n  drawSadEye(88, 28);\n  drawFrown(54, 18);\n  display.display();\n  delay(200);\n\n  // Frame 3: a tear appears, held\n  display.clearDisplay();\n  drawSadEye(40, 28);\n  drawSadEye(88, 28);\n  drawFrown(54, 18);\n  drawTear(34, 40);\n  display.display();\n}\n\nvoid faceSurprised() {\n  display.clearDisplay();\n  drawRoundEye(40, 28, 9);\n  drawRoundEye(88, 28, 9);\n  display.display();\n  delay(100);\n\n  display.clearDisplay();\n  drawRoundEye(40, 28, 15); // eyes snap wide open\n  drawRoundEye(88, 28, 15);\n  drawOMouth(64, 50, 6);    // small \"o\" mouth\n  display.display();\n}\n\nvoid faceAngry() {\n  display.clearDisplay();\n  drawRoundEye(40, 28, 9);\n  drawRoundEye(88, 28, 9);\n  display.display();\n  delay(100);\n\n  display.clearDisplay();\n  drawAngryEye(40, 28);\n  drawAngryEye(88, 28);\n  drawFrown(52, 14);\n  display.display();\n}\n\n// ===================== SOUNDS =====================\n\nvoid soundHappy() {\n  tone(buzzerPin, 523, 150); delay(160);\n  tone(buzzerPin, 659, 150); delay(160);\n  tone(buzzerPin, 784, 250); delay(260);\n  noTone(buzzerPin);\n}\nvoid soundSad() {\n  tone(buzzerPin, 400, 300); delay(320);\n  tone(buzzerPin, 300, 300); delay(320);\n  tone(buzzerPin, 200, 500); delay(520);\n  noTone(buzzerPin);\n}\nvoid soundSurprised() {\n  tone(buzzerPin, 1200, 120); delay(130);\n  noTone(buzzerPin);\n}\nvoid soundAngry() {\n  tone(buzzerPin, 150, 400); delay(420);\n  noTone(buzzerPin);\n}\n\n// ===================== REACTIONS =====================\n\nvoid reactHappy() {\n  isPlayingAction = true;\n  faceHappy();\n  headServo.write(HEAD_CENTER + 15);\n  soundHappy();\n  headServo.write(HEAD_CENTER);\n  isPlayingAction = false;\n}\nvoid reactSad() {\n  isPlayingAction = true;\n  faceSad();\n  headServo.write(HEAD_CENTER - 20);\n  soundSad();\n  headServo.write(HEAD_CENTER);\n  isPlayingAction = false;\n}\nvoid reactSurprised() {\n  isPlayingAction = true;\n  faceSurprised();\n  headServo.write(HEAD_CENTER - 25);\n  soundSurprised();\n  delay(200);\n  headServo.write(HEAD_CENTER);\n  isPlayingAction = false;\n}\nvoid reactAngry() {\n  isPlayingAction = true;\n  faceAngry();\n  for (int i = 0; i < 3; i++) {\n    headServo.write(HEAD_LEFT + 20); delay(80);\n    headServo.write(HEAD_RIGHT - 20); delay(80);\n  }\n  headServo.write(HEAD_CENTER);\n  soundAngry();\n  isPlayingAction = false;\n}\nvoid reactSleepy() {\n  isPlayingAction = true;\n  faceClosed();\n  delay(600);\n  faceNeutral();\n  isPlayingAction = false;\n}\nvoid reactLeft() {\n  isPlayingAction = true;\n  headServo.write(HEAD_LEFT);\n  delay(400);\n  headServo.write(HEAD_CENTER);\n  isPlayingAction = false;\n}\nvoid reactRight() {\n  isPlayingAction = true;\n  headServo.write(HEAD_RIGHT);\n  delay(400);\n  headServo.write(HEAD_CENTER);\n  isPlayingAction = false;\n}\nvoid reactNeutral() {\n  isPlayingAction = true;\n  faceNeutral();\n  headServo.write(HEAD_CENTER);\n  isPlayingAction = false;\n}\nvoid reactCelebrate() {\n  isPlayingAction = true;\n  for (int i = 0; i < 2; i++) {\n    faceHappy();\n    headServo.write(HEAD_LEFT + 20);\n    tone(buzzerPin, 784, 100);\n    delay(120);\n    headServo.write(HEAD_RIGHT - 20);\n    tone(buzzerPin, 988, 100);\n    delay(120);\n  }\n  headServo.write(HEAD_CENTER);\n  noTone(buzzerPin);\n  isPlayingAction = false;\n}\n\n// ===================== COMMAND DISPATCH =====================\n\nvoid runCommand(String cmd) {\n  cmd.trim();\n  cmd.toLowerCase();\n\n  if (cmd == \"happy\") reactHappy();\n  else if (cmd == \"sad\") reactSad();\n  else if (cmd == \"surprised\") reactSurprised();\n  else if (cmd == \"angry\") reactAngry();\n  else if (cmd == \"sleepy\") reactSleepy();\n  else if (cmd == \"left\") reactLeft();\n  else if (cmd == \"right\") reactRight();\n  else if (cmd == \"neutral\") reactNeutral();\n  else if (cmd == \"celebrate\") reactCelebrate();\n  else {\n    Serial.print(\"Peeko didn't understand: \");\n    Serial.println(cmd);\n  }\n\n  lastBlinkTime = millis();\n}\n\n// ===================== TESTED HELPERS FOR THE BLOCKS =====================\n// Same for every student. Each block in Camp Blocks calls one of these.\n\nvoid pollSerial() {\n  while (Serial.available() > 0) {\n    char c = Serial.read();\n    if (c == '\\n') {\n      runCommand(inputLine);\n      inputLine = \"\";\n    } else {\n      inputLine += c;\n    }\n  }\n}\n\n// Wait without freezing: Peeko still listens to the computer while it waits.\nvoid waitSecs(float secs) {\n  unsigned long ms = (unsigned long)(secs * 1000.0);\n  unsigned long start = millis();\n  while (millis() - start < ms) {\n    pollSerial();\n  }\n}\n\n// Show words on the OLED screen. msg lives in flash memory (PROGMEM / PSTR).\nvoid sayText(const char* msg, float secs) {\n  char buf[21];\n  strncpy_P(buf, msg, 20);\n  buf[20] = 0;\n  int len = strlen(buf);\n  int size = (len <= 10) ? 2 : 1;\n  isPlayingAction = true;\n  display.clearDisplay();\n  display.setTextColor(SH110X_WHITE);\n  display.setTextSize(size);\n  display.setCursor((128 - len * 6 * size) / 2, (64 - 8 * size) / 2);\n  display.print(buf);\n  display.display();\n  waitSecs(secs);\n  faceNeutral();\n  lastBlinkTime = millis();\n  isPlayingAction = false;\n}\n\nvoid playNote(unsigned int hz, float secs) {\n  tone(buzzerPin, hz, (unsigned long)(secs * 1000.0));\n  waitSecs(secs);\n  noTone(buzzerPin);\n}\n\n//@@KEEP+\n// ===================== STUDENT PART: WHAT PEEKO DOES =====================\n\n// Runs ONCE, when Peeko wakes up (when it is powered on).\nvoid studentWake() {\n//@@WAKE@@\n}\n\n// Runs again and again, forever.\nvoid studentForever() {\n//@@FOREVER@@\n}\n//@@KEEP-\n\n// ===================== SETUP / LOOP =====================\n\nvoid setup() {\n  Serial.begin(9600);\n  display.begin(0x3C, true);\n  headServo.attach(9);\n  pinMode(buzzerPin, OUTPUT);\n  randomSeed(analogRead(A0));   // so coin flips are different every time\n  reactNeutral();\n  studentWake();\n}\n\nvoid loop() {\n  pollSerial();\n  studentForever();\n\n  if (!isPlayingAction && millis() - lastBlinkTime > blinkInterval) {\n    faceClosed();\n    delay(150);\n    faceNeutral();\n    lastBlinkTime = millis();\n  }\n}","chipbot":"//@@HEADER@@\n/*\n  CHIP BOT - Arduino Nano + IO shield, Otto-style biped\n  --------------------------------------------------------\n  Pins (Otto defaults):\n    D2 left hip   D3 right hip   D4 left foot   D5 right foot\n    D8 ultrasonic TRIG   D9 ultrasonic ECHO   D13 buzzer\n  Power: everything runs from the laptop USB cable. There is no battery pack.\n\n  The walking, turning and dancing code below is the tested Otto code from\n  Chip Bot Studio. Only the STUDENT PART sections are different for each student.\n*/\n#include <Servo.h>\n#include <EEPROM.h>\n#include <math.h>\n\nconst uint8_t PIN_SERVO[4] = {2, 3, 4, 5};   // YL, YR, RL, RR\n#define PIN_TRIG 8\n#define PIN_ECHO 9\n#define PIN_BUZZER 13\n\nServo servo[4];\nbool attached = false;\nint8_t trim[4] = {0, 0, 0, 0};\nfloat cur[4] = {90, 90, 90, 90};\nuint16_t T_STEP = 1000;                       // gait period in ms (speed block changes it)\nbool abortFlag = false;\n\n//@@KEEP+\n// ===================== STUDENT PART: NAMES =====================\n//@@CONSTANTS@@\n//@@KEEP-\n\n// ---------------------------------------------------------------- serial helpers\nvoid pollSerial() {\n  while (Serial.available()) {\n    if (Serial.read() == '!') abortFlag = true;\n  }\n}\nbool aborted() { pollSerial(); return abortFlag; }\n\nvoid waitMs(uint16_t ms) {\n  unsigned long end = millis() + ms;\n  while (millis() < end) { if (aborted()) return; delay(5); }\n}\n\n// ---------------------------------------------------------------- servos\nvoid attachServos() {\n  if (attached) return;\n  for (uint8_t i = 0; i < 4; i++) servo[i].attach(PIN_SERVO[i]);\n  attached = true;\n}\nvoid detachServos() {\n  if (!attached) return;\n  for (uint8_t i = 0; i < 4; i++) servo[i].detach();\n  attached = false;\n}\nvoid writeServo(uint8_t i, float angle) {\n  cur[i] = angle;\n  int a = (int)(angle + trim[i] + 0.5f);\n  servo[i].write(constrain(a, 0, 180));\n}\n\n// Smoothly move all 4 servos to target[] over `time` ms (same idea as Otto::_moveServos).\nvoid moveServos(uint16_t time, const int target[4]) {\n  attachServos();\n  float start[4], inc[4];\n  uint16_t n = time / 10; if (n < 1) n = 1;\n  for (uint8_t i = 0; i < 4; i++) { start[i] = cur[i]; inc[i] = (target[i] - cur[i]) / (float)n; }\n  for (uint16_t k = 1; k <= n; k++) {\n    if (aborted()) return;\n    for (uint8_t i = 0; i < 4; i++) writeServo(i, start[i] + inc[i] * k);\n    delay(10);\n  }\n  for (uint8_t i = 0; i < 4; i++) writeServo(i, target[i]);\n}\n\n// Oscillator gait (same maths as Otto::_execute): angle = 90 + O + A * sin(2*pi*t/T + phase)\nvoid execute(const int A[4], const int O[4], const int phDeg[4], uint8_t steps) {\n  attachServos();\n  int first[4];\n  for (uint8_t i = 0; i < 4; i++) first[i] = 90 + O[i] + (int)(A[i] * sin(phDeg[i] * PI / 180.0));\n  moveServos(120, first);                          // avoid a jump at the start\n  unsigned long start = millis(), total = (unsigned long)T_STEP * steps, t;\n  while ((t = millis() - start) < total) {\n    if (aborted()) return;\n    for (uint8_t i = 0; i < 4; i++)\n      writeServo(i, 90 + O[i] + A[i] * sin(2.0 * PI * t / T_STEP + phDeg[i] * PI / 180.0));\n    delay(15);\n  }\n}\n\n// ---------------------------------------------------------------- Otto moves\nvoid doWalk(uint8_t dir, uint8_t steps) {          // dir 0 fwd, 1 back\n  int d = dir ? -1 : 1;\n  int A[4] = {30, 30, 20, 20}, O[4] = {0, 0, 4, -4};\n  int ph[4] = {0, 0, d * -90, d * -90};\n  execute(A, O, ph, steps);\n}\nvoid doTurn(uint8_t dir, uint8_t steps) {          // dir 0 left, 1 right\n  int A[4] = {30, 30, 20, 20}, O[4] = {0, 0, 4, -4};\n  int ph[4] = {0, 0, -90, -90};\n  if (dir == 0) { A[0] = 30; A[1] = 10; } else { A[0] = 10; A[1] = 30; }\n  execute(A, O, ph, steps);\n}\n\nstatic const int DH = 25;  // Otto \"h\" for the dance moves\nvoid doDance(uint8_t id, uint8_t reps) {\n  attachServos();\n  int homes[4] = {90, 90, 90, 90};\n  switch (id) {\n    case 0: { int A[4] = {0, 0, DH, DH}, O[4] = {0, 0, DH / 2, -DH / 2}, ph[4] = {0, 0, 0, 0}; execute(A, O, ph, reps); break; }   // swing\n    case 1: { int A[4] = {0, 0, DH, DH}, O[4] = {0, 0, DH, -DH}, ph[4] = {0, 0, 0, 0}; execute(A, O, ph, reps); break; }             // tiptoe swing\n    case 2: { int A[4] = {0, 0, DH, DH}, O[4] = {0, 0, DH, -DH}, ph[4] = {0, 0, -90, 90}; execute(A, O, ph, reps); break; }          // up-down\n    case 3: { int A[4] = {25, 25, 0, 0}, O[4] = {0, 0, 0, 0}, ph[4] = {-90, 90, 0, 0}; execute(A, O, ph, reps); break; }         // jitter\n    case 4:\n    case 5: {                                                                                                                     // moonwalker L / R\n      int dir = (id == 4) ? 1 : -1, phi = -dir * 90;\n      int A[4] = {0, 0, DH, DH}, O[4] = {0, 0, DH / 2 + 2, -DH / 2 - 2}, ph[4] = {0, 0, phi, -60 * dir + phi};\n      execute(A, O, ph, reps); break; }\n    case 6: { int A[4] = {12, 12, DH, DH}, O[4] = {0, 0, DH - 10, -DH + 10}, ph[4] = {0, 180, -90, 90}; execute(A, O, ph, reps); break; } // flapping\n    case 7:\n    case 8: {                                                                                                                     // shake leg R / L\n      int s1[4] = {90, 90, 58, 35}, s2[4] = {90, 90, 58, 120}, s3[4] = {90, 90, 58, 60};\n      if (id == 8) { s1[2] = 180 - 35; s1[3] = 180 - 58; s2[2] = 180 - 120; s2[3] = 180 - 58; s3[2] = 180 - 60; s3[3] = 180 - 58; }\n      for (uint8_t j = 0; j < reps && !aborted(); j++) {\n        moveServos(500, s1); moveServos(500, s2);\n        for (uint8_t i = 0; i < 2; i++) { moveServos(200, s3); moveServos(200, s2); }\n        moveServos(500, homes);\n      }\n      break; }\n    case 9:\n    case 10: {                                                                                                                    // bend R / L\n      int b1[4] = {90, 90, 62, 35}, b2[4] = {90, 90, 62, 105};\n      if (id == 10) { b1[2] = 180 - 35; b1[3] = 180 - 60; b2[2] = 180 - 105; b2[3] = 180 - 60; }\n      for (uint8_t i = 0; i < reps && !aborted(); i++) {\n        moveServos(400, b1); moveServos(400, b2); waitMs(T_STEP * 8 / 10); moveServos(500, homes);\n      }\n      break; }\n  }\n}\n\nvoid doPose(uint8_t a, uint8_t b, uint8_t c, uint8_t d) {\n  int t[4] = {constrain(a, 45, 135), constrain(b, 45, 135), constrain(c, 45, 135), constrain(d, 45, 135)};\n  moveServos(400, t);\n}\nvoid doRest() { int h[4] = {90, 90, 90, 90}; moveServos(500, h); detachServos(); }\nvoid doBeep(uint8_t f20, uint8_t d10) {\n  tone(PIN_BUZZER, (unsigned int)f20 * 20, (unsigned long)d10 * 10);\n  waitMs((uint16_t)d10 * 10);\n}\nvoid doSpeed(uint8_t level) { T_STEP = (level == 0) ? 1400 : (level == 2) ? 700 : 1000; }\nvoid doWait(uint8_t tenths) { waitMs((uint16_t)tenths * 100); }\n\n// ---------------------------------------------------------------- sensing\nuint8_t readDistance() {\n  digitalWrite(PIN_TRIG, LOW); delayMicroseconds(2);\n  digitalWrite(PIN_TRIG, HIGH); delayMicroseconds(10);\n  digitalWrite(PIN_TRIG, LOW);\n  unsigned long us = pulseIn(PIN_ECHO, HIGH, 6000UL);\n  if (us == 0) return 50;\n  unsigned long cm = us / 58;\n  return cm > 50 ? 50 : (uint8_t)cm;\n}\n\n// ===================== TESTED HELPERS FOR THE BLOCKS =====================\n// Same for every student. Each block in Camp Blocks calls one of these.\n\n// Uses the servo calibration saved by Chip Bot Studio (if any). Never writes anything.\nvoid loadTrims() {\n  if (EEPROM.read(0) == 0xC5) {\n    for (uint8_t i = 0; i < 4; i++) trim[i] = (int8_t)EEPROM.read(1 + i);\n  }\n}\n\nvoid waitSecs(float secs) { waitMs((uint16_t)(secs * 1000.0)); }\n\nvoid beepNote(unsigned int hz, float secs) {\n  tone(PIN_BUZZER, hz, (unsigned long)(secs * 1000.0));\n  waitSecs(secs);\n}\n\n// Holds every servo at 90 degrees so the servo horns can be fitted straight.\nvoid centreServos(float secs) {\n  int h[4] = {90, 90, 90, 90};\n  moveServos(300, h);\n  waitSecs(secs);\n  detachServos();\n}\n\n//@@KEEP+\n// ===================== STUDENT PART: WHAT CHIP BOT DOES =====================\n\n// Runs ONCE, when Chip Bot wakes up (when it is powered on).\nvoid studentWake() {\n//@@WAKE@@\n}\n\n// Runs again and again, forever.\nvoid studentForever() {\n//@@FOREVER@@\n}\n//@@KEEP-\n\n// ===================== SETUP / LOOP =====================\n\nvoid setup() {\n  pinMode(PIN_TRIG, OUTPUT);\n  pinMode(PIN_ECHO, INPUT);\n  pinMode(PIN_BUZZER, OUTPUT);\n  Serial.begin(9600);\n  loadTrims();\n  doRest();\n  studentWake();\n}\n\nvoid loop() {\n  studentForever();\n}\n","jarvis":"//@@HEADER@@\n/*\n  JARVIS - terrarium buddy, Arduino Uno\n  ----------------------------------------------------\n    A0  soil moisture sensor\n    A1  light sensor (LDR with a 10k resistor)\n    D9 / D10 / D11  RGB LED  (red / green / blue)\n    D8  buzzer\n\n  The LED only uses ON / OFF (no PWM), so the buzzer's tone() and the LED\n  can never fight over the same timer.\n  Only the STUDENT PART sections are different for each student.\n*/\n\n#define PIN_SOIL   A0\n#define PIN_LIGHT  A1\n#define PIN_LED_R  9\n#define PIN_LED_G  10\n#define PIN_LED_B  11\n#define PIN_BUZZER 8\n\n//@@KEEP+\n// ===================== STUDENT PART: NAMES =====================\n//@@CONSTANTS@@\n//@@KEEP-\n\n// ===================== BENCH SETTINGS (set once by the facilitator) =====================\n//@@SETTINGS@@\n\n// ===================== TESTED HELPERS FOR THE BLOCKS =====================\n// Same for every student. Each block in Camp Blocks calls one of these.\n\n// Average a few readings so the numbers do not jump around.\nint readAverage(int pin) {\n  long total = 0;\n  for (int i = 0; i < 8; i++) {\n    total += analogRead(pin);\n    delay(2);\n  }\n  return (int)(total / 8);\n}\n\n// 0 = bone dry, 100 = soaking wet\nint soilPercent() {\n  long pct = map(readAverage(PIN_SOIL), SOIL_DRY, SOIL_WET, 0, 100);\n  return (int)constrain(pct, 0, 100);\n}\n\n// 0 = dark, 100 = very bright\nint lightPercent() {\n  long pct = map(readAverage(PIN_LIGHT), 0, 1023, 0, 100);\n  if (!LIGHT_BRIGHT_IS_HIGH) pct = 100 - pct;\n  return (int)constrain(pct, 0, 100);\n}\n\n// r, g, b are 1 (on) or 0 (off)\nvoid setColor(int r, int g, int b) {\n  if (LED_COMMON_ANODE) { r = 1 - r; g = 1 - g; b = 1 - b; }\n  digitalWrite(PIN_LED_R, r ? HIGH : LOW);\n  digitalWrite(PIN_LED_G, g ? HIGH : LOW);\n  digitalWrite(PIN_LED_B, b ? HIGH : LOW);\n}\n\nvoid waitSecs(float secs) {\n  delay((unsigned long)(secs * 1000.0));\n}\n\nvoid playNote(unsigned int hz, float secs) {\n  unsigned long ms = (unsigned long)(secs * 1000.0);\n  tone(PIN_BUZZER, hz, ms);\n  delay(ms + 20);\n  noTone(PIN_BUZZER);\n}\n\nvoid printSensors() {\n  Serial.print(F(\"Soil: \"));\n  Serial.print(soilPercent());\n  Serial.print(F(\"% (raw \"));\n  Serial.print(readAverage(PIN_SOIL));\n  Serial.print(F(\")   Light: \"));\n  Serial.print(lightPercent());\n  Serial.print(F(\"% (raw \"));\n  Serial.print(readAverage(PIN_LIGHT));\n  Serial.println(F(\")\"));\n}\n\n//@@KEEP+\n// ===================== STUDENT PART: WHAT JARVIS DOES =====================\n\n// Runs ONCE, when Jarvis wakes up (when it is powered on).\nvoid studentWake() {\n//@@WAKE@@\n}\n\n// Runs again and again, forever.\nvoid studentForever() {\n//@@FOREVER@@\n}\n//@@KEEP-\n\n// ===================== SETUP / LOOP =====================\n\nvoid setup() {\n  Serial.begin(9600);\n  pinMode(PIN_LED_R, OUTPUT);\n  pinMode(PIN_LED_G, OUTPUT);\n  pinMode(PIN_LED_B, OUTPUT);\n  pinMode(PIN_BUZZER, OUTPUT);\n  setColor(0, 0, 0);\n  studentWake();\n}\n\nvoid loop() {\n  studentForever();\n}\n"};</script>
+<script>window.PRO_PAYLOAD = {"i":"KnJ0/TwLWo+nUiC7","c":"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"};</script>
 <script>
 /* Chip Camp: what each student has chosen and finished, shared by every page (kept in this browser only). */
 (function (root) {
@@ -370,10 +446,13 @@ mark.v{background:#ffe14d;color:#3a2b00;border-radius:5px;padding:0 3px;font-wei
     ROBOTS,
     get() {
       const d = read();
-      return { name: clean(d.name), robot: ROBOTS.indexOf(d.robot) >= 0 ? d.robot : null, levels: d.levels || {}, circuits: d.circuits || {}, code: d.code || {} };
+      return { name: clean(d.name), robot: ROBOTS.indexOf(d.robot) >= 0 ? d.robot : null, levels: d.levels || {}, circuits: d.circuits || {}, code: d.code || {}, tests: d.tests || {}, copied: d.copied || {} };
     },
     design(robot) { const d = read(); return (d.designs && d.designs[robot]) || null; },
     setDesign(robot, design) { if (ROBOTS.indexOf(robot) < 0) return; const d = read(); d.designs = d.designs || {}; d.designs[robot] = design; write(d); },
+    testDone(robot, on) { const d = read(); d.tests = d.tests || {}; d.tests[robot] = on !== false; write(d); },
+    codeCopied(robot) { const d = read(); d.copied = d.copied || {}; d.copied[robot] = true; write(d); },
+    proUnlocked() { try { return !!localStorage.getItem('chipcamp.prokey'); } catch (e) { return false; } },
     day2() { return !!read().day2; },
     setDay2(on) { const d = read(); d.day2 = !!on; write(d); },
     robotOrDefault() { return this.get().robot || 'chipbot'; },
@@ -392,6 +471,46 @@ mark.v{background:#ffe14d;color:#3a2b00;border-radius:5px;padding:0 3px;font-wei
       if (b && r) b.setAttribute('href', 'index.html#' + r);
     });
   }
+})(typeof self !== 'undefined' ? self : this);
+
+</script>
+<script>
+/* The step bar on every tool page: Wire it, Test it, Design it, Build it, Make the code, Pro code. */
+(function (root) {
+  'use strict';
+  const STEPS = [
+    { id: 'wire', label: 'Wire it', href: 'circuits.html' },
+    { id: 'test', label: 'Test it', href: 'test.html' },
+    { id: 'design', label: 'Design it', href: 'studio.html' },
+    { id: 'build', label: 'Build it', href: 'blocks.html#build' },
+    { id: 'code', label: 'Make the code', href: 'blocks.html#code' },
+    { id: 'pro', label: 'Pro code', href: 'blocks.html#pro' }
+  ];
+  const LOCKED_DESIGN = { chipbot: true, jarvis: true };   // the Studio opens on day 2 for these two robots
+  function doneFor(id, r, p) {
+    if (id === 'wire') return !!p.circuits[r];
+    if (id === 'test') return !!p.tests[r];
+    if (id === 'design') return !!ChipCamp.design(r);
+    if (id === 'build') return (p.code[r] || 0) > 0;
+    if (id === 'code') return !!p.copied[r];
+    if (id === 'pro') return ChipCamp.proUnlocked();
+    return false;
+  }
+  function render(current) {
+    const nav = document.getElementById('flow'); if (!nav) return;
+    const p = ChipCamp.get(), r = p.robot || 'chipbot';
+    nav.innerHTML = '';
+    STEPS.forEach((s, i) => {
+      const a = document.createElement('a');
+      const locked = (s.id === 'design' && LOCKED_DESIGN[r] && !ChipCamp.day2());
+      a.className = 'fstep' + (s.id === current ? ' cur' : '') + (doneFor(s.id, r, p) ? ' done' : '') + (locked ? ' lock' : '');
+      a.href = s.href;
+      a.innerHTML = '<i>' + (doneFor(s.id, r, p) && s.id !== current ? '\u2713' : (i + 1)) + '</i>' + s.label + (locked ? ' <small>Day 2</small>' : '') + (s.id === 'pro' && !ChipCamp.proUnlocked() ? ' <small>\ud83d\udd12</small>' : '');
+      if (s.id === current) a.setAttribute('aria-current', 'step');
+      nav.appendChild(a);
+    });
+  }
+  root.CampFlow = { render, STEPS };
 })(typeof self !== 'undefined' ? self : this);
 
 </script>
@@ -552,20 +671,17 @@ mark.v{background:#ffe14d;color:#3a2b00;border-radius:5px;padding:0 3px;font-wei
         { id: 'sensing', label: 'Sensing', color: '#3FB8DE' }
       ],
       blocks: [
-        B('walk', 'motion', ['walk ', choice('dir', 'fwd', [['fwd', 'forward'], ['back', 'backward']]), ' ', num('steps', 4, 1, 10, 1), ' steps'], {
+        B('walk', 'motion', ['walk ', choice('dir', 'fwd', [['fwd', 'forward'], ['back', 'backward']]), ' ', num('steps', 4, 1, 6, 1), ' steps'], {
           code: (p) => ['doWalk(' + V(p.dir === 'fwd' ? 0 : 1) + ', ' + V(p.steps) + ');']
         }),
-        B('turn', 'motion', ['turn ', choice('dir', 'left', [['left', 'left'], ['right', 'right']]), ' ', num('steps', 3, 1, 10, 1), ' steps'], {
+        B('turn', 'motion', ['turn ', choice('dir', 'left', [['left', 'left'], ['right', 'right']]), ' ', num('steps', 3, 1, 6, 1), ' steps'], {
           code: (p) => ['doTurn(' + V(p.dir === 'left' ? 0 : 1) + ', ' + V(p.steps) + ');']
         }),
-        B('dance', 'motion', ['dance ', choice('move', '0', [['0', 'swing'], ['1', 'tiptoe swing'], ['2', 'up and down'], ['3', 'jitter'], ['4', 'moonwalk left'], ['5', 'moonwalk right'], ['6', 'flapping'], ['7', 'shake right leg'], ['8', 'shake left leg'], ['9', 'bend right'], ['10', 'bend left']]), ' ', num('reps', 2, 1, 8, 1), ' times'], {
+        B('dance', 'motion', ['dance ', choice('move', '0', [['0', 'swing'], ['2', 'up and down'], ['3', 'jitter'], ['6', 'flapping']]), ' ', num('reps', 2, 1, 4, 1), ' times'], {
           code: (p) => ['doDance(' + V(p.move) + ', ' + V(p.reps) + ');']
         }),
         B('centre', 'motion', ['hold the legs at 90° for ', num('secs', 20, 5, 60, 5), ' seconds'], { code: (p) => ['centreServos(' + V(p.secs) + ');   // fit the servo horns now'] }),
         B('stand', 'motion', ['stand still'], { code: () => ['doRest();'] }),
-        B('speed', 'motion', ['walk speed ', choice('level', '1', [['0', 'slow'], ['1', 'normal'], ['2', 'fast']])], {
-          code: (p) => ['doSpeed(' + V(p.level) + ');']
-        }),
         noteBlock('beepNote', 'beep note '),
         helloBlock('talk'),
         WAIT, REPEAT,
@@ -713,8 +829,9 @@ mark.v{background:#ffe14d;color:#3a2b00;border-radius:5px;padding:0 3px;font-wei
     });
   }
 
+  // opts.pro = { title, patches, extra, wake, forever } makes the advanced "Pro" sketch from the same base code
   function generate(projId, state, opts) {
-    const P = PROJECTS[projId];
+    const P = PROJECTS[projId], pro = opts && opts.pro;
     const robot = cleanText(state.robot, 16, P.robotDefault);
     const builder = cleanText(state.builder, 16, 'a CHIP Camp student');
     const builderConst = cleanText(state.builder, 16, 'Friend');
@@ -729,7 +846,8 @@ mark.v{background:#ffe14d;color:#3a2b00;border-radius:5px;padding:0 3px;font-wei
       rule,
       '//  ' + P.name.toUpperCase() + ' - built by ' + V(builder),
       '//  Robot name: ' + V(robot),
-      '//  Made with Camp Blocks' + (date ? ' · ' + V(date) : ''),
+      '//  Made with Camp Blocks' + (date ? ' - ' + V(date) : ''),
+      ...(pro ? ['//  ' + pro.title] : []),
       rule
     ];
     const constants = P.id === 'peeko'
@@ -744,15 +862,19 @@ mark.v{background:#ffe14d;color:#3a2b00;border-radius:5px;padding:0 3px;font-wei
 
     const lines = [];
     let keep = false;
-    TEMPLATES[projId].split('\n').forEach(function (ln) {
+    let tpl = TEMPLATES[projId];
+    if (pro) (pro.patches || []).forEach(function (pt) { if (tpl.indexOf(pt[0]) < 0) throw new Error('pro patch does not fit the base sketch: ' + pt[0].slice(0, 40)); tpl = tpl.replace(pt[0], pt[1]); });
+    const tlines = tpl.split('\n');
+    tlines.forEach(function (ln, ti) {
       const m = ln.trim();
+      if (pro && pro.extra && m === '//@@KEEP+' && /STUDENT PART: WHAT/.test(tlines[ti + 1] || '')) pro.extra.split('\n').forEach((t) => lines.push({ t, src: 'student', cat: 'control', keep: true }));
       if (m === '//@@KEEP+') { keep = true; return; }
       if (m === '//@@KEEP-') { keep = false; return; }
       if (m === '//@@HEADER@@') { header.forEach((t) => lines.push({ t, src: 'student', cat: 'name', keep: true })); return; }
       if (m === '//@@CONSTANTS@@') { constants.forEach((t) => lines.push({ t, src: 'student', cat: 'name', keep: true })); return; }
       if (m === '//@@SETTINGS@@') { settingsLines.forEach((t) => lines.push({ t, src: 'settings', keep: false })); return; }
-      if (m === '//@@WAKE@@') { (wakeOut.length ? wakeOut : empty('wake-up')).forEach((l) => lines.push(l)); return; }
-      if (m === '//@@FOREVER@@') { (foreverOut.length ? foreverOut : empty('forever')).forEach((l) => lines.push(l)); return; }
+      if (m === '//@@WAKE@@') { (pro ? pro.wake.split('\n').map((t) => ({ t, src: 'student', cat: 'control', keep: true })) : (wakeOut.length ? wakeOut : empty('wake-up'))).forEach((l) => lines.push(l)); return; }
+      if (m === '//@@FOREVER@@') { (pro ? pro.forever.split('\n').map((t) => ({ t, src: 'student', cat: 'control', keep: true })) : (foreverOut.length ? foreverOut : empty('forever'))).forEach((l) => lines.push(l)); return; }
       lines.push({ t: ln, src: 'base', keep });
     });
     const textOut = stripMarks(lines.map((l) => l.t).join('\n'));
@@ -838,6 +960,27 @@ mark.v{background:#ffe14d;color:#3a2b00;border-radius:5px;padding:0 3px;font-wei
     };
   }
 
+  /* ---------- ready-made starting points for the Code Builder ---------- */
+  const m = (face, look, words, note, wait) => ({ face, look, words, note, wait });
+  const mv = (kind, dir, n, move, beep) => ({ kind, dir, n, move, beep });
+  const STARTERS = {
+    peeko: [
+      { id: 'happy', emoji: '🎉', title: 'Happy show', blurb: 'Smiles, a cheer and a head turn', design: { moments: [m('happy', 'none', '', 'E', 2), m('celebrate', 'none', 'Yay!', 'G', 2), m('happy', 'left', '', 'none', 2)] } },
+      { id: 'moody', emoji: '🎭', title: 'Moody Peeko', blurb: 'Surprise, sadness and a grumpy look', design: { moments: [m('surprised', 'left', '', 'none', 2), m('sad', 'none', 'Why?', 'C', 2), m('angry', 'right', '', 'none', 2), m('neutral', 'none', '', 'none', 2)] } },
+      { id: 'sleepy', emoji: '😴', title: 'Sleepy head', blurb: 'Yawns, naps and wakes up', design: { moments: [m('neutral', 'none', '', 'none', 2), m('sleepy', 'none', 'Zzz', 'none', 3), m('sleepy', 'left', '', 'none', 2), m('surprised', 'none', 'Oh!', 'none', 2)] } }
+    ],
+    chipbot: [
+      { id: 'patrol', emoji: '🚶', title: 'Patrol', blurb: 'Walks and turns away from walls', design: { safe: true, safeCm: 15, moves: [mv('walk', 'fwd', 4, '0', 'none'), mv('turn', 'right', 2, '0', 'none'), mv('walk', 'fwd', 3, '0', 'none')] } },
+      { id: 'dance', emoji: '💃', title: 'Dance party', blurb: 'Four dances with a beep each', design: { safe: false, safeCm: 15, moves: [mv('dance', 'fwd', 2, '0', 'C'), mv('dance', 'fwd', 2, '2', 'E'), mv('dance', 'fwd', 2, '3', 'G'), mv('dance', 'fwd', 2, '6', 'C2')] } },
+      { id: 'shy', emoji: '🙈', title: 'Shy bot', blurb: 'Hides from anything close', design: { safe: true, safeCm: 30, moves: [mv('walk', 'fwd', 2, '0', 'none'), mv('stand', 'fwd', 1, '0', 'G'), mv('turn', 'left', 2, '0', 'none')] } }
+    ],
+    jarvis: [
+      { id: 'thirsty', emoji: '🚨', title: 'Thirsty alert', blurb: 'Red and beeps when the soil is dry', design: { dryPct: 40, dryColor: 'red', dryAlarm: true, darkPct: 30, darkColor: 'blue', okColor: 'green', checkSecs: 2 } },
+      { id: 'night', emoji: '🌙', title: 'Night light', blurb: 'A soft purple glow in the dark', design: { dryPct: 30, dryColor: 'yellow', dryAlarm: false, darkPct: 40, darkColor: 'purple', okColor: 'cyan', checkSecs: 3 } },
+      { id: 'calm', emoji: '🌿', title: 'Calm garden', blurb: 'Quiet, with a gentle green when fine', design: { dryPct: 35, dryColor: 'red', dryAlarm: false, darkPct: 20, darkColor: 'blue', okColor: 'green', checkSecs: 5 } }
+    ]
+  };
+
   /* ---------- design -> Code Builder blocks ---------- */
   function toBlocks(proj, design) {
     const d = clean(proj, design);
@@ -891,7 +1034,7 @@ mark.v{background:#ffe14d;color:#3a2b00;border-radius:5px;padding:0 3px;font-wei
     return st;
   }
 
-  return { MAX_STEPS, NOTE_IDS, FACES, MOVES, COLORS, KINDS, defaults, clean, toBlocks, toState };
+  return { MAX_STEPS, NOTE_IDS, FACES, MOVES, COLORS, KINDS, STARTERS, defaults, clean, toBlocks, toState };
 });
 
 </script>
@@ -946,7 +1089,6 @@ mark.v{background:#ffe14d;color:#3a2b00;border-radius:5px;padding:0 3px;font-wei
       },
       centre: async (p, c) => { c.stage.idle(); await c.sleep(p.secs); },
       stand: async (p, c) => { c.stage.idle(); await c.sleep(0.5); },
-      speed: async (p, c) => { c.speedLevel = Number(p.level); },
       cond_if_dist: (p, c) => (p.cmp === 'less' ? c.sensors.distance < p.cm : c.sensors.distance > p.cm)
     }),
 
@@ -1282,12 +1424,15 @@ mark.v{background:#ffe14d;color:#3a2b00;border-radius:5px;padding:0 3px;font-wei
       nav.appendChild(b);
     });
   }
-  $$('.vtab').forEach((b) => { b.onclick = () => setView(b.dataset.view); });
+  const VIEWS = ['build', 'code', 'pro'];
   function setView(v) {
+    if (VIEWS.indexOf(v) < 0) v = 'build';
     S.view = v; stopRun();
-    $$('.vtab').forEach((b) => b.setAttribute('aria-selected', b.dataset.view === v ? 'true' : 'false'));
-    $('#buildView').hidden = v !== 'build'; $('#codeView').hidden = v !== 'code';
+    $('#buildView').hidden = v !== 'build'; $('#codeView').hidden = v !== 'code'; $('#proView').hidden = v !== 'pro';
     if (v === 'code') renderCode();
+    if (v === 'pro' && window.CampPro) CampPro.show();
+    CampFlow.render(v);
+    try { history.replaceState(null, '', '#' + v); } catch (e) { /* fine */ }
     window.scrollTo(0, 0);
   }
   $('#makeCode').onclick = (e) => { confetti(e.clientX, e.clientY); setView('code'); };
@@ -1483,13 +1628,30 @@ mark.v{background:#ffe14d;color:#3a2b00;border-radius:5px;padding:0 3px;font-wei
   function renderToolbar() {
     const bar = $('#toolbar'); bar.innerHTML = '';
     const mk = (html, fn, cls) => { const b = el('button', 'btn small ' + (cls || ''), html); b.onclick = fn; bar.appendChild(b); return b; };
-    const ex = mk('✨ Show me an example', () => {}); twoClick(ex, 'Replace my blocks? Click again', () => { const old = state(); const e = Core.exampleState(S.proj); e.builder = old.builder; e.robot = old.robot; e.date = old.date; e.settings = old.settings; S.states[S.proj] = e; renderScript(); renderNamebar(); changed(); toast('Here is an example. Change anything you like!'); });
     const cl = mk('🧹 Clear', () => {}); twoClick(cl, 'Clear everything? Click again', () => { const st = state(); st.wake = []; st.forever = []; renderScript(); changed(); });
     if (ChipCamp.design(S.proj)) { const dg = mk('🎨 Load my design', () => {}); twoClick(dg, 'Replace my blocks? Click again', () => { applyDesign(); }); }
-    const st = el('a', 'btn small', '🎨 ' + ({ peeko: 'Face', chipbot: 'Dance', jarvis: 'Light' }[S.proj]) + ' Studio'); st.href = 'studio.html'; bar.appendChild(st);
     mk('💾 Save', saveSlot);
     mk('📂 My saves', openSaves);
     mk('🔗 Share', openShare);
+  }
+  // a row of ready-made programs to start from, instead of a blank page
+  function renderStarters() {
+    const box = $('#starters'); box.innerHTML = '<span class="slabel">Start from</span>';
+    const arm = (b, note, fn) => {
+      let armed = false, t = 0; const small = b.querySelector('small'), orig = small.textContent;
+      b.onclick = () => {
+        if (Core.countBlocks(state()) > 0 && !armed) { armed = true; b.classList.add('armed'); small.textContent = note; t = setTimeout(() => { armed = false; b.classList.remove('armed'); small.textContent = orig; }, 3000); return; }
+        clearTimeout(t); armed = false; b.classList.remove('armed'); small.textContent = orig; fn();
+      };
+    };
+    (Studio.STARTERS[S.proj] || []).forEach((s) => {
+      const b = el('button', 'schip', '<span class="e">' + s.emoji + '</span><span><b>' + esc(s.title) + '</b><small>' + esc(s.blurb) + '</small></span>');
+      arm(b, 'Click again to replace my blocks', () => { const old = state(); S.states[S.proj] = Studio.toState(S.proj, s.design, old); renderScript(); renderNamebar(); changed(); toast(s.title + ' is in the blocks. Change anything you like!'); });
+      box.appendChild(b);
+    });
+    const e = el('button', 'schip', '<span class="e">📄</span><span><b>Empty</b><small>Start with a blank script</small></span>');
+    arm(e, 'Click again to clear', () => { const st = state(); st.wake = []; st.forever = []; renderScript(); changed(); });
+    box.appendChild(e);
   }
   function applyDesign() {
     const old = state();
@@ -1626,6 +1788,9 @@ mark.v{background:#ffe14d;color:#3a2b00;border-radius:5px;padding:0 3px;font-wei
   const NAME_COLOR = '#FFBF00';
   function renderCode() {
     const p = P(), gen = Core.generate(S.proj, state());
+    const whole = /void setup\(\)/.test(gen.text) && /void loop\(\)/.test(gen.text);
+    const ok = $('#sketchOk'); ok.className = 'sketchok' + (whole ? '' : ' bad');
+    ok.textContent = whole ? '✓ Complete sketch: ' + gen.text.split('\n').length + ' lines, with setup() and loop(). Use the Copy code button below so none of it is missed.' : '⚠ Part of the sketch is missing (no setup() or loop()). Reload the page and try again.';
     $('#codeTitle').textContent = p.emoji + ' ' + (gen.robot) + "'s sketch";
     const legend = $('#legend'); legend.innerHTML = '<span>Colour = the block that made the line:</span>';
     const used = new Set(gen.lines.filter((l) => l.src === 'student').map((l) => l.cat));
@@ -1676,14 +1841,92 @@ mark.v{background:#ffe14d;color:#3a2b00;border-radius:5px;padding:0 3px;font-wei
   $('#showAll').onchange = (e) => { S.showAll = e.target.checked; renderCode(); };
   $('#copyBtn').onclick = (e) => {
     const r = e.currentTarget.getBoundingClientRect();
-    copyText(Core.generate(S.proj, state()).text).then(() => { confetti(r.left + r.width / 2, r.top); toast('Copied! Now paste it into the Arduino IDE 🎉'); });
+    copyText(Core.generate(S.proj, state()).text).then(() => { confetti(r.left + r.width / 2, r.top); toast('Copied the whole sketch! Now paste it into the Arduino IDE 🎉'); ChipCamp.codeCopied(S.proj); CampFlow.render('code'); });
   };
+  function download(name, text) {
+    const a = el('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' })); a.download = name;
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 400);
+  }
+  function sketchName() {
+    const st = state(), w = (s) => String(s).replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+    return [P().name.replace(/ /g, ''), w(Core.cleanText(st.robot, 16, '')), w(Core.cleanText(st.builder, 16, ''))].filter(Boolean).join('_') + '.ino';
+  }
+  $('#dlBtn').onclick = () => { download(sketchName(), Core.generate(S.proj, state()).text); ChipCamp.codeCopied(S.proj); CampFlow.render('code'); toast('Downloaded. Open it with the Arduino IDE.'); };
 
   /* ---------- boot ---------- */
-  function renderAll() { renderTabs(); renderPalette(); renderNamebar(); renderToolbar(); renderScript(); renderStory(); mountStage(); if (S.view === 'code') renderCode(); }
+  function renderAll() { renderTabs(); renderPalette(); renderNamebar(); renderStarters(); renderToolbar(); renderScript(); renderStory(); mountStage(); if (S.view === 'code') renderCode(); CampFlow.render(S.view); if (S.view === 'pro' && window.CampPro) CampPro.show(); }
   renderAll();
-  if (location.hash === '#design') { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* fine */ } applyDesign(); }
-  window.__camp = { S, state, Core, renderAll, setView, sensors, runIt };
+  function route() {
+    const h = location.hash.slice(1);
+    if (h === 'design') { applyDesign(); setView('build'); } else setView(h || 'build');
+  }
+  window.addEventListener('hashchange', route);
+  route();
+  window.__camp = { S, state, Core, renderAll, setView, sensors, runIt, hl, copyText, download, sketchName, toast, confetti, P };
+})();
+
+</script>
+<script>
+/* Pro code: the final, more complex program for each robot. The page only holds it encrypted; a facilitator unlocks it with the camp password. */
+(function () {
+  'use strict';
+  const $ = (s) => document.querySelector(s);
+  const KEY = 'chipcamp.prokey', SALT = 'chipcamp-pro-v1', ITER = 250000;
+  const b64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+  const enc = (s) => new TextEncoder().encode(s);
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  let data = null;
+
+  async function keyFromPin(pin) {
+    const km = await crypto.subtle.importKey('raw', enc(pin + ':pro'), 'PBKDF2', false, ['deriveBits']);
+    const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: enc(SALT), iterations: ITER, hash: 'SHA-256' }, km, 256);
+    return btoa(String.fromCharCode.apply(null, new Uint8Array(bits)));
+  }
+  async function decryptWith(keyB64) {
+    const P = window.PRO_PAYLOAD;
+    const key = await crypto.subtle.importKey('raw', b64(keyB64), { name: 'AES-GCM' }, false, ['decrypt']);
+    return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64(P.i) }, key, b64(P.c))));
+  }
+  const storedKey = () => { try { return localStorage.getItem(KEY); } catch (e) { return null; } };
+
+  function renderBody() {
+    const C = window.__camp, proj = C.S.proj, pro = data[proj];
+    const gen = C.Core.generate(proj, C.state(), { pro });
+    $('#proTitle').textContent = pro.title;
+    $('#proBlurb').textContent = pro.blurb;
+    $('#proFeat').innerHTML = pro.features.map((f) => '<li>' + esc(f) + '</li>').join('');
+    $('#proBoard').innerHTML = proj === 'chipbot' ? '<b>Tools → Board → Arduino Nano</b> (if the upload fails, Processor → ATmega328P (Old Bootloader)).' : '<b>Tools → Board → Arduino Uno</b>' + (proj === 'peeko' ? ' (the Adafruit GFX and SH110X libraries are needed).' : '.');
+    const pane = $('#proPane'); pane.innerHTML = '';
+    gen.text.split('\n').forEach((t, i) => {
+      const row = document.createElement('div'); row.className = 'ln';
+      row.innerHTML = '<span class="no">' + (i + 1) + '</span><span class="tx">' + C.hl(t || ' ') + '</span>'; pane.appendChild(row);
+    });
+    const name = C.sketchName().replace(/\.ino$/, '') + '_Pro';
+    $('#proCopy').onclick = (e) => { const r = e.currentTarget.getBoundingClientRect(); C.copyText(gen.text).then(() => { C.confetti(r.left + r.width / 2, r.top); C.toast('Copied the whole Pro sketch! Paste it into the Arduino IDE.'); }); };
+    $('#proDl').onclick = () => { C.download(name + '.ino', gen.text); C.toast('Downloaded. Open it with the Arduino IDE.'); };
+    $('#proBack').onclick = () => { location.hash = '#build'; };
+  }
+
+  async function show() {
+    const lock = $('#proLock'), body = $('#proBody');
+    if (!window.PRO_PAYLOAD) { lock.hidden = false; body.hidden = true; $('#proMsg').textContent = 'The Pro code is not part of this copy of the site.'; $('#proForm').hidden = true; return; }
+    if (!data && storedKey()) { try { data = await decryptWith(storedKey()); } catch (e) { try { localStorage.removeItem(KEY); } catch (e2) { /* fine */ } } }
+    if (data) { lock.hidden = true; body.hidden = false; renderBody(); } else { lock.hidden = false; body.hidden = true; }
+  }
+
+  $('#proForm').onsubmit = async (e) => {
+    e.preventDefault();
+    const msg = $('#proMsg'); msg.textContent = '';
+    if (!window.crypto || !crypto.subtle) { msg.textContent = 'This browser cannot unlock the page here. Use a current Chrome, Edge or Safari.'; return; }
+    try {
+      const k = await keyFromPin($('#proPin').value.trim());
+      data = await decryptWith(k);
+      try { localStorage.setItem(KEY, k); } catch (e2) { /* fine */ }
+      $('#proPin').value = ''; show(); if (window.CampFlow) CampFlow.render('pro');
+    } catch (err) { msg.textContent = 'That is not the password. Ask your facilitator.'; }
+  };
+
+  window.CampPro = { show };
 })();
 
 </script>

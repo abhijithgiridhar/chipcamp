@@ -48,7 +48,6 @@
       },
       centre: async (p, c) => { c.stage.idle(); await c.sleep(p.secs); },
       stand: async (p, c) => { c.stage.idle(); await c.sleep(0.5); },
-      speed: async (p, c) => { c.speedLevel = Number(p.level); },
       cond_if_dist: (p, c) => (p.cmp === 'less' ? c.sensors.distance < p.cm : c.sensors.distance > p.cm)
     }),
 

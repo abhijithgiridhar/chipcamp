@@ -10,16 +10,35 @@ const templates = {};
 
 const FONTS = {
   hub: '@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");\n',
+  slides: '@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Public+Sans:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600&family=Nunito:wght@600;800;900&family=JetBrains+Mono:wght@400;700&display=swap");\n',
   tool: '@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Nunito:wght@600;800;900&family=JetBrains+Mono:wght@400;700&display=swap");\n'
 };
 
+// The Pro sketches stay out of the public repo: they are encrypted with the camp password (a key made from it, so the
+// key saved on a laptop can unlock the Pro code but not the session plans).
+function proPayload() {
+  const crypto = require('crypto');
+  let pin = process.env.PLANS_PIN || '';
+  if (!pin && exists('.plans-pin')) pin = R('.plans-pin').trim();
+  if (!pin || !exists('session-plan/pro')) { console.log('skip the Pro code (needs session-plan/pro and PLANS_PIN or .plans-pin)'); return null; }
+  const pro = {};
+  ['chipbot', 'peeko', 'jarvis'].forEach((id) => { pro[id] = require('./session-plan/pro/' + id + '.pro.js'); });
+  const key = crypto.pbkdf2Sync(pin + ':pro', 'chipcamp-pro-v1', 250000, 32, 'sha256'), iv = crypto.randomBytes(12);
+  const c = crypto.createCipheriv('aes-256-gcm', key, iv);
+  const enc = Buffer.concat([c.update(JSON.stringify(pro), 'utf8'), c.final(), c.getAuthTag()]);
+  return { i: iv.toString('base64'), c: enc.toString('base64') };
+}
+const testSketches = {};
+['chipbot', 'peeko', 'jarvis'].forEach((id) => { testSketches[id] = R('firmware/test/' + id + '_test/' + id + '_test.ino'); });
+
 const pages = [
   { out: 'index.html', title: 'Micron Chip Camp', fonts: 'hub', css: ['hub.css'], body: 'hub.html', js: ['progress.js', 'hub.js'] },
-  { out: 'blocks.html', title: 'Code Builder · Chip Camp', fonts: 'tool', css: ['shared.css', 'stage.css', 'blocks.css'], body: 'index.src.html', templates: true, js: ['progress.js', 'core.js', 'studiocore.js', 'runtime.js', 'stages.js', 'ui.js'] },
-  { out: 'studio.html', title: 'Studio · Chip Camp', fonts: 'tool', css: ['shared.css', 'stage.css', 'studio.css'], body: 'studio.html', js: ['progress.js', 'core.js', 'studiocore.js', 'runtime.js', 'stages.js', 'studio.js'] },
+  { out: 'blocks.html', title: 'Code Builder · Chip Camp', fonts: 'tool', css: ['shared.css', 'stage.css', 'blocks.css'], body: 'index.src.html', templates: true, pro: true, js: ['progress.js', 'flow.js', 'core.js', 'studiocore.js', 'runtime.js', 'stages.js', 'ui.js', 'pro.js'] },
+  { out: 'test.html', title: 'Test it · Chip Camp', fonts: 'tool', css: ['shared.css', 'test.css'], body: 'test.html', tests: true, js: ['progress.js', 'flow.js', 'test.js'] },
+  { out: 'studio.html', title: 'Studio · Chip Camp', fonts: 'tool', css: ['shared.css', 'stage.css', 'studio.css'], body: 'studio.html', js: ['progress.js', 'flow.js', 'core.js', 'studiocore.js', 'runtime.js', 'stages.js', 'studio.js'] },
   { out: 'brain.html', title: "Peeko's Brain · Chip Camp", fonts: 'tool', css: ['shared.css', 'stage.css', 'brain.css'], body: 'brain.html', js: ['progress.js', 'stages.js', 'braincore.js', 'brain.js'] },
   { out: 'logic.html', title: 'The CHIP Challenge · Chip Camp', fonts: 'tool', css: ['shared.css', 'logic.css'], body: 'logic.html', js: ['progress.js', 'logiccore.js', 'logic.js'] },
-  { out: 'circuits.html', title: 'Circuit Lab · Chip Camp', fonts: 'tool', css: ['shared.css', 'lab.css'], body: 'lab.html', js: ['progress.js', 'labcore.js', 'lab.js'] }
+  { out: 'circuits.html', title: 'Circuit Lab · Chip Camp', fonts: 'tool', css: ['shared.css', 'lab.css'], body: 'lab.html', js: ['progress.js', 'flow.js', 'labcore.js', 'lab.js'] }
 ];
 
 pages.forEach((p) => {
@@ -28,6 +47,8 @@ pages.forEach((p) => {
   if (missing.length) { console.log('skip ' + p.out + ' (missing ' + missing.join(', ') + ')'); return; }
   const css = FONTS[p.fonts] + p.css.map((c) => R('src/' + c)).join('\n');
   const scripts = (p.templates ? '<script>var CAMP_TEMPLATES = ' + safe(JSON.stringify(templates)) + ';</script>\n' : '') +
+    (p.pro ? '<script>window.PRO_PAYLOAD = ' + JSON.stringify(proPayload()) + ';</script>\n' : '') +
+    (p.tests ? '<script>window.TEST_SKETCHES = ' + safe(JSON.stringify(testSketches)) + ';</script>\n' : '') +
     p.js.map((j) => '<script>\n' + safe(R('src/' + j)) + '\n</script>').join('\n');
   const html = '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>' + p.title + '</title>\n<style>\n' + css + '\n</style>\n</head>\n<body>\n' + R('src/' + p.body) + '\n' + scripts + '\n</body>\n</html>\n';
   fs.writeFileSync(path.join(__dirname, p.out), html);
@@ -77,7 +98,7 @@ pages.forEach((p) => {
   const c = crypto.createCipheriv('aes-256-gcm', key, iv);
   const enc = Buffer.concat([c.update(JSON.stringify({ decks, pptx }), 'utf8'), c.final(), c.getAuthTag()]);
   const payload = { s: salt.toString('base64'), i: iv.toString('base64'), n: ITER, c: enc.toString('base64') };
-  const css = FONTS.tool + R('src/shared.css') + '\n' + R('src/stage.css') + '\n' + R('src/slides.css');
+  const css = FONTS.slides + R('src/shared.css') + '\n' + R('src/stage.css') + '\n' + R('src/slides.css');
   const html = '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<meta name="robots" content="noindex,nofollow">\n<title>Presentations · Chip Camp</title>\n<style>\n' + css + '\n</style>\n</head>\n<body>\n' + R('src/slides.html') +
     '\n<script>window.DECKS_PAYLOAD = ' + JSON.stringify(payload) + ';</script>\n' + ['stages.js', 'art.js', 'slides.js'].map((j) => '<script>\n' + safe(R('src/' + j)) + '\n</script>').join('\n') + '\n</body>\n</html>\n';
   fs.writeFileSync(path.join(__dirname, 'slides.html'), html);

@@ -74,7 +74,7 @@ function hostile(id) {
     if (id === 'chipbot') {
       const d = { safe: false, moves: [{ kind: 'dance', n: 5, move: '6', beep: 'none' }, { kind: 'walk', dir: 'back', n: 7 }] };
       const text = Core.generate(id, Studio.toState(id, d)).text;
-      ok(/doDance\(6, 5\)/.test(text) && /doWalk\(1, 7\)/.test(text) && !/readDistance\(\) </.test(text), 'chipbot: design choices missing from code');
+      ok(/doDance\(6, 4\)/.test(text) && /doWalk\(1, 6\)/.test(text) && !/readDistance\(\) </.test(text), 'chipbot: design choices missing from code');
       const t2 = Core.generate(id, Studio.toState(id, { safe: true, safeCm: 25, moves: [] })).text;
       ok(/readDistance\(\) < 25/.test(t2), 'chipbot: safety check missing');
     }
@@ -82,6 +82,16 @@ function hostile(id) {
       const text = Core.generate(id, Studio.toState(id, { dryPct: 65, dryColor: 'yellow', dryAlarm: false, darkPct: 15, darkColor: 'purple', okColor: 'cyan', checkSecs: 5 })).text;
       ok(/soilPercent\(\) < 65/.test(text) && /lightPercent\(\) < 15/.test(text) && /setColor\(1, 1, 0\)/.test(text) && /waitSecs\(5\.0\)/.test(text), 'jarvis: design choices missing from code');
     }
+  }
+  // every ready-made starter is valid, stable and makes good blocks
+  for (const id of ROBOTS) {
+    ok(Studio.STARTERS[id].length === 3, id + ': three starters');
+    Studio.STARTERS[id].forEach((s) => {
+      ok(same(Studio.clean(id, s.design), s.design), id + ' starter ' + s.id + ' is already clean (nothing in it gets changed on load)');
+      const st = Studio.toState(id, s.design, { builder: 'Aarav', robot: 'Zippy' });
+      const text = Core.generate(id, st).text;
+      ok(/void setup\(\)/.test(text) && /void loop\(\)/.test(text) && Core.countBlocks(st) >= 4, id + ' starter ' + s.id + ' makes a complete program');
+    });
   }
   console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);

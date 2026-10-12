@@ -67,7 +67,7 @@
   const P = L.bb.pitch;
   const PARTS = {
     servo: { name: 'Servo motor', kind: 'plug3', w: 86, h: 42, port: { x: -43, y: 10 }, cable: { s: '#ff9f1a', v: '#e5484d', g: '#6b4423' }, unoTerms: { s: [-92, -14], v: [-92, 0], g: [-92, 14] }, note: 'SG90. Orange = signal, red = power, brown = ground.' },
-    buzzer: { name: 'Buzzer module', kind: 'plug3', w: 46, h: 46, port: { x: 0, y: 23 }, cable: { s: '#ffd93b', v: '#e5484d', g: '#2b2f4a' }, unoTerms: { s: [-16, 38], v: [0, 38], g: [16, 38] }, note: 'Beeps when the pin is switched on.' },
+    buzzer: { name: 'Buzzer (2 legs)', kind: 'pins', w: 56, h: 60, terms: { p: [-12, 40], n: [12, 40] }, labels: { p: '+', n: '−' }, note: 'A small buzzer with two legs. The LONG leg is + and the short leg is −. Two jumper wires: + to the signal pin, − to ground.' },
     soil: { name: 'Soil moisture sensor', kind: 'plug3', w: 56, h: 84, port: { x: 28, y: -14 }, cable: { s: '#59c059', v: '#e5484d', g: '#2b2f4a' }, unoTerms: { s: [-16, -58], v: [0, -58], g: [16, -58] }, note: 'Two metal probes go in the soil.' },
     usb: { name: 'USB cable', kind: 'usb', w: 80, h: 46, port: { x: 40, y: 0 }, note: 'Powers the board and carries your code to it. Every robot runs from this cable.' },
     hcsr04: { name: 'Ultrasonic sensor (HC-SR04)', kind: 'pins', w: 124, h: 60, terms: { vcc: [-42, 32], trig: [-14, 32], echo: [14, 32], gnd: [42, 32] }, labels: { vcc: 'VCC', trig: 'TRIG', echo: 'ECHO', gnd: 'GND' }, note: 'Chip Bot\'s eyes. It measures distance with sound.' },
@@ -242,7 +242,7 @@
       out.push(linkItem(c, 'Ultrasonic eyes', 'hcsr04', 'gnd', 'NET:GND', 'GND → ground'));
       out.push(linkItem(c, 'Ultrasonic eyes', 'hcsr04', 'trig', 'D8.S', 'TRIG → D8'));
       out.push(linkItem(c, 'Ultrasonic eyes', 'hcsr04', 'echo', 'D9.S', 'ECHO → D9'));
-      out.push(plugItem(c, 'Bonus', 'buzzer', 'D13', 'Buzzer → D13', { optional: true }));
+      buzzerItems(c, 'Bonus', 'D13', out, true);
       return out;
     },
     peeko(c) {
@@ -253,7 +253,7 @@
       out.push(linkItem(c, 'OLED screen', 'oled', 'sda', 'A4.S', 'SDA → A4 (the data wire)'));
       out.push(linkItem(c, 'OLED screen', 'oled', 'scl', 'A5.S', 'SCL → A5 (the clock wire)'));
       moduleItems(c, 'Head servo', 'head', 'D9', 'Head servo', out);
-      moduleItems(c, 'Bonus', 'buzzer', 'D8', 'Buzzer', out, true);
+      buzzerItems(c, 'Bonus', 'D8', out, true);
       return out;
     },
     jarvis(c) {
@@ -279,7 +279,7 @@
           out.push(resistorBetween(c, 'RGB light', 'rgb.' + x[0], x[1] + '.S', led.id + '.' + x[0], 220, x[2] + ' leg ← 220Ω resistor ← ' + x[1]));
         });
       }
-      moduleItems(c, 'Buzzer', 'buzzer', 'D8', 'Buzzer', out);
+      buzzerItems(c, 'Buzzer', 'D8', out, false);
       return out;
     }
   };
@@ -289,6 +289,12 @@
     out.push(linkItem(c, group, key, 's', pin + '.S', name + ' signal → ' + pin, o));
     out.push(linkItem(c, group, key, 'v', 'NET:5V', name + ' power (V) → 5V', o));
     out.push(linkItem(c, group, key, 'g', 'NET:GND', name + ' ground (G) → GND', o));
+  }
+  // the 2-legged buzzer: long leg (+) to the signal pin, short leg (−) to ground. The V pin is not used.
+  function buzzerItems(c, group, pin, out, optional) {
+    const o = { optional: !!optional };
+    out.push(linkItem(c, group, 'buzzer', 'p', pin + '.S', 'Buzzer + (long leg) → ' + pin, o));
+    out.push(linkItem(c, group, 'buzzer', 'n', 'NET:GND', 'Buzzer − (short leg) → ground', o));
   }
   function usbItem(c) {
     const p = c.part('usb'), it = base('usb', 'Power & code', 'USB cable plugged into the ' + (boardKind(c.proj) === 'uno' ? 'Arduino Uno' : 'Nano'), { focus: ['USB'] });
@@ -338,18 +344,18 @@
       [['lhip', 150, 110, 'D2'], ['rhip', 270, 110, 'D3'], ['lfoot', 390, 110, 'D4'], ['rfoot', 510, 110, 'D5']].forEach(([k, x, y, pin]) => { add(k, x, y); plug(k, pin); });
       const hc = add('hcsr04', 660, 120);
       w(hc.id + '.vcc', 'D8.V'); w(hc.id + '.gnd', 'D8.G'); w(hc.id + '.trig', 'D8.S'); w(hc.id + '.echo', 'D9.S');
-      add('buzzer', 610, 150); plug('buzzer', 'D13');
+      const bz = add('buzzer', 610, 150); w(bz.id + '.p', 'D13.S'); w(bz.id + '.n', 'D13.G');
     } else if (proj === 'peeko') {
       bb = add('breadboard', L.bb.x, L.bb.y);
       w('PWR.5V', bb.id + '#T+1'); w('PWR.GND1', bb.id + '#T-1');
       const sv = add('head', 250, 120); w(sv.id + '.s', 'D9.S'); w(sv.id + '.v', bb.id + '#T+3'); w(sv.id + '.g', bb.id + '#T-3');
-      const bz = add('buzzer', 470, 130); w(bz.id + '.s', 'D8.S'); w(bz.id + '.v', bb.id + '#T+5'); w(bz.id + '.g', bb.id + '#T-5');
+      const bz = add('buzzer', 470, 130); w(bz.id + '.p', 'D8.S'); w(bz.id + '.n', bb.id + '#T-5');
       const o = add('oled', 880, 660); w(o.id + '.vcc', bb.id + '#T+7'); w(o.id + '.gnd', bb.id + '#T-7'); w(o.id + '.sda', 'A4.S'); w(o.id + '.scl', 'A5.S');
     } else {
       bb = add('breadboard', L.bb.x, L.bb.y);
       w('PWR.5V', bb.id + '#T+1'); w('PWR.GND1', bb.id + '#T-1');
       const so = add('soil', 250, 130); w(so.id + '.s', 'A0.S'); w(so.id + '.v', bb.id + '#T+3'); w(so.id + '.g', bb.id + '#T-3');
-      const bz = add('buzzer', 470, 130); w(bz.id + '.s', 'D8.S'); w(bz.id + '.v', bb.id + '#T+5'); w(bz.id + '.g', bb.id + '#T-5');
+      const bz = add('buzzer', 470, 130); w(bz.id + '.p', 'D8.S'); w(bz.id + '.n', bb.id + '#T-5');
       const ldr = add('ldr'); seat(ldr.id, 2, 'c');
       const r10 = add('resistor'); seat(r10.id, 4, 'd', 10000);
       w(bb.id + '#T+2', bb.id + '#2a'); w('A1.S', bb.id + '#4a'); w(bb.id + '#T-8', bb.id + '#8a');

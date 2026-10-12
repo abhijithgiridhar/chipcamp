@@ -68,6 +68,27 @@
     };
   }
 
+  /* ---------- ready-made starting points for the Code Builder ---------- */
+  const m = (face, look, words, note, wait) => ({ face, look, words, note, wait });
+  const mv = (kind, dir, n, move, beep) => ({ kind, dir, n, move, beep });
+  const STARTERS = {
+    peeko: [
+      { id: 'happy', emoji: '🎉', title: 'Happy show', blurb: 'Smiles, a cheer and a head turn', design: { moments: [m('happy', 'none', '', 'E', 2), m('celebrate', 'none', 'Yay!', 'G', 2), m('happy', 'left', '', 'none', 2)] } },
+      { id: 'moody', emoji: '🎭', title: 'Moody Peeko', blurb: 'Surprise, sadness and a grumpy look', design: { moments: [m('surprised', 'left', '', 'none', 2), m('sad', 'none', 'Why?', 'C', 2), m('angry', 'right', '', 'none', 2), m('neutral', 'none', '', 'none', 2)] } },
+      { id: 'sleepy', emoji: '😴', title: 'Sleepy head', blurb: 'Yawns, naps and wakes up', design: { moments: [m('neutral', 'none', '', 'none', 2), m('sleepy', 'none', 'Zzz', 'none', 3), m('sleepy', 'left', '', 'none', 2), m('surprised', 'none', 'Oh!', 'none', 2)] } }
+    ],
+    chipbot: [
+      { id: 'patrol', emoji: '🚶', title: 'Patrol', blurb: 'Walks and turns away from walls', design: { safe: true, safeCm: 15, moves: [mv('walk', 'fwd', 4, '0', 'none'), mv('turn', 'right', 2, '0', 'none'), mv('walk', 'fwd', 3, '0', 'none')] } },
+      { id: 'dance', emoji: '💃', title: 'Dance party', blurb: 'Four dances with a beep each', design: { safe: false, safeCm: 15, moves: [mv('dance', 'fwd', 2, '0', 'C'), mv('dance', 'fwd', 2, '2', 'E'), mv('dance', 'fwd', 2, '3', 'G'), mv('dance', 'fwd', 2, '6', 'C2')] } },
+      { id: 'shy', emoji: '🙈', title: 'Shy bot', blurb: 'Hides from anything close', design: { safe: true, safeCm: 30, moves: [mv('walk', 'fwd', 2, '0', 'none'), mv('stand', 'fwd', 1, '0', 'G'), mv('turn', 'left', 2, '0', 'none')] } }
+    ],
+    jarvis: [
+      { id: 'thirsty', emoji: '🚨', title: 'Thirsty alert', blurb: 'Red and beeps when the soil is dry', design: { dryPct: 40, dryColor: 'red', dryAlarm: true, darkPct: 30, darkColor: 'blue', okColor: 'green', checkSecs: 2 } },
+      { id: 'night', emoji: '🌙', title: 'Night light', blurb: 'A soft purple glow in the dark', design: { dryPct: 30, dryColor: 'yellow', dryAlarm: false, darkPct: 40, darkColor: 'purple', okColor: 'cyan', checkSecs: 3 } },
+      { id: 'calm', emoji: '🌿', title: 'Calm garden', blurb: 'Quiet, with a gentle green when fine', design: { dryPct: 35, dryColor: 'red', dryAlarm: false, darkPct: 20, darkColor: 'blue', okColor: 'green', checkSecs: 5 } }
+    ]
+  };
+
   /* ---------- design -> Code Builder blocks ---------- */
   function toBlocks(proj, design) {
     const d = clean(proj, design);
@@ -121,5 +142,5 @@
     return st;
   }
 
-  return { MAX_STEPS, NOTE_IDS, FACES, MOVES, COLORS, KINDS, defaults, clean, toBlocks, toState };
+  return { MAX_STEPS, NOTE_IDS, FACES, MOVES, COLORS, KINDS, STARTERS, defaults, clean, toBlocks, toState };
 });

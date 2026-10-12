@@ -243,7 +243,7 @@
 
   $('#toBuilder').onclick = () => { stopRun(); save(); location.href = 'blocks.html#design'; };
 
-  function renderAll() { renderTabs(); renderEditor(); mountStage(); }
+  function renderAll() { renderTabs(); renderEditor(); mountStage(); CampFlow.render('design'); }
   loadDesign(); renderAll();
   window.__studio = { S, Studio, renderAll };
 })();

@@ -11,6 +11,28 @@
 
   let data = null, deck = null, idx = 0, playToken = 0, timerId = 0;
 
+  /* ---------- little sound effects (off until switched on with M) ---------- */
+  const Sfx = {
+    on: false, ctx: null,
+    tone(hz, at, dur, type, vol) {
+      try {
+        this.ctx = this.ctx || new (window.AudioContext || window.webkitAudioContext)();
+        const o = this.ctx.createOscillator(), g = this.ctx.createGain(), t = this.ctx.currentTime + at;
+        o.type = type || 'triangle'; o.frequency.setValueAtTime(hz, t);
+        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol || 0.12, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        o.connect(g); g.connect(this.ctx.destination); o.start(t); o.stop(t + dur + 0.05);
+      } catch (e) { /* no audio, no problem */ }
+    },
+    play(kind) {
+      if (!this.on) return;
+      if (kind === 'pop') { this.tone(520, 0, 0.1); this.tone(780, 0.07, 0.12); }
+      else if (kind === 'good') { [523, 659, 784, 1046].forEach((f, i) => this.tone(f, i * 0.09, 0.2)); }
+      else if (kind === 'bad') { this.tone(220, 0, 0.18, 'sawtooth', 0.08); this.tone(165, 0.14, 0.28, 'sawtooth', 0.08); }
+      else if (kind === 'star') { this.tone(880, 0, 0.1); this.tone(1320, 0.08, 0.2); }
+      else if (kind === 'tada') { [392, 523, 659, 784, 1046].forEach((f, i) => this.tone(f, i * 0.08, 0.3)); }
+    }
+  };
+
   /* ---------- unlock ---------- */
   async function decrypt(pin) {
     const P = window.DECKS_PAYLOAD;
@@ -46,8 +68,7 @@
     const g = $('#dgrid'); g.innerHTML = '';
     data.decks.forEach((d) => {
       const c = document.createElement('div'); c.className = 'dcard'; c.style.setProperty('--c', d.color);
-      const art = Art.html(d.id === 'kickoff' ? 'chip' : d.id);
-      c.innerHTML = '<div class="dart">' + art + '</div><div class="dbody"><h2>' + esc(d.title) + '</h2><div class="dsub">' + esc(d.sub) + '</div>' +
+      c.innerHTML = '<div class="dart">' + Art.splash() + Art.html(d.id === 'kickoff' ? 'chip' : d.id) + '</div><div class="dbody"><h2>' + esc(d.title) + '</h2><div class="dsub">' + esc(d.sub) + '</div>' +
         '<div class="dmeta">' + d.slides.length + ' slides · ' + d.acts.map((a) => esc(a.name)).join(' / ') + '</div><div class="dact"></div></div>';
       const act = $('.dact', c);
       const open = document.createElement('a'); open.className = 'btn go'; open.href = '#' + d.id; open.textContent = '▶ Open slides'; act.appendChild(open);
@@ -59,26 +80,38 @@
   /* ---------- slide builders ---------- */
   const delay = (i, step) => ' style="animation-delay:' + (0.08 + i * (step || 0.12)) + 's"';
   const art = (s, cls) => (s.art ? Art.html(s.art, cls) : '');
+  const eyebrow = (s) => { const a = deck.acts.slice().reverse().find((x) => idx >= x.from); return '<div class="eyebrow">' + esc(s.eyebrow || (a ? a.name : deck.title)) + '</div>'; };
+  const ttl = (s) => '<h1 class="ttl">' + fmt(s.title) + '</h1>';
   const B = {
-    title: (s) => '<div class="row"><div class="grow"><div class="kicker">' + fmt(s.kicker || '') + '</div><h1>' + fmt(s.title) + '</h1><div class="sub">' + fmt(s.sub || '') + '</div></div>' + art(s) + '</div>',
-    end: (s) => '<div class="row"><div class="grow"><h1>' + fmt(s.title) + '</h1><div class="sub">' + fmt(s.sub || '') + '</div></div>' + art(s) + '</div>',
-    story: (s) => '<div class="row"><div class="grow"><h1>' + fmt(s.title) + '</h1>' + s.lines.map((l, i) => '<div class="line"' + delay(i + 1, 0.5) + '>' + fmt(l) + '</div>').join('') + '</div>' + art(s) + '</div>',
-    big: (s) => '<div class="row"><div class="grow"><div class="big">' + fmt(s.big) + '</div><div class="small">' + fmt(s.small || '') + '</div></div>' + art(s) + '</div>',
-    list: (s) => '<h1>' + fmt(s.title) + '</h1><div class="row"><div class="grow items">' + s.items.map((it, i) => {
+    title: (s) => '<div class="badge-top"><i></i>Micron Chip Camp</div>' + Art.splash() + '<div class="row"><div class="grow"><div class="eyebrow">' + fmt(s.kicker || '') + '</div><h1 class="ttl">' + fmt(s.title) + '</h1><div class="sub">' + fmt(s.sub || '') + '</div></div>' + art(s, 'hero') + '</div>',
+    end: (s) => Art.splash() + eyebrow(s) + ttl(s) + '<div class="sub">' + fmt(s.sub || '') + '</div><div class="group">' + Art.raw('kids').replace('<svg ', '<svg class="kids" ') + '</div>',
+    big: (s) => (s.eyebrow ? eyebrow(s) : '') + '<div class="big">' + fmt(s.big) + '</div><div class="small">' + fmt(s.small || '') + '</div>' + art(s),
+    comic: (s) => eyebrow(s) + (s.title ? '<h1 class="ttl">' + fmt(s.title) + '</h1>' : '') + '<div class="panels n' + s.panels.length + '">' + s.panels.map((p, i) =>
+      '<div class="panel"' + delay(i, 0.45) + '><div class="bubble">' + fmt(p.say) + '</div>' + Art.html(p.art) + (p.name ? '<div class="who">' + esc(p.name) + '</div>' : '') + '</div>').join('') + '</div>',
+    list: (s) => eyebrow(s) + ttl(s) + '<div class="row"><div class="grow items">' + s.items.map((it, i) => {
       const lead = it[0], one = lead.length <= 2 && /^[A-Z0-9]$/.test(lead), em = one ? '' : (lead.length <= 4 && !/[A-Za-z0-9]{3}/.test(lead) ? ' emo' : ' sm');
       return '<div class="item"' + delay(i) + '><div class="em' + em + '">' + esc(lead) + '</div><div><h3>' + fmt(it[1]) + '</h3><p>' + fmt(it[2] || '') + '</p></div></div>';
     }).join('') + '</div>' + (s.items.length <= 3 ? art(s) : '') + '</div>',
-    steps: (s) => '<h1>' + fmt(s.title) + '</h1><div class="row"><ol class="grow stepsl">' + s.steps.map((t, i) => '<li' + delay(i) + '>' + fmt(t) + '</li>').join('') + '</ol>' + (s.steps.length <= 5 ? art(s) : '') + '</div>',
-    parts: (s) => '<h1>' + fmt(s.title) + '</h1><div class="pgrid">' + s.parts.map((p, i) => '<div class="pcard"' + delay(i, 0.09) + '><div class="pe">' + p[0] + '</div><h3>' + fmt(p[1]) + '</h3><p>' + fmt(p[2]) + '</p></div>').join('') + '</div>',
-    activity: (s) => '<button class="badge" id="timer" title="Start or pause the timer">⏱ ' + s.minutes + ':00</button><h1>' + fmt(s.title) + '</h1><div class="row"><ol class="grow stepsl">' + s.steps.map((t, i) => '<li' + delay(i) + '>' + fmt(t) + '</li>').join('') + '</ol>' + art(s) + '</div>',
-    demo: (s) => '<h1>' + fmt(s.title) + '</h1><div class="row"><div class="grow"><p class="lead">' + fmt(s.text) + '</p>' +
+    levels: (s) => {
+      const n = s.items.length + 1, W = 1088, M = 105, step = (W - 2 * M) / (n - 1);
+      const pts = s.items.map((it, i) => ({ x: M + step * i, y: i % 2 ? 190 : 100, it, goal: false })).concat([{ x: M + step * (n - 1), y: 140, goal: true }]);
+      const path = 'M' + pts.map((p) => p.x + ' ' + (p.y + 43)).join(' L');
+      return eyebrow(s) + ttl(s) + '<div class="lmap"><svg class="path" viewBox="0 0 1088 360" preserveAspectRatio="none"><path d="' + path + '" stroke="#5b5b9f" stroke-opacity=".35" stroke-width="7" stroke-dasharray="4 16" stroke-linecap="round" fill="none"/></svg>' +
+        pts.map((p, i) => p.goal
+          ? '<div class="lnode goal" style="left:' + p.x + 'px;top:' + p.y + 'px"' + delay(i, 0.15) + '><div class="dot">🏆</div><h4>Robot alive</h4></div>'
+          : '<button class="lnode" style="left:' + p.x + 'px;top:' + p.y + 'px"' + delay(i, 0.15) + '><div class="dot">' + esc(p.it[0]) + '</div><h4>' + fmt(p.it[1]) + '</h4><p>' + fmt(p.it[2] || '') + '</p></button>').join('') + '</div>';
+    },
+    steps: (s) => eyebrow(s) + ttl(s) + '<div class="row"><ol class="grow stepsl">' + s.steps.map((t, i) => '<li' + delay(i) + '>' + fmt(t) + '</li>').join('') + '</ol>' + (s.steps.length <= 4 ? art(s) : '') + '</div>',
+    parts: (s) => eyebrow(s) + ttl(s) + '<div class="pgrid">' + s.parts.map((p, i) => '<div class="pcard"' + delay(i, 0.09) + '><div class="pe">' + p[0] + '</div><h3>' + fmt(p[1]) + '</h3><p>' + fmt(p[2]) + '</p></div>').join('') + '</div>',
+    activity: (s) => '<button class="badge" id="timer" title="Start or pause the timer">⏱ ' + s.minutes + ':00</button>' + eyebrow(s) + ttl(s) + '<div class="row"><ol class="grow stepsl">' + s.steps.map((t, i) => '<li' + delay(i) + '>' + fmt(t) + '</li>').join('') + '</ol>' + (s.steps.length <= 4 ? art(s) : '') + '</div>',
+    demo: (s) => eyebrow(s) + ttl(s) + '<div class="row"><div class="grow"><p class="lead">' + fmt(s.text) + '</p>' +
       (s.link ? '<a class="open" href="' + esc(s.link.href) + '" target="_blank" rel="noopener">' + esc(s.link.label) + ' ↗</a>' : '') + '</div>' +
       (s.stage ? '<div class="demo"><div class="scene" id="dscene"></div><div class="sliders" id="dsliders"></div></div>' : art(s)) + '</div>',
-    question: (s) => '<div class="row"><div class="grow"><div class="q">' + fmt(s.title) + '</div><div class="opts">' + s.options.map((o, i) => '<button class="opt"' + delay(i, 0.15) + '><i>' + 'ABCD'[i] + '</i>' + fmt(o) + '</button>').join('') + '</div></div>' + art(s) + '</div>',
-    code: (s) => '<h1>' + fmt(s.title) + '</h1><pre>' + esc(s.code) + '</pre><p>' + fmt(s.text || '') + '</p>',
-    crew: (s) => '<h1>' + fmt(s.title) + '</h1><div class="cgrid">' + s.crew.map((c, i) => '<div class="ccard"' + delay(i, 0.25) + '>' + Art.html(c[0]) + '<h3>' + fmt(c[1]) + '</h3><p>' + fmt(c[2]) + '</p></div>').join('') + '</div>'
+    question: (s) => eyebrow(s) + '<div class="row"><div class="grow"><div class="q">' + fmt(s.title) + '</div><div class="opts">' + s.options.map((o, i) => '<button class="opt" data-i="' + i + '"' + delay(i, 0.15) + '><i>' + 'ABCD'[i] + '</i>' + fmt(o) + '</button>').join('') + '</div><div class="punch" id="punch"></div></div>' + art(s) + '</div>',
+    code: (s) => eyebrow(s) + ttl(s) + '<pre>' + esc(s.code) + '</pre><p>' + fmt(s.text || '') + '</p>',
+    crew: (s) => eyebrow(s) + ttl(s) + '<div class="cgrid">' + s.crew.map((c, i) => '<div class="ccard"' + delay(i, 0.25) + '>' + Art.html(c[0]) + '<h3>' + fmt(c[1]) + '</h3><p>' + fmt(c[2]) + '</p></div>').join('') + '</div>',
+    wanted: (s) => eyebrow(s) + ttl(s) + '<div class="wgrid">' + s.bugs.map((b, i) => '<div class="wposter" style="--rot:' + [-1.8, 1.2, -0.8][i % 3] + 'deg"' + delay(i, 0.25) + '><div class="w">WANTED</div>' + Art.html('bug') + '<h3>' + fmt(b[0]) + '</h3><div class="l"><b>Seen:</b> ' + fmt(b[1]) + '</div><div class="reward">Reward: ' + fmt(b[2]) + '</div></div>').join('') + '</div>'
   };
-  const colourFor = { chipbot: ['#2bb3a3', '#17756a'], peeko: ['#ff6b5e', '#d94c40'], jarvis: ['#8b7fe8', '#5f52c4'] };
 
   /* ---------- the live robot on demo slides ---------- */
   const sensors = {
@@ -126,8 +159,9 @@
   function render() {
     stopAll();
     const s = deck.slides[idx], st = $('#stage');
-    const cs = colourFor[deck.id] || [deck.color, deck.dark];
-    st.innerHTML = '<div class="slide s-' + s.t + (s.t === 'steps' && s.steps.length > 5 ? ' long' : '') + '" style="--c:' + deck.color + ';--d:' + deck.dark + '">' + B[s.t](s) + '</div>';
+    const cls = 's-' + s.t + (s.t === 'steps' && s.steps.length > 4 ? ' long' : '') + (s.t === 'title' && (s.title || '').length > 20 ? ' long' : '') + (s.t === 'big' && s.art ? ' has-art' : '') + (s.quip ? ' has-quip' : '');
+    const quip = s.quip ? '<div class="quip">' + Art.html('bug') + '<div class="qb">' + fmt(s.quip) + '</div></div>' : '';
+    st.innerHTML = '<div class="slide ' + cls + '" style="--c:' + deck.color + ';--d:' + deck.dark + '">' + B[s.t](s) + quip + (s.t === 'title' || s.t === 'end' ? '' : '<div class="pnum">' + (idx + 1) + '</div>') + '</div>';
     document.title = deck.title + ' · ' + slideTitle(s) + ' · Chip Camp';
     $('#count').textContent = (idx + 1) + ' / ' + deck.slides.length;
     $('#bar').style.width = ((idx + 1) / deck.slides.length * 100) + '%';
@@ -136,14 +170,25 @@
     $('#notes').innerHTML = '<small>Speaker notes</small>' + fmt(s.notes || 'No notes for this slide.');
     try { history.replaceState(null, '', '#' + deck.id + '/' + (idx + 1)); } catch (e) { /* fine */ }
     if (s.t === 'demo') mountDemo();
-    if (s.t === 'end') confetti();
-    if (s.t === 'question') $$('.opt', st).forEach((o) => { o.onclick = () => o.classList.toggle('picked'); });
+    if (s.t === 'end') { confetti(); Sfx.play('tada'); } else Sfx.play('pop');
+    if (s.t === 'question') question(s, st);
+    if (s.t === 'levels') $$('.lnode:not(.goal)', st).forEach((n) => { n.onclick = () => { n.classList.toggle('done'); Sfx.play('star'); if ($$('.lnode.done', st).length === s.items.length) { confetti(); Sfx.play('tada'); } }; });
     if (s.t === 'activity') timer(s.minutes);
-    void cs;
+  }
+  function question(s, st) {
+    const punch = $('#punch', st);
+    $$('.opt', st).forEach((o) => {
+      o.onclick = () => {
+        const i = Number(o.dataset.i);
+        if (s.answer == null) { o.classList.toggle('right'); Sfx.play('pop'); return; }
+        if (i === s.answer) { o.classList.add('right'); punch.textContent = s.punch || 'Yes!'; confetti(); Sfx.play('good'); }
+        else { o.classList.remove('wrong'); void o.offsetWidth; o.classList.add('wrong'); punch.textContent = 'Bug spotted! Try another one.'; Sfx.play('bad'); }
+      };
+    });
   }
   function confetti() {
     const st = $('#stage'), em = ['🎉', '✨', '⭐', '💜', '🟡', '🟢', '🔵'];
-    for (let i = 0; i < 26; i++) { const e = document.createElement('span'); e.className = 'conf'; e.textContent = em[i % em.length]; e.style.left = (Math.random() * 96) + '%'; e.style.animationDelay = (Math.random() * 1.4) + 's'; st.appendChild(e); setTimeout(() => e.remove(), 4200); }
+    for (let i = 0; i < 28; i++) { const e = document.createElement('span'); e.className = 'conf'; e.textContent = em[i % em.length]; e.style.left = (Math.random() * 96) + '%'; e.style.animationDelay = (Math.random() * 1.2) + 's'; st.appendChild(e); setTimeout(() => e.remove(), 4200); }
   }
   function timer(mins) {
     const b = $('#timer'); if (!b) return;
@@ -152,7 +197,7 @@
     b.onclick = () => {
       if (left <= 0) { left = mins * 60; b.classList.remove('done'); show(); return; }
       on = !on; b.classList.toggle('run', on); clearInterval(timerId);
-      if (on) timerId = setInterval(() => { left--; show(); if (left <= 0) { clearInterval(timerId); on = false; b.classList.remove('run'); b.classList.add('done'); } }, 1000);
+      if (on) timerId = setInterval(() => { left--; show(); if (left <= 0) { clearInterval(timerId); on = false; b.classList.remove('run'); b.classList.add('done'); Sfx.play('bad'); } }, 1000);
     };
   }
   function go(n) { idx = Math.max(0, Math.min(deck.slides.length - 1, n)); render(); }
@@ -181,6 +226,7 @@
   $('#hNotes').onclick = () => toggle('#notes', $('#hNotes'));
   $('#hGrid').onclick = () => { buildGrid(); toggle('#grid'); };
   $('#hFull').onclick = () => { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); };
+  $('#hSound').onclick = () => { Sfx.on = !Sfx.on; $('#hSound').textContent = Sfx.on ? '🔊' : '🔇'; $('#hSound').classList.toggle('on', Sfx.on); Sfx.play('pop'); };
   document.addEventListener('keydown', (e) => {
     if ($('#showView').hidden || e.target.matches('input,textarea')) return;
     const k = e.key;
@@ -191,12 +237,13 @@
     else if (k === 'n' || k === 'N') $('#hNotes').click();
     else if (k === 'g' || k === 'G') $('#hGrid').click();
     else if (k === 'f' || k === 'F') $('#hFull').click();
+    else if (k === 'm' || k === 'M') $('#hSound').click();
     else if (k === 'Escape') { $('#grid').hidden = true; }
   });
   let tx = 0;
   $('#viewport').addEventListener('pointerdown', (e) => { tx = e.clientX; });
   $('#viewport').addEventListener('pointerup', (e) => {
-    if (e.target.closest('a,button,input,.demo')) return;
+    if (e.target.closest('a,button,input,.demo,.opt,.lnode,.badge')) return;
     const dx = e.clientX - tx;
     if (Math.abs(dx) > 60) go(idx + (dx < 0 ? 1 : -1));
     else go(idx + (e.clientX > window.innerWidth / 2 ? 1 : -1));
@@ -213,6 +260,7 @@
     buildHud(); fit(); render();
   }
   window.addEventListener('hashchange', route);
+  if (window.DECKS_PLAIN) { data = window.DECKS_PLAIN; $('#lockView').hidden = true; route(); return; }   // used to take screenshots of slides
   let saved = null; try { saved = sessionStorage.getItem(PIN_KEY); } catch (e) { /* fine */ }
   if (saved) attempt(saved, true);
 })();

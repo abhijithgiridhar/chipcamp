@@ -35,6 +35,8 @@
     const pc = $('#pgCircuit'); const cDone = p.circuits[r];
     pc.textContent = cDone ? 'Wired ✓' : 'Not yet'; pc.classList.toggle('done', !!cDone);
 
+    const pt = $('#pgTest'), tDone = p.tests[r]; pt.textContent = tDone ? 'Tested ✓' : 'Not yet'; pt.classList.toggle('done', !!tDone);
+    $('#sTest').textContent = 'Check every part of ' + label + ' after you wire it.';
     const SN = { chipbot: ['Dance Studio', 'Choose the moves for ' + label + '.'], peeko: ['Face Studio', 'Choose the faces for ' + label + '.'], jarvis: ['Light Studio', 'Choose the lights for ' + label + '.'] };
     $('#nStudio').textContent = SN[r][0]; $('#sStudio').textContent = SN[r][1];
     $('#tBrain').hidden = r !== 'peeko';

@@ -11,10 +11,13 @@
     ROBOTS,
     get() {
       const d = read();
-      return { name: clean(d.name), robot: ROBOTS.indexOf(d.robot) >= 0 ? d.robot : null, levels: d.levels || {}, circuits: d.circuits || {}, code: d.code || {} };
+      return { name: clean(d.name), robot: ROBOTS.indexOf(d.robot) >= 0 ? d.robot : null, levels: d.levels || {}, circuits: d.circuits || {}, code: d.code || {}, tests: d.tests || {}, copied: d.copied || {} };
     },
     design(robot) { const d = read(); return (d.designs && d.designs[robot]) || null; },
     setDesign(robot, design) { if (ROBOTS.indexOf(robot) < 0) return; const d = read(); d.designs = d.designs || {}; d.designs[robot] = design; write(d); },
+    testDone(robot, on) { const d = read(); d.tests = d.tests || {}; d.tests[robot] = on !== false; write(d); },
+    codeCopied(robot) { const d = read(); d.copied = d.copied || {}; d.copied[robot] = true; write(d); },
+    proUnlocked() { try { return !!localStorage.getItem('chipcamp.prokey'); } catch (e) { return false; } },
     day2() { return !!read().day2; },
     setDay2(on) { const d = read(); d.day2 = !!on; write(d); },
     robotOrDefault() { return this.get().robot || 'chipbot'; },

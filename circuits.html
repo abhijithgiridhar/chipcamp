@@ -119,6 +119,19 @@ button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .homebtn:focus-visible{outline:3px solid #fff;outline-offset:2px}
 a.btn{text-decoration:none}
 
+/* ---------- the step bar ---------- */
+.flow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 18px;background:#fff;border-bottom:2px solid var(--line-soft)}
+.fstep{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink-soft);font-family:var(--font-d);font-size:16px;padding:5px 14px 5px 6px;border-radius:999px;border:2px solid var(--line);background:#fff;transition:transform .12s}
+.fstep:hover{transform:translateY(-1px)}
+.fstep i{width:26px;height:26px;border-radius:50%;background:#e6edfb;display:grid;place-items:center;font-style:normal;font-size:14px;color:var(--ink-soft)}
+.fstep small{font-family:var(--font-b);font-weight:800;font-size:11px;background:#fff1c9;color:#7a5b00;border-radius:8px;padding:1px 6px}
+.fstep.done{border-color:#9bdca4;background:#effbf1;color:#23702f}
+.fstep.done i{background:var(--green);color:#fff}
+.fstep.cur{border-color:var(--purple);color:var(--purple);box-shadow:0 0 0 3px rgba(124,77,255,.18);background:#fff}
+.fstep.cur i{background:var(--purple);color:#fff}
+.fstep.lock{opacity:.55;pointer-events:none}
+@media (max-width:760px){.flow{padding:8px 10px}.fstep{font-size:14px}}
+
 /* Circuit Lab */
 body{background:var(--bg);margin:0}
 .ptabs{display:flex;gap:8px;flex-wrap:wrap}
@@ -206,6 +219,7 @@ body{background:var(--bg);margin:0}
   <div class="spacer"></div>
   <button class="btn small" id="undoBtn" title="Undo the last change">↶ Undo</button>
 </header>
+<nav class="flow" id="flow" aria-label="Steps"></nav>
 
 <main class="lab">
   <section class="card binrow" aria-label="Your kit">
@@ -256,10 +270,13 @@ body{background:var(--bg);margin:0}
     ROBOTS,
     get() {
       const d = read();
-      return { name: clean(d.name), robot: ROBOTS.indexOf(d.robot) >= 0 ? d.robot : null, levels: d.levels || {}, circuits: d.circuits || {}, code: d.code || {} };
+      return { name: clean(d.name), robot: ROBOTS.indexOf(d.robot) >= 0 ? d.robot : null, levels: d.levels || {}, circuits: d.circuits || {}, code: d.code || {}, tests: d.tests || {}, copied: d.copied || {} };
     },
     design(robot) { const d = read(); return (d.designs && d.designs[robot]) || null; },
     setDesign(robot, design) { if (ROBOTS.indexOf(robot) < 0) return; const d = read(); d.designs = d.designs || {}; d.designs[robot] = design; write(d); },
+    testDone(robot, on) { const d = read(); d.tests = d.tests || {}; d.tests[robot] = on !== false; write(d); },
+    codeCopied(robot) { const d = read(); d.copied = d.copied || {}; d.copied[robot] = true; write(d); },
+    proUnlocked() { try { return !!localStorage.getItem('chipcamp.prokey'); } catch (e) { return false; } },
     day2() { return !!read().day2; },
     setDay2(on) { const d = read(); d.day2 = !!on; write(d); },
     robotOrDefault() { return this.get().robot || 'chipbot'; },
@@ -278,6 +295,46 @@ body{background:var(--bg);margin:0}
       if (b && r) b.setAttribute('href', 'index.html#' + r);
     });
   }
+})(typeof self !== 'undefined' ? self : this);
+
+</script>
+<script>
+/* The step bar on every tool page: Wire it, Test it, Design it, Build it, Make the code, Pro code. */
+(function (root) {
+  'use strict';
+  const STEPS = [
+    { id: 'wire', label: 'Wire it', href: 'circuits.html' },
+    { id: 'test', label: 'Test it', href: 'test.html' },
+    { id: 'design', label: 'Design it', href: 'studio.html' },
+    { id: 'build', label: 'Build it', href: 'blocks.html#build' },
+    { id: 'code', label: 'Make the code', href: 'blocks.html#code' },
+    { id: 'pro', label: 'Pro code', href: 'blocks.html#pro' }
+  ];
+  const LOCKED_DESIGN = { chipbot: true, jarvis: true };   // the Studio opens on day 2 for these two robots
+  function doneFor(id, r, p) {
+    if (id === 'wire') return !!p.circuits[r];
+    if (id === 'test') return !!p.tests[r];
+    if (id === 'design') return !!ChipCamp.design(r);
+    if (id === 'build') return (p.code[r] || 0) > 0;
+    if (id === 'code') return !!p.copied[r];
+    if (id === 'pro') return ChipCamp.proUnlocked();
+    return false;
+  }
+  function render(current) {
+    const nav = document.getElementById('flow'); if (!nav) return;
+    const p = ChipCamp.get(), r = p.robot || 'chipbot';
+    nav.innerHTML = '';
+    STEPS.forEach((s, i) => {
+      const a = document.createElement('a');
+      const locked = (s.id === 'design' && LOCKED_DESIGN[r] && !ChipCamp.day2());
+      a.className = 'fstep' + (s.id === current ? ' cur' : '') + (doneFor(s.id, r, p) ? ' done' : '') + (locked ? ' lock' : '');
+      a.href = s.href;
+      a.innerHTML = '<i>' + (doneFor(s.id, r, p) && s.id !== current ? '\u2713' : (i + 1)) + '</i>' + s.label + (locked ? ' <small>Day 2</small>' : '') + (s.id === 'pro' && !ChipCamp.proUnlocked() ? ' <small>\ud83d\udd12</small>' : '');
+      if (s.id === current) a.setAttribute('aria-current', 'step');
+      nav.appendChild(a);
+    });
+  }
+  root.CampFlow = { render, STEPS };
 })(typeof self !== 'undefined' ? self : this);
 
 </script>
@@ -351,7 +408,7 @@ body{background:var(--bg);margin:0}
   const P = L.bb.pitch;
   const PARTS = {
     servo: { name: 'Servo motor', kind: 'plug3', w: 86, h: 42, port: { x: -43, y: 10 }, cable: { s: '#ff9f1a', v: '#e5484d', g: '#6b4423' }, unoTerms: { s: [-92, -14], v: [-92, 0], g: [-92, 14] }, note: 'SG90. Orange = signal, red = power, brown = ground.' },
-    buzzer: { name: 'Buzzer module', kind: 'plug3', w: 46, h: 46, port: { x: 0, y: 23 }, cable: { s: '#ffd93b', v: '#e5484d', g: '#2b2f4a' }, unoTerms: { s: [-16, 38], v: [0, 38], g: [16, 38] }, note: 'Beeps when the pin is switched on.' },
+    buzzer: { name: 'Buzzer (2 legs)', kind: 'pins', w: 56, h: 60, terms: { p: [-12, 40], n: [12, 40] }, labels: { p: '+', n: '−' }, note: 'A small buzzer with two legs. The LONG leg is + and the short leg is −. Two jumper wires: + to the signal pin, − to ground.' },
     soil: { name: 'Soil moisture sensor', kind: 'plug3', w: 56, h: 84, port: { x: 28, y: -14 }, cable: { s: '#59c059', v: '#e5484d', g: '#2b2f4a' }, unoTerms: { s: [-16, -58], v: [0, -58], g: [16, -58] }, note: 'Two metal probes go in the soil.' },
     usb: { name: 'USB cable', kind: 'usb', w: 80, h: 46, port: { x: 40, y: 0 }, note: 'Powers the board and carries your code to it. Every robot runs from this cable.' },
     hcsr04: { name: 'Ultrasonic sensor (HC-SR04)', kind: 'pins', w: 124, h: 60, terms: { vcc: [-42, 32], trig: [-14, 32], echo: [14, 32], gnd: [42, 32] }, labels: { vcc: 'VCC', trig: 'TRIG', echo: 'ECHO', gnd: 'GND' }, note: 'Chip Bot\'s eyes. It measures distance with sound.' },
@@ -526,7 +583,7 @@ body{background:var(--bg);margin:0}
       out.push(linkItem(c, 'Ultrasonic eyes', 'hcsr04', 'gnd', 'NET:GND', 'GND → ground'));
       out.push(linkItem(c, 'Ultrasonic eyes', 'hcsr04', 'trig', 'D8.S', 'TRIG → D8'));
       out.push(linkItem(c, 'Ultrasonic eyes', 'hcsr04', 'echo', 'D9.S', 'ECHO → D9'));
-      out.push(plugItem(c, 'Bonus', 'buzzer', 'D13', 'Buzzer → D13', { optional: true }));
+      buzzerItems(c, 'Bonus', 'D13', out, true);
       return out;
     },
     peeko(c) {
@@ -537,7 +594,7 @@ body{background:var(--bg);margin:0}
       out.push(linkItem(c, 'OLED screen', 'oled', 'sda', 'A4.S', 'SDA → A4 (the data wire)'));
       out.push(linkItem(c, 'OLED screen', 'oled', 'scl', 'A5.S', 'SCL → A5 (the clock wire)'));
       moduleItems(c, 'Head servo', 'head', 'D9', 'Head servo', out);
-      moduleItems(c, 'Bonus', 'buzzer', 'D8', 'Buzzer', out, true);
+      buzzerItems(c, 'Bonus', 'D8', out, true);
       return out;
     },
     jarvis(c) {
@@ -563,7 +620,7 @@ body{background:var(--bg);margin:0}
           out.push(resistorBetween(c, 'RGB light', 'rgb.' + x[0], x[1] + '.S', led.id + '.' + x[0], 220, x[2] + ' leg ← 220Ω resistor ← ' + x[1]));
         });
       }
-      moduleItems(c, 'Buzzer', 'buzzer', 'D8', 'Buzzer', out);
+      buzzerItems(c, 'Buzzer', 'D8', out, false);
       return out;
     }
   };
@@ -573,6 +630,12 @@ body{background:var(--bg);margin:0}
     out.push(linkItem(c, group, key, 's', pin + '.S', name + ' signal → ' + pin, o));
     out.push(linkItem(c, group, key, 'v', 'NET:5V', name + ' power (V) → 5V', o));
     out.push(linkItem(c, group, key, 'g', 'NET:GND', name + ' ground (G) → GND', o));
+  }
+  // the 2-legged buzzer: long leg (+) to the signal pin, short leg (−) to ground. The V pin is not used.
+  function buzzerItems(c, group, pin, out, optional) {
+    const o = { optional: !!optional };
+    out.push(linkItem(c, group, 'buzzer', 'p', pin + '.S', 'Buzzer + (long leg) → ' + pin, o));
+    out.push(linkItem(c, group, 'buzzer', 'n', 'NET:GND', 'Buzzer − (short leg) → ground', o));
   }
   function usbItem(c) {
     const p = c.part('usb'), it = base('usb', 'Power & code', 'USB cable plugged into the ' + (boardKind(c.proj) === 'uno' ? 'Arduino Uno' : 'Nano'), { focus: ['USB'] });
@@ -622,18 +685,18 @@ body{background:var(--bg);margin:0}
       [['lhip', 150, 110, 'D2'], ['rhip', 270, 110, 'D3'], ['lfoot', 390, 110, 'D4'], ['rfoot', 510, 110, 'D5']].forEach(([k, x, y, pin]) => { add(k, x, y); plug(k, pin); });
       const hc = add('hcsr04', 660, 120);
       w(hc.id + '.vcc', 'D8.V'); w(hc.id + '.gnd', 'D8.G'); w(hc.id + '.trig', 'D8.S'); w(hc.id + '.echo', 'D9.S');
-      add('buzzer', 610, 150); plug('buzzer', 'D13');
+      const bz = add('buzzer', 610, 150); w(bz.id + '.p', 'D13.S'); w(bz.id + '.n', 'D13.G');
     } else if (proj === 'peeko') {
       bb = add('breadboard', L.bb.x, L.bb.y);
       w('PWR.5V', bb.id + '#T+1'); w('PWR.GND1', bb.id + '#T-1');
       const sv = add('head', 250, 120); w(sv.id + '.s', 'D9.S'); w(sv.id + '.v', bb.id + '#T+3'); w(sv.id + '.g', bb.id + '#T-3');
-      const bz = add('buzzer', 470, 130); w(bz.id + '.s', 'D8.S'); w(bz.id + '.v', bb.id + '#T+5'); w(bz.id + '.g', bb.id + '#T-5');
+      const bz = add('buzzer', 470, 130); w(bz.id + '.p', 'D8.S'); w(bz.id + '.n', bb.id + '#T-5');
       const o = add('oled', 880, 660); w(o.id + '.vcc', bb.id + '#T+7'); w(o.id + '.gnd', bb.id + '#T-7'); w(o.id + '.sda', 'A4.S'); w(o.id + '.scl', 'A5.S');
     } else {
       bb = add('breadboard', L.bb.x, L.bb.y);
       w('PWR.5V', bb.id + '#T+1'); w('PWR.GND1', bb.id + '#T-1');
       const so = add('soil', 250, 130); w(so.id + '.s', 'A0.S'); w(so.id + '.v', bb.id + '#T+3'); w(so.id + '.g', bb.id + '#T-3');
-      const bz = add('buzzer', 470, 130); w(bz.id + '.s', 'D8.S'); w(bz.id + '.v', bb.id + '#T+5'); w(bz.id + '.g', bb.id + '#T-5');
+      const bz = add('buzzer', 470, 130); w(bz.id + '.p', 'D8.S'); w(bz.id + '.n', bb.id + '#T-5');
       const ldr = add('ldr'); seat(ldr.id, 2, 'c');
       const r10 = add('resistor'); seat(r10.id, 4, 'd', 10000);
       w(bb.id + '#T+2', bb.id + '#2a'); w('A1.S', bb.id + '#4a'); w(bb.id + '#T-8', bb.id + '#8a');
@@ -885,7 +948,8 @@ body{background:var(--bg);margin:0}
         s += bound(100, 60) + '<rect x="-52" y="-6" width="104" height="9" rx="2" fill="#2f6fa8"/><rect x="-43" y="-21" width="86" height="42" rx="6" fill="#3b82c4" stroke="#1f5b94" stroke-width="2"/><circle cx="22" cy="0" r="12" fill="#f3f4f8" stroke="#9aa3b5" stroke-width="2"/><g class="horn"><rect x="12" y="-3.5" width="26" height="7" rx="3.5" fill="#fff" stroke="#9aa3b5"/></g><text y="38" text-anchor="middle" font-size="12" font-weight="900" fill="#38406a">' + esc(labelFor(p)) + '</text>';
         break;
       case 'buzzer':
-        s += bound(46, 46) + '<circle r="23" fill="#2b2f4a" stroke="#0d0f1a" stroke-width="2"/><circle r="8" fill="#0d0f1a"/><circle r="15" fill="none" stroke="#3a3f5e" stroke-width="2"/><text x="-12" y="-11" font-size="12" font-weight="900" fill="#ff9a9a">+</text><text y="40" text-anchor="middle" font-size="12" font-weight="900" fill="#38406a">Buzzer</text>';
+        s += bound(56, 80, 0, 10) + '<path d="M-12 16 V40" stroke="#9aa3b5" stroke-width="4" stroke-linecap="round"/><path d="M12 16 V30" stroke="#9aa3b5" stroke-width="4" stroke-linecap="round"/><circle r="23" fill="#2b2f4a" stroke="#0d0f1a" stroke-width="2"/><circle r="8" fill="#0d0f1a"/><circle r="15" fill="none" stroke="#3a3f5e" stroke-width="2"/><text x="-19" y="-9" font-size="14" font-weight="900" fill="#ff9a9a">+</text><text y="-30" text-anchor="middle" font-size="11" font-weight="900" fill="#38406a">Buzzer</text>';
+        Object.keys(def.terms).forEach((t) => { const pos = Lab.termPos(p.id + '.' + t, S.st); s += '</g>' + pinDot(p.id + '.' + t, pos, def.labels[t], 17) + '<g transform="translate(' + o.x + ',' + o.y + ')">'; });
         break;
       case 'soil':
         s += bound(56, 90, 0, 0) + '<rect x="-28" y="-44" width="56" height="42" rx="6" fill="#2fa86a" stroke="#1f7a4c" stroke-width="2"/><rect x="-18" y="-2" width="12" height="40" rx="3" fill="#d4af37" stroke="#9c8023"/><rect x="6" y="-2" width="12" height="40" rx="3" fill="#d4af37" stroke="#9c8023"/><circle cx="0" cy="-28" r="6" fill="#0d0f1a"/><text y="56" text-anchor="middle" font-size="12" font-weight="900" fill="#38406a">Soil sensor</text>';
@@ -969,7 +1033,7 @@ body{background:var(--bg);margin:0}
     gParts.innerHTML = S.st.parts.map(partMarkup).join('');
     gWires.innerHTML = wiresMarkup();
     gOver.innerHTML = overlayMarkup();
-    renderBin(); renderCheck(); save();
+    renderBin(); renderCheck(); save(); if (window.CampFlow) CampFlow.render('wire');
     $('#delBtn').disabled = !S.sel;
     const sp = S.sel && S.sel.kind === 'part' ? getPart(S.sel.id) : null;
     $('#flipBtn').hidden = !(sp && sp.plug && sp.plug.to !== 'USB');
@@ -1129,7 +1193,7 @@ body{background:var(--bg);margin:0}
     const pr = $('#problems'); pr.innerHTML = r.problems.map((p) => '<div class="problem">' + esc(p.msg) + '</div>').join('');
     const firstTodo = r.items.find((i) => i.status === 'todo' && !i.optional);
     const box = $('#checklist'); box.innerHTML = '';
-    if (r.complete) box.appendChild(el('div', 'celebrate', '🎉 Everything is wired correctly! Press <b>⚡ Power on!</b>' + '<br><a class="btn small go" href="blocks.html" style="text-decoration:none">Next: build the code ➜</a>'));
+    if (r.complete) box.appendChild(el('div', 'celebrate', '🎉 Everything is wired correctly! Press <b>⚡ Power on!</b>' + '<br><a class="btn small go" href="test.html" style="text-decoration:none">Next: test your robot ➜</a>'));
     let group = null;
     r.items.forEach((it) => {
       if (it.group !== group) { group = it.group; box.appendChild(el('div', 'grp', esc(group))); }
@@ -1138,7 +1202,7 @@ body{background:var(--bg);margin:0}
       c.onclick = () => showHint(it);
       box.appendChild(c);
     });
-    if (r.complete && !wasComplete) { wasComplete = true; ChipCamp.circuitDone(S.proj); }
+    if (r.complete && !wasComplete) { wasComplete = true; ChipCamp.circuitDone(S.proj); CampFlow.render('wire'); }
     if (!r.complete) wasComplete = false;
   }
   function pulseFor(it) {

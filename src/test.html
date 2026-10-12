@@ -1,0 +1,46 @@
+<header class="topbar">
+  <a class="homebtn" href="index.html" title="Back to the Chip Camp welcome screen" aria-label="Home">🏠</a>
+  <div class="brand"><span class="logo" aria-hidden="true"><i style="background:#59C059"></i><i style="background:#FFBF00"></i><i style="background:#4C97FF"></i><i style="background:#e5484d"></i></span>Test it</div>
+  <nav class="ptabs" id="ptabs" aria-label="Choose a robot"></nav>
+  <div class="spacer"></div>
+</header>
+<nav class="flow" id="flow" aria-label="Steps"></nav>
+
+<main class="testpage">
+  <section class="card tmain" aria-label="Test your robot">
+    <h1 id="tTitle">Test your robot</h1>
+    <p class="tsay" id="tSay"></p>
+
+    <details class="helper" id="buzzHelper">
+      <summary>🔊 How do I wire the buzzer? (it has two legs)</summary>
+      <div id="buzzBody"></div>
+    </details>
+    <details class="helper" id="ledHelper" hidden>
+      <summary>💡 How do I build the LED and the resistors? (4 easy steps)</summary>
+      <div id="ledBody"></div>
+    </details>
+
+    <h2>Your 3 steps</h2>
+    <ol class="tsteps">
+      <li><span>The Circuit Lab says your wiring is <b>complete</b>. <span class="labstate" id="labState"></span> <a class="btn small" href="circuits.html">Open the Circuit Lab</a></span></li>
+      <li><span>Put the test sketch on your robot (on the right): <b>Copy</b>, paste into the Arduino IDE, <b id="tBoard"></b>, pick the Port, Upload. Then open <b>Tools → Serial Monitor</b> at <code>9600 baud</code>.</span></li>
+      <li><span>Watch and listen. Tick each part when it works. If it says <b>CHECK</b>, read the tip under it.</span></li>
+    </ol>
+
+    <div class="checks" id="checks"></div>
+    <div class="cta">
+      <button class="btn go big" id="doneBtn" disabled>Robot tested ✓ Next ➜</button>
+      <span class="note" id="doneNote"></span>
+    </div>
+  </section>
+
+  <aside class="card tcode" aria-label="The test sketch">
+    <div class="tcodehead"><h2>The test sketch</h2>
+      <button class="btn" id="dlTest">⬇ Download .ino</button>
+      <button class="btn go" id="copyTest">📋 Copy code</button>
+    </div>
+    <p class="small" id="tLibs"></p>
+    <div class="codepane" id="tPane" tabindex="0"></div>
+  </aside>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>

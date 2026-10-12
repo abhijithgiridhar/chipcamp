@@ -79,3 +79,31 @@ mark.v{background:#ffe14d;color:#3a2b00;border-radius:5px;padding:0 3px;font-wei
 .facil{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;font-size:13.5px;font-weight:700}
 .facil input[type=number]{width:84px;border:2px solid var(--line);border-radius:10px;padding:4px 8px;font-weight:800}
 .facil label{display:contents}
+
+/* ---------- friendlier layout: starters, sketch check, pro ---------- */
+.starters{display:flex;gap:8px;flex-wrap:wrap;align-items:stretch;margin:0 0 14px}
+.starters .slabel{font-family:var(--font-d);font-size:15px;color:var(--ink-soft);align-self:center;margin-right:2px}
+.schip{border:2px solid var(--line);background:#fff;border-radius:18px;padding:7px 14px 7px 9px;display:flex;align-items:center;gap:9px;cursor:pointer;text-align:left;font-family:var(--font-b);color:var(--ink);box-shadow:0 3px 0 var(--line);transition:transform .1s}
+.schip:hover{transform:translateY(-2px);border-color:var(--purple)}
+.schip .e{font-size:26px;line-height:1}
+.schip b{display:block;font-family:var(--font-d);font-weight:500;font-size:16px}
+.schip small{display:block;font-size:12px;color:var(--ink-soft);font-weight:700;max-width:170px;line-height:1.2}
+.schip.armed{border-color:#ff9f1a;background:#fff6e0}
+.schip.armed small{color:#a65f00}
+.cta{margin-top:20px}
+.cta .toolbar{margin:0 0 0 auto}
+.sketchok{margin:0 0 12px;background:#e9f9ec;border:2px solid #9bdca4;border-radius:14px;padding:9px 14px;font-weight:800;color:#23702f;font-size:14px}
+.sketchok.bad{background:#ffe9ec;border-color:#ff9aa8;color:#b32a3f}
+.prolock{max-width:520px;margin:40px auto;padding:26px 28px;text-align:center}
+.prolock .proico{font-size:44px}
+.prolock h2{font-family:var(--font-d);font-weight:500;font-size:28px;margin:4px 0 6px}
+.prolock p{color:#4a5072;font-weight:700;margin:0 0 16px}
+.prolock label{display:block;text-align:left;font-weight:800;font-size:12px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.prolock input{width:100%;border:3px solid var(--line);border-radius:14px;padding:11px 14px;font-size:22px;font-weight:800;letter-spacing:.3em;text-align:center;margin-bottom:14px}
+.prolock .lockmsg{min-height:22px;margin-top:10px;font-weight:800;color:#d94a63}
+.feat{margin:8px 0 0;padding-left:20px;font-size:14px;font-weight:700;color:#38406a}
+.feat li{margin:4px 0}
+/* bigger, calmer blocks on a projector */
+.blk>.row{font-size:16.5px}
+.fly{padding:6px 14px 24px}
+.palette-blk{margin-bottom:12px}

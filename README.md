@@ -4,15 +4,18 @@ Teaching tools for the CHIP Camp at SPV Delhi (13 and 14 October), run with Lend
 
 ## Pages
 
-| Page | What it does |
-|---|---|
-| `index.html` | Welcome screen. Name and robot are remembered by every other page. |
-| `logic.html` | The CHIP Challenge. 10 levels on sequences, loops, if and else, and debugging, with a skin for each robot. |
-| `circuits.html` | Circuit Lab. Drag the kit parts together, plug servos into the shield, wire sensors, and get a checklist that says what is wrong. |
-| `studio.html` | Face Studio (Peeko), Dance Studio (Chip Bot), Light Studio (Jarvis). Design what the robot does and send it to the Code Builder. |
-| `blocks.html` | Code Builder. Build the logic with blocks and copy the Arduino sketch. |
-| `brain.html` | Peeko's Brain. Load a Teachable Machine model and Peeko reacts to the camera. Needs the internet and Chrome or Edge. |
-| `plans.html` | Facilitator area, behind a password. |
+Every robot follows the same steps, shown in a step bar on each page.
+
+| Step | Page | What it does |
+|---|---|---|
+| Start | `index.html` | Welcome screen. Pick a robot, then see only that robot's tools. |
+| Practice | `logic.html` | The CHIP Challenge. 10 levels on sequences, loops, if and else, and debugging, with a skin for each robot. |
+| 1. Wire it | `circuits.html` | Circuit Lab. Drag the kit parts together, plug servos into the shield, wire sensors and the 2-leg buzzer, and get a checklist that says what is wrong. |
+| 2. Test it | `test.html` | A test sketch for each robot checks every part after the wiring is done, and a checklist says what to see and hear. |
+| 3. Design it | `studio.html` | Face Studio (Peeko), Dance Studio (Chip Bot), Light Studio (Jarvis). Optional. |
+| 4. Build it, 5. Make the code, 6. Pro code | `blocks.html` | Code Builder. Starters, blocks, a preview of the robot, the full Arduino sketch (Copy or Download) and the Pro code. The Pro code is locked until a facilitator unlocks it. |
+| Day 2 | `brain.html` | Peeko's Brain. Load a Teachable Machine model and Peeko reacts to the camera. Needs the internet and Chrome or Edge. |
+| Team | `plans.html`, `slides.html` | Facilitator area and presentations, behind a password. |
 
 ## Boards
 
@@ -30,7 +33,7 @@ The Code Builder does not write sketches from scratch. Each robot has a base ske
 - Chip Bot uses the Otto walk, turn and dance code from `chipbot/firmware/chipbot/chipbot.ino` as it is.
 - Jarvis is new and has not been tested on the bench yet. The soil and light numbers are set in the bench settings of the Code Builder.
 
-`bench-test/` has one finished example sketch per robot to try on real hardware before the camp.
+`bench-test/` has one finished example sketch per robot to try on real hardware before the camp. `firmware/test/` has the three test sketches, and the Pro sketches are kept in the private `session-plan/pro/` folder.
 
 ## Tests
 
@@ -41,6 +44,8 @@ The Code Builder does not write sketches from scratch. Each robot has a base ske
 - `lab_tests.js`: the Circuit Lab checker accepts the finished circuit and catches broken ones.
 - `studio_tests.js`: every Studio design turns into valid blocks and a sketch that compiles.
 - `brain_tests.js`: when Peeko's Brain sends a command and when it doesn't.
+- `testsketch_tests.js`: the three test sketches compile for their real boards.
+- `pro_tests.js`: the Pro sketches (private) build from the base code and compile.
 
 Not tested yet: any of this on real boards, servos, the OLED or sensors, on a touch screen, or with a real webcam and Teachable Machine model.
 
@@ -49,3 +54,5 @@ Not tested yet: any of this on real boards, servos, the OLED or sensors, on a to
 `node build.js` bundles `src/` and `firmware/` into the HTML files. The logos in `assets/` are cut from the sticker artwork.
 
 The session plan lives in `session-plan/`, which is not in this repo. `build.js` encrypts it into `plans.html`. The password comes from the `PLANS_PIN` environment variable or a local `.plans-pin` file.
+
+The presentation decks and their PowerPoint files are also built from the private `session-plan/` folder: `python3 tools/render_art.py` (character pictures, uses Chrome), `python3 tools/make_pptx.py` (and `python3 tools/check_pptx.py` to check the files), then `node build.js`.

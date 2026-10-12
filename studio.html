@@ -119,6 +119,19 @@ button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .homebtn:focus-visible{outline:3px solid #fff;outline-offset:2px}
 a.btn{text-decoration:none}
 
+/* ---------- the step bar ---------- */
+.flow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 18px;background:#fff;border-bottom:2px solid var(--line-soft)}
+.fstep{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink-soft);font-family:var(--font-d);font-size:16px;padding:5px 14px 5px 6px;border-radius:999px;border:2px solid var(--line);background:#fff;transition:transform .12s}
+.fstep:hover{transform:translateY(-1px)}
+.fstep i{width:26px;height:26px;border-radius:50%;background:#e6edfb;display:grid;place-items:center;font-style:normal;font-size:14px;color:var(--ink-soft)}
+.fstep small{font-family:var(--font-b);font-weight:800;font-size:11px;background:#fff1c9;color:#7a5b00;border-radius:8px;padding:1px 6px}
+.fstep.done{border-color:#9bdca4;background:#effbf1;color:#23702f}
+.fstep.done i{background:var(--green);color:#fff}
+.fstep.cur{border-color:var(--purple);color:var(--purple);box-shadow:0 0 0 3px rgba(124,77,255,.18);background:#fff}
+.fstep.cur i{background:var(--purple);color:#fff}
+.fstep.lock{opacity:.55;pointer-events:none}
+@media (max-width:760px){.flow{padding:8px 10px}.fstep{font-size:14px}}
+
 /* ---------- stage ---------- */
 .stagecard{overflow:hidden;position:sticky;top:12px}
 .stagehead{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:2px solid var(--line-soft);background:#f6f9ff;flex-wrap:wrap}
@@ -255,6 +268,7 @@ a.btn{text-decoration:none}
   <nav class="ptabs" id="ptabs" aria-label="Choose a robot"></nav>
   <div class="spacer"></div>
 </header>
+<nav class="flow" id="flow" aria-label="Steps"></nav>
 
 <main class="studio">
   <section class="card edcard" aria-label="Your design">
@@ -297,10 +311,13 @@ a.btn{text-decoration:none}
     ROBOTS,
     get() {
       const d = read();
-      return { name: clean(d.name), robot: ROBOTS.indexOf(d.robot) >= 0 ? d.robot : null, levels: d.levels || {}, circuits: d.circuits || {}, code: d.code || {} };
+      return { name: clean(d.name), robot: ROBOTS.indexOf(d.robot) >= 0 ? d.robot : null, levels: d.levels || {}, circuits: d.circuits || {}, code: d.code || {}, tests: d.tests || {}, copied: d.copied || {} };
     },
     design(robot) { const d = read(); return (d.designs && d.designs[robot]) || null; },
     setDesign(robot, design) { if (ROBOTS.indexOf(robot) < 0) return; const d = read(); d.designs = d.designs || {}; d.designs[robot] = design; write(d); },
+    testDone(robot, on) { const d = read(); d.tests = d.tests || {}; d.tests[robot] = on !== false; write(d); },
+    codeCopied(robot) { const d = read(); d.copied = d.copied || {}; d.copied[robot] = true; write(d); },
+    proUnlocked() { try { return !!localStorage.getItem('chipcamp.prokey'); } catch (e) { return false; } },
     day2() { return !!read().day2; },
     setDay2(on) { const d = read(); d.day2 = !!on; write(d); },
     robotOrDefault() { return this.get().robot || 'chipbot'; },
@@ -319,6 +336,46 @@ a.btn{text-decoration:none}
       if (b && r) b.setAttribute('href', 'index.html#' + r);
     });
   }
+})(typeof self !== 'undefined' ? self : this);
+
+</script>
+<script>
+/* The step bar on every tool page: Wire it, Test it, Design it, Build it, Make the code, Pro code. */
+(function (root) {
+  'use strict';
+  const STEPS = [
+    { id: 'wire', label: 'Wire it', href: 'circuits.html' },
+    { id: 'test', label: 'Test it', href: 'test.html' },
+    { id: 'design', label: 'Design it', href: 'studio.html' },
+    { id: 'build', label: 'Build it', href: 'blocks.html#build' },
+    { id: 'code', label: 'Make the code', href: 'blocks.html#code' },
+    { id: 'pro', label: 'Pro code', href: 'blocks.html#pro' }
+  ];
+  const LOCKED_DESIGN = { chipbot: true, jarvis: true };   // the Studio opens on day 2 for these two robots
+  function doneFor(id, r, p) {
+    if (id === 'wire') return !!p.circuits[r];
+    if (id === 'test') return !!p.tests[r];
+    if (id === 'design') return !!ChipCamp.design(r);
+    if (id === 'build') return (p.code[r] || 0) > 0;
+    if (id === 'code') return !!p.copied[r];
+    if (id === 'pro') return ChipCamp.proUnlocked();
+    return false;
+  }
+  function render(current) {
+    const nav = document.getElementById('flow'); if (!nav) return;
+    const p = ChipCamp.get(), r = p.robot || 'chipbot';
+    nav.innerHTML = '';
+    STEPS.forEach((s, i) => {
+      const a = document.createElement('a');
+      const locked = (s.id === 'design' && LOCKED_DESIGN[r] && !ChipCamp.day2());
+      a.className = 'fstep' + (s.id === current ? ' cur' : '') + (doneFor(s.id, r, p) ? ' done' : '') + (locked ? ' lock' : '');
+      a.href = s.href;
+      a.innerHTML = '<i>' + (doneFor(s.id, r, p) && s.id !== current ? '\u2713' : (i + 1)) + '</i>' + s.label + (locked ? ' <small>Day 2</small>' : '') + (s.id === 'pro' && !ChipCamp.proUnlocked() ? ' <small>\ud83d\udd12</small>' : '');
+      if (s.id === current) a.setAttribute('aria-current', 'step');
+      nav.appendChild(a);
+    });
+  }
+  root.CampFlow = { render, STEPS };
 })(typeof self !== 'undefined' ? self : this);
 
 </script>
@@ -479,20 +536,17 @@ a.btn{text-decoration:none}
         { id: 'sensing', label: 'Sensing', color: '#3FB8DE' }
       ],
       blocks: [
-        B('walk', 'motion', ['walk ', choice('dir', 'fwd', [['fwd', 'forward'], ['back', 'backward']]), ' ', num('steps', 4, 1, 10, 1), ' steps'], {
+        B('walk', 'motion', ['walk ', choice('dir', 'fwd', [['fwd', 'forward'], ['back', 'backward']]), ' ', num('steps', 4, 1, 6, 1), ' steps'], {
           code: (p) => ['doWalk(' + V(p.dir === 'fwd' ? 0 : 1) + ', ' + V(p.steps) + ');']
         }),
-        B('turn', 'motion', ['turn ', choice('dir', 'left', [['left', 'left'], ['right', 'right']]), ' ', num('steps', 3, 1, 10, 1), ' steps'], {
+        B('turn', 'motion', ['turn ', choice('dir', 'left', [['left', 'left'], ['right', 'right']]), ' ', num('steps', 3, 1, 6, 1), ' steps'], {
           code: (p) => ['doTurn(' + V(p.dir === 'left' ? 0 : 1) + ', ' + V(p.steps) + ');']
         }),
-        B('dance', 'motion', ['dance ', choice('move', '0', [['0', 'swing'], ['1', 'tiptoe swing'], ['2', 'up and down'], ['3', 'jitter'], ['4', 'moonwalk left'], ['5', 'moonwalk right'], ['6', 'flapping'], ['7', 'shake right leg'], ['8', 'shake left leg'], ['9', 'bend right'], ['10', 'bend left']]), ' ', num('reps', 2, 1, 8, 1), ' times'], {
+        B('dance', 'motion', ['dance ', choice('move', '0', [['0', 'swing'], ['2', 'up and down'], ['3', 'jitter'], ['6', 'flapping']]), ' ', num('reps', 2, 1, 4, 1), ' times'], {
           code: (p) => ['doDance(' + V(p.move) + ', ' + V(p.reps) + ');']
         }),
         B('centre', 'motion', ['hold the legs at 90° for ', num('secs', 20, 5, 60, 5), ' seconds'], { code: (p) => ['centreServos(' + V(p.secs) + ');   // fit the servo horns now'] }),
         B('stand', 'motion', ['stand still'], { code: () => ['doRest();'] }),
-        B('speed', 'motion', ['walk speed ', choice('level', '1', [['0', 'slow'], ['1', 'normal'], ['2', 'fast']])], {
-          code: (p) => ['doSpeed(' + V(p.level) + ');']
-        }),
         noteBlock('beepNote', 'beep note '),
         helloBlock('talk'),
         WAIT, REPEAT,
@@ -640,8 +694,9 @@ a.btn{text-decoration:none}
     });
   }
 
+  // opts.pro = { title, patches, extra, wake, forever } makes the advanced "Pro" sketch from the same base code
   function generate(projId, state, opts) {
-    const P = PROJECTS[projId];
+    const P = PROJECTS[projId], pro = opts && opts.pro;
     const robot = cleanText(state.robot, 16, P.robotDefault);
     const builder = cleanText(state.builder, 16, 'a CHIP Camp student');
     const builderConst = cleanText(state.builder, 16, 'Friend');
@@ -656,7 +711,8 @@ a.btn{text-decoration:none}
       rule,
       '//  ' + P.name.toUpperCase() + ' - built by ' + V(builder),
       '//  Robot name: ' + V(robot),
-      '//  Made with Camp Blocks' + (date ? ' · ' + V(date) : ''),
+      '//  Made with Camp Blocks' + (date ? ' - ' + V(date) : ''),
+      ...(pro ? ['//  ' + pro.title] : []),
       rule
     ];
     const constants = P.id === 'peeko'
@@ -671,15 +727,19 @@ a.btn{text-decoration:none}
 
     const lines = [];
     let keep = false;
-    TEMPLATES[projId].split('\n').forEach(function (ln) {
+    let tpl = TEMPLATES[projId];
+    if (pro) (pro.patches || []).forEach(function (pt) { if (tpl.indexOf(pt[0]) < 0) throw new Error('pro patch does not fit the base sketch: ' + pt[0].slice(0, 40)); tpl = tpl.replace(pt[0], pt[1]); });
+    const tlines = tpl.split('\n');
+    tlines.forEach(function (ln, ti) {
       const m = ln.trim();
+      if (pro && pro.extra && m === '//@@KEEP+' && /STUDENT PART: WHAT/.test(tlines[ti + 1] || '')) pro.extra.split('\n').forEach((t) => lines.push({ t, src: 'student', cat: 'control', keep: true }));
       if (m === '//@@KEEP+') { keep = true; return; }
       if (m === '//@@KEEP-') { keep = false; return; }
       if (m === '//@@HEADER@@') { header.forEach((t) => lines.push({ t, src: 'student', cat: 'name', keep: true })); return; }
       if (m === '//@@CONSTANTS@@') { constants.forEach((t) => lines.push({ t, src: 'student', cat: 'name', keep: true })); return; }
       if (m === '//@@SETTINGS@@') { settingsLines.forEach((t) => lines.push({ t, src: 'settings', keep: false })); return; }
-      if (m === '//@@WAKE@@') { (wakeOut.length ? wakeOut : empty('wake-up')).forEach((l) => lines.push(l)); return; }
-      if (m === '//@@FOREVER@@') { (foreverOut.length ? foreverOut : empty('forever')).forEach((l) => lines.push(l)); return; }
+      if (m === '//@@WAKE@@') { (pro ? pro.wake.split('\n').map((t) => ({ t, src: 'student', cat: 'control', keep: true })) : (wakeOut.length ? wakeOut : empty('wake-up'))).forEach((l) => lines.push(l)); return; }
+      if (m === '//@@FOREVER@@') { (pro ? pro.forever.split('\n').map((t) => ({ t, src: 'student', cat: 'control', keep: true })) : (foreverOut.length ? foreverOut : empty('forever'))).forEach((l) => lines.push(l)); return; }
       lines.push({ t: ln, src: 'base', keep });
     });
     const textOut = stripMarks(lines.map((l) => l.t).join('\n'));
@@ -765,6 +825,27 @@ a.btn{text-decoration:none}
     };
   }
 
+  /* ---------- ready-made starting points for the Code Builder ---------- */
+  const m = (face, look, words, note, wait) => ({ face, look, words, note, wait });
+  const mv = (kind, dir, n, move, beep) => ({ kind, dir, n, move, beep });
+  const STARTERS = {
+    peeko: [
+      { id: 'happy', emoji: '🎉', title: 'Happy show', blurb: 'Smiles, a cheer and a head turn', design: { moments: [m('happy', 'none', '', 'E', 2), m('celebrate', 'none', 'Yay!', 'G', 2), m('happy', 'left', '', 'none', 2)] } },
+      { id: 'moody', emoji: '🎭', title: 'Moody Peeko', blurb: 'Surprise, sadness and a grumpy look', design: { moments: [m('surprised', 'left', '', 'none', 2), m('sad', 'none', 'Why?', 'C', 2), m('angry', 'right', '', 'none', 2), m('neutral', 'none', '', 'none', 2)] } },
+      { id: 'sleepy', emoji: '😴', title: 'Sleepy head', blurb: 'Yawns, naps and wakes up', design: { moments: [m('neutral', 'none', '', 'none', 2), m('sleepy', 'none', 'Zzz', 'none', 3), m('sleepy', 'left', '', 'none', 2), m('surprised', 'none', 'Oh!', 'none', 2)] } }
+    ],
+    chipbot: [
+      { id: 'patrol', emoji: '🚶', title: 'Patrol', blurb: 'Walks and turns away from walls', design: { safe: true, safeCm: 15, moves: [mv('walk', 'fwd', 4, '0', 'none'), mv('turn', 'right', 2, '0', 'none'), mv('walk', 'fwd', 3, '0', 'none')] } },
+      { id: 'dance', emoji: '💃', title: 'Dance party', blurb: 'Four dances with a beep each', design: { safe: false, safeCm: 15, moves: [mv('dance', 'fwd', 2, '0', 'C'), mv('dance', 'fwd', 2, '2', 'E'), mv('dance', 'fwd', 2, '3', 'G'), mv('dance', 'fwd', 2, '6', 'C2')] } },
+      { id: 'shy', emoji: '🙈', title: 'Shy bot', blurb: 'Hides from anything close', design: { safe: true, safeCm: 30, moves: [mv('walk', 'fwd', 2, '0', 'none'), mv('stand', 'fwd', 1, '0', 'G'), mv('turn', 'left', 2, '0', 'none')] } }
+    ],
+    jarvis: [
+      { id: 'thirsty', emoji: '🚨', title: 'Thirsty alert', blurb: 'Red and beeps when the soil is dry', design: { dryPct: 40, dryColor: 'red', dryAlarm: true, darkPct: 30, darkColor: 'blue', okColor: 'green', checkSecs: 2 } },
+      { id: 'night', emoji: '🌙', title: 'Night light', blurb: 'A soft purple glow in the dark', design: { dryPct: 30, dryColor: 'yellow', dryAlarm: false, darkPct: 40, darkColor: 'purple', okColor: 'cyan', checkSecs: 3 } },
+      { id: 'calm', emoji: '🌿', title: 'Calm garden', blurb: 'Quiet, with a gentle green when fine', design: { dryPct: 35, dryColor: 'red', dryAlarm: false, darkPct: 20, darkColor: 'blue', okColor: 'green', checkSecs: 5 } }
+    ]
+  };
+
   /* ---------- design -> Code Builder blocks ---------- */
   function toBlocks(proj, design) {
     const d = clean(proj, design);
@@ -818,7 +899,7 @@ a.btn{text-decoration:none}
     return st;
   }
 
-  return { MAX_STEPS, NOTE_IDS, FACES, MOVES, COLORS, KINDS, defaults, clean, toBlocks, toState };
+  return { MAX_STEPS, NOTE_IDS, FACES, MOVES, COLORS, KINDS, STARTERS, defaults, clean, toBlocks, toState };
 });
 
 </script>
@@ -873,7 +954,6 @@ a.btn{text-decoration:none}
       },
       centre: async (p, c) => { c.stage.idle(); await c.sleep(p.secs); },
       stand: async (p, c) => { c.stage.idle(); await c.sleep(0.5); },
-      speed: async (p, c) => { c.speedLevel = Number(p.level); },
       cond_if_dist: (p, c) => (p.cmp === 'less' ? c.sensors.distance < p.cm : c.sensors.distance > p.cm)
     }),
 
@@ -1375,7 +1455,7 @@ a.btn{text-decoration:none}
 
   $('#toBuilder').onclick = () => { stopRun(); save(); location.href = 'blocks.html#design'; };
 
-  function renderAll() { renderTabs(); renderEditor(); mountStage(); }
+  function renderAll() { renderTabs(); renderEditor(); mountStage(); CampFlow.render('design'); }
   loadDesign(); renderAll();
   window.__studio = { S, Studio, renderAll };
 })();

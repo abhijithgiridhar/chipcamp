@@ -1,13 +1,10 @@
 <header class="topbar">
   <a class="homebtn" href="index.html" title="Back to the Chip Camp welcome screen" aria-label="Home">🏠</a>
-  <div class="brand"><span class="logo" aria-hidden="true"><i style="background:#FFBF00"></i><i style="background:#4C97FF"></i><i style="background:#CF63CF"></i><i style="background:#59C059"></i></span>Camp Blocks</div>
+  <div class="brand"><span class="logo" aria-hidden="true"><i style="background:#FFBF00"></i><i style="background:#4C97FF"></i><i style="background:#CF63CF"></i><i style="background:#59C059"></i></span>Code Builder</div>
   <nav class="ptabs" id="ptabs" aria-label="Choose a robot"></nav>
   <div class="spacer"></div>
-  <div class="viewtabs" role="tablist" aria-label="Build or Code">
-    <button class="vtab" role="tab" data-view="build" aria-selected="true">🧩 Build</button>
-    <button class="vtab" role="tab" data-view="code" aria-selected="false">⚡ Code</button>
-  </div>
 </header>
+<nav class="flow" id="flow" aria-label="Steps"></nav>
 
 <main id="buildView" class="build">
   <aside class="card palwrap" aria-label="Blocks">
@@ -17,12 +14,13 @@
 
   <section class="card ws" aria-label="Your program">
     <div class="namebar" id="namebar"></div>
-    <div class="toolbar" id="toolbar"></div>
+    <div class="starters" id="starters"></div>
     <div class="story" id="story"></div>
     <div class="script" id="script"></div>
     <div class="cta">
-      <button class="btn go big" id="makeCode">⚡ Make the code</button>
+      <button class="btn go big" id="makeCode">Next: make the code ➜</button>
       <span class="note" id="blockCount" style="color:#69709a;font-weight:800"></span>
+      <div class="toolbar" id="toolbar"></div>
     </div>
   </section>
 
@@ -47,8 +45,10 @@
     <h2 id="codeTitle">Your sketch</h2>
     <button class="btn" id="backBtn">← Back to blocks</button>
     <label class="btn small" style="cursor:pointer"><input type="checkbox" id="showAll"> show all tested code</label>
+    <button class="btn" id="dlBtn">⬇ Download .ino</button>
     <button class="btn go big" id="copyBtn">📋 Copy code</button>
   </div>
+  <div class="sketchok" id="sketchOk"></div>
   <div class="codegrid">
     <div class="codecard">
       <div class="legend" id="legend"></div>
@@ -58,15 +58,49 @@
       <div class="card sidecard">
         <h3>Put it on the robot</h3>
         <ol>
-          <li><span>Press <b>Copy code</b>.</span></li>
+          <li><span>Press <b>Copy code</b> (the big button, not by selecting the text) or <b>Download .ino</b>.</span></li>
           <li><span>Open the <b>Arduino IDE</b> and make a new sketch. Select everything (<code>Ctrl/⌘ + A</code>) and paste.</span></li>
           <li><span id="boardStep"></span></li>
           <li><span><b>Tools → Port</b>: pick the USB port, then press <b>Upload</b> ➜</span></li>
           <li><span>Open <b>Tools → Serial Monitor</b> at <code>9600 baud</code> to see anything the robot prints.</span></li>
         </ol>
         <p class="small" id="libNote"></p>
+        <p class="small"><b>Error says "undefined reference to setup and loop"?</b> The paste was not the whole sketch. Press Copy code again and paste over everything.</p>
       </div>
       <div class="card sidecard" id="facilCard" hidden></div>
+    </div>
+  </div>
+</section>
+
+<section id="proView" class="codeview" hidden aria-label="Pro code">
+  <div class="card prolock" id="proLock">
+    <div class="proico" aria-hidden="true">🔒</div>
+    <h2>The Pro code</h2>
+    <p>This is the final, more complex program for your robot. It is the same robot with a much cleverer brain. Finish your own program first, then ask your facilitator to unlock it.</p>
+    <form id="proForm" autocomplete="off"><label for="proPin">Facilitator password</label><input id="proPin" type="password" inputmode="numeric" autocomplete="off"><button class="btn go big" type="submit">Unlock</button></form>
+    <div class="lockmsg" id="proMsg" role="status" aria-live="polite"></div>
+  </div>
+  <div id="proBody" hidden>
+    <div class="codetop">
+      <h2 id="proTitle">Pro code</h2>
+      <button class="btn" id="proBack">← Back to my program</button>
+      <button class="btn" id="proDl">⬇ Download .ino</button>
+      <button class="btn go big" id="proCopy">📋 Copy Pro code</button>
+    </div>
+    <div class="codegrid">
+      <div class="codecard"><div class="legend"><span>The Pro code, built on the same tested base as your program.</span></div><div class="codepane" id="proPane" tabindex="0"></div></div>
+      <div>
+        <div class="card sidecard"><h3>What is new in it</h3><p class="small" id="proBlurb"></p><ul class="feat" id="proFeat"></ul></div>
+        <div class="card sidecard">
+          <h3>Put it on the robot</h3>
+          <ol>
+            <li><span>Press <b>Copy Pro code</b>.</span></li>
+            <li><span>In the <b>Arduino IDE</b> make a new sketch, select everything and paste.</span></li>
+            <li><span id="proBoard"></span></li>
+            <li><span>Pick the <b>Port</b>, press <b>Upload</b>, and open the Serial Monitor at <code>9600 baud</code>.</span></li>
+          </ol>
+        </div>
+      </div>
     </div>
   </div>
 </section>

@@ -134,6 +134,13 @@ body{font-family:var(--hub-font);color:#fff;background:#0d0d10;-webkit-font-smoo
           <span class="tt"><b>Circuit Lab</b><small id="sCircuit">Drag parts together and wire up your robot.</small></span>
           <span class="prog" id="pgCircuit">Not yet</span>
         </a>
+        <a class="tile" id="tTest" href="test.html" style="--tc:#59C059">
+          <span class="ico" aria-hidden="true">
+            <svg viewBox="0 0 40 40" width="40" height="40"><circle cx="20" cy="20" r="15" fill="#59C059"/><path d="M12 21l6 6 11-13" stroke="#fff" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <span class="tt"><b>Test your robot</b><small id="sTest">Check every part after you wire it.</small></span>
+          <span class="prog" id="pgTest">Not yet</span>
+        </a>
         <a class="tile" id="tStudio" href="studio.html" style="--tc:#FF6680">
           <span class="ico" aria-hidden="true">
             <svg viewBox="0 0 40 40" width="40" height="40"><circle cx="14" cy="15" r="8" fill="#FF6680"/><circle cx="26" cy="15" r="8" fill="#FFAB19"/><circle cx="20" cy="26" r="8" fill="#59C059"/></svg>
@@ -178,10 +185,13 @@ body{font-family:var(--hub-font);color:#fff;background:#0d0d10;-webkit-font-smoo
     ROBOTS,
     get() {
       const d = read();
-      return { name: clean(d.name), robot: ROBOTS.indexOf(d.robot) >= 0 ? d.robot : null, levels: d.levels || {}, circuits: d.circuits || {}, code: d.code || {} };
+      return { name: clean(d.name), robot: ROBOTS.indexOf(d.robot) >= 0 ? d.robot : null, levels: d.levels || {}, circuits: d.circuits || {}, code: d.code || {}, tests: d.tests || {}, copied: d.copied || {} };
     },
     design(robot) { const d = read(); return (d.designs && d.designs[robot]) || null; },
     setDesign(robot, design) { if (ROBOTS.indexOf(robot) < 0) return; const d = read(); d.designs = d.designs || {}; d.designs[robot] = design; write(d); },
+    testDone(robot, on) { const d = read(); d.tests = d.tests || {}; d.tests[robot] = on !== false; write(d); },
+    codeCopied(robot) { const d = read(); d.copied = d.copied || {}; d.copied[robot] = true; write(d); },
+    proUnlocked() { try { return !!localStorage.getItem('chipcamp.prokey'); } catch (e) { return false; } },
     day2() { return !!read().day2; },
     setDay2(on) { const d = read(); d.day2 = !!on; write(d); },
     robotOrDefault() { return this.get().robot || 'chipbot'; },
@@ -241,6 +251,8 @@ body{font-family:var(--hub-font);color:#fff;background:#0d0d10;-webkit-font-smoo
     const pc = $('#pgCircuit'); const cDone = p.circuits[r];
     pc.textContent = cDone ? 'Wired ✓' : 'Not yet'; pc.classList.toggle('done', !!cDone);
 
+    const pt = $('#pgTest'), tDone = p.tests[r]; pt.textContent = tDone ? 'Tested ✓' : 'Not yet'; pt.classList.toggle('done', !!tDone);
+    $('#sTest').textContent = 'Check every part of ' + label + ' after you wire it.';
     const SN = { chipbot: ['Dance Studio', 'Choose the moves for ' + label + '.'], peeko: ['Face Studio', 'Choose the faces for ' + label + '.'], jarvis: ['Light Studio', 'Choose the lights for ' + label + '.'] };
     $('#nStudio').textContent = SN[r][0]; $('#sStudio').textContent = SN[r][1];
     $('#tBrain').hidden = r !== 'peeko';

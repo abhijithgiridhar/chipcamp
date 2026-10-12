@@ -77,12 +77,15 @@
       nav.appendChild(b);
     });
   }
-  $$('.vtab').forEach((b) => { b.onclick = () => setView(b.dataset.view); });
+  const VIEWS = ['build', 'code', 'pro'];
   function setView(v) {
+    if (VIEWS.indexOf(v) < 0) v = 'build';
     S.view = v; stopRun();
-    $$('.vtab').forEach((b) => b.setAttribute('aria-selected', b.dataset.view === v ? 'true' : 'false'));
-    $('#buildView').hidden = v !== 'build'; $('#codeView').hidden = v !== 'code';
+    $('#buildView').hidden = v !== 'build'; $('#codeView').hidden = v !== 'code'; $('#proView').hidden = v !== 'pro';
     if (v === 'code') renderCode();
+    if (v === 'pro' && window.CampPro) CampPro.show();
+    CampFlow.render(v);
+    try { history.replaceState(null, '', '#' + v); } catch (e) { /* fine */ }
     window.scrollTo(0, 0);
   }
   $('#makeCode').onclick = (e) => { confetti(e.clientX, e.clientY); setView('code'); };
@@ -278,13 +281,30 @@
   function renderToolbar() {
     const bar = $('#toolbar'); bar.innerHTML = '';
     const mk = (html, fn, cls) => { const b = el('button', 'btn small ' + (cls || ''), html); b.onclick = fn; bar.appendChild(b); return b; };
-    const ex = mk('✨ Show me an example', () => {}); twoClick(ex, 'Replace my blocks? Click again', () => { const old = state(); const e = Core.exampleState(S.proj); e.builder = old.builder; e.robot = old.robot; e.date = old.date; e.settings = old.settings; S.states[S.proj] = e; renderScript(); renderNamebar(); changed(); toast('Here is an example. Change anything you like!'); });
     const cl = mk('🧹 Clear', () => {}); twoClick(cl, 'Clear everything? Click again', () => { const st = state(); st.wake = []; st.forever = []; renderScript(); changed(); });
     if (ChipCamp.design(S.proj)) { const dg = mk('🎨 Load my design', () => {}); twoClick(dg, 'Replace my blocks? Click again', () => { applyDesign(); }); }
-    const st = el('a', 'btn small', '🎨 ' + ({ peeko: 'Face', chipbot: 'Dance', jarvis: 'Light' }[S.proj]) + ' Studio'); st.href = 'studio.html'; bar.appendChild(st);
     mk('💾 Save', saveSlot);
     mk('📂 My saves', openSaves);
     mk('🔗 Share', openShare);
+  }
+  // a row of ready-made programs to start from, instead of a blank page
+  function renderStarters() {
+    const box = $('#starters'); box.innerHTML = '<span class="slabel">Start from</span>';
+    const arm = (b, note, fn) => {
+      let armed = false, t = 0; const small = b.querySelector('small'), orig = small.textContent;
+      b.onclick = () => {
+        if (Core.countBlocks(state()) > 0 && !armed) { armed = true; b.classList.add('armed'); small.textContent = note; t = setTimeout(() => { armed = false; b.classList.remove('armed'); small.textContent = orig; }, 3000); return; }
+        clearTimeout(t); armed = false; b.classList.remove('armed'); small.textContent = orig; fn();
+      };
+    };
+    (Studio.STARTERS[S.proj] || []).forEach((s) => {
+      const b = el('button', 'schip', '<span class="e">' + s.emoji + '</span><span><b>' + esc(s.title) + '</b><small>' + esc(s.blurb) + '</small></span>');
+      arm(b, 'Click again to replace my blocks', () => { const old = state(); S.states[S.proj] = Studio.toState(S.proj, s.design, old); renderScript(); renderNamebar(); changed(); toast(s.title + ' is in the blocks. Change anything you like!'); });
+      box.appendChild(b);
+    });
+    const e = el('button', 'schip', '<span class="e">📄</span><span><b>Empty</b><small>Start with a blank script</small></span>');
+    arm(e, 'Click again to clear', () => { const st = state(); st.wake = []; st.forever = []; renderScript(); changed(); });
+    box.appendChild(e);
   }
   function applyDesign() {
     const old = state();
@@ -421,6 +441,9 @@
   const NAME_COLOR = '#FFBF00';
   function renderCode() {
     const p = P(), gen = Core.generate(S.proj, state());
+    const whole = /void setup\(\)/.test(gen.text) && /void loop\(\)/.test(gen.text);
+    const ok = $('#sketchOk'); ok.className = 'sketchok' + (whole ? '' : ' bad');
+    ok.textContent = whole ? '✓ Complete sketch: ' + gen.text.split('\n').length + ' lines, with setup() and loop(). Use the Copy code button below so none of it is missed.' : '⚠ Part of the sketch is missing (no setup() or loop()). Reload the page and try again.';
     $('#codeTitle').textContent = p.emoji + ' ' + (gen.robot) + "'s sketch";
     const legend = $('#legend'); legend.innerHTML = '<span>Colour = the block that made the line:</span>';
     const used = new Set(gen.lines.filter((l) => l.src === 'student').map((l) => l.cat));
@@ -471,12 +494,26 @@
   $('#showAll').onchange = (e) => { S.showAll = e.target.checked; renderCode(); };
   $('#copyBtn').onclick = (e) => {
     const r = e.currentTarget.getBoundingClientRect();
-    copyText(Core.generate(S.proj, state()).text).then(() => { confetti(r.left + r.width / 2, r.top); toast('Copied! Now paste it into the Arduino IDE 🎉'); });
+    copyText(Core.generate(S.proj, state()).text).then(() => { confetti(r.left + r.width / 2, r.top); toast('Copied the whole sketch! Now paste it into the Arduino IDE 🎉'); ChipCamp.codeCopied(S.proj); CampFlow.render('code'); });
   };
+  function download(name, text) {
+    const a = el('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' })); a.download = name;
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 400);
+  }
+  function sketchName() {
+    const st = state(), w = (s) => String(s).replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+    return [P().name.replace(/ /g, ''), w(Core.cleanText(st.robot, 16, '')), w(Core.cleanText(st.builder, 16, ''))].filter(Boolean).join('_') + '.ino';
+  }
+  $('#dlBtn').onclick = () => { download(sketchName(), Core.generate(S.proj, state()).text); ChipCamp.codeCopied(S.proj); CampFlow.render('code'); toast('Downloaded. Open it with the Arduino IDE.'); };
 
   /* ---------- boot ---------- */
-  function renderAll() { renderTabs(); renderPalette(); renderNamebar(); renderToolbar(); renderScript(); renderStory(); mountStage(); if (S.view === 'code') renderCode(); }
+  function renderAll() { renderTabs(); renderPalette(); renderNamebar(); renderStarters(); renderToolbar(); renderScript(); renderStory(); mountStage(); if (S.view === 'code') renderCode(); CampFlow.render(S.view); if (S.view === 'pro' && window.CampPro) CampPro.show(); }
   renderAll();
-  if (location.hash === '#design') { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* fine */ } applyDesign(); }
-  window.__camp = { S, state, Core, renderAll, setView, sensors, runIt };
+  function route() {
+    const h = location.hash.slice(1);
+    if (h === 'design') { applyDesign(); setView('build'); } else setView(h || 'build');
+  }
+  window.addEventListener('hashchange', route);
+  route();
+  window.__camp = { S, state, Core, renderAll, setView, sensors, runIt, hl, copyText, download, sketchName, toast, confetti, P };
 })();
