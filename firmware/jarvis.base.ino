@@ -6,7 +6,9 @@
     A1  light sensor (LDR with a 10k resistor)
     D9 / D10 / D11  RGB LED  (red / green / blue)
     D8  buzzer
+    A4  OLED screen SDA        A5  OLED screen SCL     (VCC to 5V, GND to ground)
 
+  The OLED screen shows the exact soil and light readings all the time, even while a "wait" block is running.
   The LED only uses ON / OFF (no PWM), so the buzzer's tone() and the LED
   can never fight over the same timer.
   Only the STUDENT PART sections are different for each student.
@@ -18,6 +20,12 @@
 #define PIN_LED_G  10
 #define PIN_LED_B  11
 #define PIN_BUZZER 8
+
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SH110X.h>
+Adafruit_SH1106G display(128, 64, &Wire, -1);
+bool screenOk = false;
 
 //@@KEEP+
 // ===================== STUDENT PART: NAMES =====================
@@ -61,8 +69,39 @@ void setColor(int r, int g, int b) {
   digitalWrite(PIN_LED_B, b ? HIGH : LOW);
 }
 
+// The OLED screen: the exact soil and light readings, with a bar under each one.
+void drawReading(int y, const char* label, int pct, int raw) {
+  display.setTextSize(1);
+  display.setCursor(0, y);
+  display.print(label);
+  display.setCursor(74, y);
+  display.print(F("raw "));
+  display.print(raw);
+  display.setTextSize(2);
+  display.setCursor(0, y + 10);
+  display.print(pct);
+  display.print(F("%"));
+  display.drawRect(0, y + 27, 128, 4, SH110X_WHITE);
+  display.fillRect(0, y + 27, (int)(1.28 * pct), 4, SH110X_WHITE);
+}
+
+void updateScreen() {
+  if (!screenOk) return;
+  int soilRaw = readAverage(PIN_SOIL), lightRaw = readAverage(PIN_LIGHT);
+  display.clearDisplay();
+  drawReading(0, "SOIL", soilPercent(), soilRaw);
+  drawReading(33, "LIGHT", lightPercent(), lightRaw);
+  display.display();
+}
+
+// Waits, but keeps the screen fresh while it waits.
 void waitSecs(float secs) {
-  delay((unsigned long)(secs * 1000.0));
+  unsigned long end = millis() + (unsigned long)(secs * 1000.0);
+  unsigned long nextScreen = 0;
+  while ((long)(end - millis()) > 0) {
+    if (millis() >= nextScreen) { updateScreen(); nextScreen = millis() + 500; }
+    delay(20);
+  }
 }
 
 void playNote(unsigned int hz, float secs) {
@@ -102,6 +141,9 @@ void studentForever() {
 
 void setup() {
   Serial.begin(9600);
+  screenOk = display.begin(0x3C, true);
+  if (!screenOk) Serial.println(F("No screen found. Check the 4 OLED wires (SDA to A4, SCL to A5). The robot still works."));
+  display.setTextColor(SH110X_WHITE);
   pinMode(PIN_LED_R, OUTPUT);
   pinMode(PIN_LED_G, OUTPUT);
   pinMode(PIN_LED_B, OUTPUT);
@@ -112,4 +154,5 @@ void setup() {
 
 void loop() {
   studentForever();
+  updateScreen();
 }

@@ -28,7 +28,7 @@
       const locked = (s.id === 'design' && LOCKED_DESIGN[r] && !ChipCamp.day2());
       a.className = 'fstep' + (s.id === current ? ' cur' : '') + (doneFor(s.id, r, p) ? ' done' : '') + (locked ? ' lock' : '');
       a.href = s.href;
-      a.innerHTML = '<i>' + (doneFor(s.id, r, p) && s.id !== current ? '\u2713' : (i + 1)) + '</i>' + s.label + (locked ? ' <small>Day 2</small>' : '') + (s.id === 'pro' && !ChipCamp.proUnlocked() ? ' <small>\ud83d\udd12</small>' : '');
+      a.innerHTML = '<i>' + (doneFor(s.id, r, p) && s.id !== current ? '\u2713' : (i + 1)) + '</i>' + (s.id === 'pro' && r === 'chipbot' ? 'Upload desk' : s.label) + (locked ? ' <small>Day 2</small>' : '') + (s.id === 'pro' && !ChipCamp.proUnlocked() ? ' <small>\ud83d\udd12</small>' : '');
       if (s.id === current) a.setAttribute('aria-current', 'step');
       nav.appendChild(a);
     });

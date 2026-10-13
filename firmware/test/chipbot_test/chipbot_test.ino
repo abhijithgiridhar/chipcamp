@@ -74,6 +74,8 @@ void setup() {
   pinMode(PIN_TRIG, OUTPUT); pinMode(PIN_ECHO, INPUT); pinMode(PIN_BUZZER, OUTPUT);
   delay(500);
   Serial.println(F("=== Chip Bot test ==="));
+  Serial.println(F("If you see this line again and again, the board keeps restarting. That is a power problem:"));
+  Serial.println(F("unplug the four servos, plug the USB in again, and add them back one at a time."));
 }
 
 void loop() {

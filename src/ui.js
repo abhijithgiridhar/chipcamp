@@ -297,6 +297,11 @@
         clearTimeout(t); armed = false; b.classList.remove('armed'); small.textContent = orig; fn();
       };
     };
+    if (S.proj === 'chipbot') {
+      const m = el('button', 'schip', '<span class="e">🎯</span><span><b>The mission</b><small>The program we want Chip Bot to run</small></span>');
+      arm(m, 'Click again to replace my blocks', () => { const st = state(), ms = Core.missionState(st); st.wake = ms.wake; st.forever = ms.forever; renderScript(); changed(); toast('The mission program is in the blocks. Change the numbers to make it yours!'); });
+      box.appendChild(m);
+    }
     (Studio.STARTERS[S.proj] || []).forEach((s) => {
       const b = el('button', 'schip', '<span class="e">' + s.emoji + '</span><span><b>' + esc(s.title) + '</b><small>' + esc(s.blurb) + '</small></span>');
       arm(b, 'Click again to replace my blocks', () => { const old = state(); S.states[S.proj] = Studio.toState(S.proj, s.design, old); renderScript(); renderNamebar(); changed(); toast(s.title + ' is in the blocks. Change anything you like!'); });
@@ -439,8 +444,10 @@
     return out.split(Core.MARK_S).join('<mark class="v">').split(Core.MARK_E).join('</mark>');
   }
   const NAME_COLOR = '#FFBF00';
+  // Chip Bot's code is always the mission program, whatever blocks were built (their own choices are kept)
+  function genOf() { return Core.generate(S.proj, state(), { mission: S.proj === 'chipbot' }); }
   function renderCode() {
-    const p = P(), gen = Core.generate(S.proj, state());
+    const p = P(), gen = genOf();
     const whole = /void setup\(\)/.test(gen.text) && /void loop\(\)/.test(gen.text);
     const ok = $('#sketchOk'); ok.className = 'sketchok' + (whole ? '' : ' bad');
     ok.textContent = whole ? '✓ Complete sketch: ' + gen.text.split('\n').length + ' lines, with setup() and loop(). Use the Copy code button below so none of it is missed.' : '⚠ Part of the sketch is missing (no setup() or loop()). Reload the page and try again.';
@@ -472,10 +479,30 @@
       }
       i = j;
     }
-    const libs = { peeko: 'Libraries needed (Tools → Manage Libraries): <b>Adafruit GFX Library</b> and <b>Adafruit SH110X</b> (say yes to installing BusIO too). Servo is already built in.', chipbot: 'Servo is built into the Arduino IDE, so there is nothing extra to install.', jarvis: 'No extra libraries needed.' };
+    const libs = { peeko: 'Libraries needed (Tools → Manage Libraries): <b>Adafruit GFX Library</b> and <b>Adafruit SH110X</b> (say yes to installing BusIO too). Servo is already built in.', chipbot: 'Servo is built into the Arduino IDE, so there is nothing extra to install.', jarvis: 'Libraries needed (Tools → Manage Libraries): <b>Adafruit GFX Library</b> and <b>Adafruit SH110X</b> (say yes to installing BusIO too). They run the little screen.' };
     $('#libNote').innerHTML = libs[S.proj];
     $('#boardStep').innerHTML = S.proj === 'chipbot' ? '<b>Tools → Board → Arduino Nano.</b> If the upload fails, set <b>Processor → ATmega328P (Old Bootloader)</b>.' : '<b>Tools → Board → Arduino Uno.</b>';
     renderFacil();
+    renderMission();
+  }
+  function renderMission() {
+    const card = $('#missionCard'), up = $('#uploadCard');
+    if (S.proj !== 'chipbot') { card.hidden = true; up.hidden = true; return; }
+    const st = state(), steps = P().story.filter((x) => x.id !== 'name'), done = steps.map((x) => !!x.done(st)), all = done.every(Boolean);
+    card.hidden = false; up.hidden = false;
+    card.className = 'card missioncard' + (all ? ' ok' : '');
+    card.innerHTML = '<h3>🎯 The mission</h3><p class="small">Chip Bot must walk, spot obstacles, stop, make one long sound, and wait before looking again. Tick every box and your program <b>is</b> the mission.</p><ul class="mlist">' +
+      steps.map((x, i) => '<li class="' + (done[i] ? 'on' : '') + '"><i>' + (done[i] ? '✓' : '○') + '</i><span><b>' + esc(x.title) + '</b></span></li>').join('') + '</ul>' +
+      (all ? '<p class="mok">🎉 Your program matches the mission. This is the code Chip Bot will run.</p>'
+           : '<p class="small">Not there yet? No problem. Whatever you build, the code below is always the mission program, with your names, tune, distance and sounds in it. Want to see it as blocks?</p><button class="btn go" id="snapBtn">🎯 Snap my blocks to the mission</button>');
+    const snap = $('#snapBtn');
+    if (snap) snap.onclick = () => { const m = Core.missionState(st); st.wake = m.wake; st.forever = m.forever; persist(); renderScript(); changed(); renderCode(); toast('Your blocks now match the mission. Change the numbers to make it yours!'); };
+    up.innerHTML = '<h3>📤 Upload desk</h3><ol><li><span>Wires checked, USB cable plugged in?</span></li><li><span>Mission ' + (all ? '<b>complete ✓</b>' : 'not complete yet (that is fine)') + '.</span></li><li><span>Press the button and show your ticket to the facilitator. They put the tested code on your robot.</span></li></ol><button class="btn go" id="ticketBtn">🎫 I\'m ready for upload</button><div id="ticket"></div>';
+    $('#ticketBtn').onclick = () => {
+      const n = 100 + Math.floor(Math.random() * 900), r = Core.cleanText(st.robot, 16, 'Chip Bot'), b = Core.cleanText(st.builder, 16, 'Team');
+      $('#ticket').innerHTML = '<div class="ticket"><b>🎫 Ticket ' + n + '</b><span>' + esc(r) + ' · ' + esc(b) + '</span><small>Show this to your facilitator</small></div>';
+      ChipCamp.codeCopied(S.proj); CampFlow.render('code');
+    };
   }
   function renderFacil() {
     const card = $('#facilCard');
@@ -494,7 +521,7 @@
   $('#showAll').onchange = (e) => { S.showAll = e.target.checked; renderCode(); };
   $('#copyBtn').onclick = (e) => {
     const r = e.currentTarget.getBoundingClientRect();
-    copyText(Core.generate(S.proj, state()).text).then(() => { confetti(r.left + r.width / 2, r.top); toast('Copied the whole sketch! Now paste it into the Arduino IDE 🎉'); ChipCamp.codeCopied(S.proj); CampFlow.render('code'); });
+    copyText(genOf().text).then(() => { confetti(r.left + r.width / 2, r.top); toast('Copied the whole sketch! Now paste it into the Arduino IDE 🎉'); ChipCamp.codeCopied(S.proj); CampFlow.render('code'); });
   };
   function download(name, text) {
     const a = el('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' })); a.download = name;
@@ -504,7 +531,7 @@
     const st = state(), w = (s) => String(s).replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
     return [P().name.replace(/ /g, ''), w(Core.cleanText(st.robot, 16, '')), w(Core.cleanText(st.builder, 16, ''))].filter(Boolean).join('_') + '.ino';
   }
-  $('#dlBtn').onclick = () => { download(sketchName(), Core.generate(S.proj, state()).text); ChipCamp.codeCopied(S.proj); CampFlow.render('code'); toast('Downloaded. Open it with the Arduino IDE.'); };
+  $('#dlBtn').onclick = () => { download(sketchName(), genOf().text); ChipCamp.codeCopied(S.proj); CampFlow.render('code'); toast('Downloaded. Open it with the Arduino IDE.'); };
 
   /* ---------- boot ---------- */
   function renderAll() { renderTabs(); renderPalette(); renderNamebar(); renderStarters(); renderToolbar(); renderScript(); renderStory(); mountStage(); if (S.view === 'code') renderCode(); CampFlow.render(S.view); if (S.view === 'pro' && window.CampPro) CampPro.show(); }

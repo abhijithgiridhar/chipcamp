@@ -48,6 +48,7 @@
     <button class="btn" id="dlBtn">⬇ Download .ino</button>
     <button class="btn go big" id="copyBtn">📋 Copy code</button>
   </div>
+  <div class="card missioncard" id="missionCard" hidden></div>
   <div class="sketchok" id="sketchOk"></div>
   <div class="codegrid">
     <div class="codecard">
@@ -68,6 +69,7 @@
         <p class="small"><b>Error says "undefined reference to setup and loop"?</b> The paste was not the whole sketch. Press Copy code again and paste over everything.</p>
       </div>
       <div class="card sidecard" id="facilCard" hidden></div>
+      <div class="card sidecard uploadcard" id="uploadCard" hidden></div>
     </div>
   </div>
 </section>
@@ -79,6 +81,14 @@
     <p>This is the final, more complex program for your robot. It is the same robot with a much cleverer brain. Finish your own program first, then ask your facilitator to unlock it.</p>
     <form id="proForm" autocomplete="off"><label for="proPin">Facilitator password</label><input id="proPin" type="password" inputmode="numeric" autocomplete="off"><button class="btn go big" type="submit">Unlock</button></form>
     <div class="lockmsg" id="proMsg" role="status" aria-live="polite"></div>
+  </div>
+  <div id="deskBody" hidden>
+    <div class="codetop"><h2>📤 Upload desk</h2><button class="btn" id="deskBack">← Back to my program</button><button class="btn" id="deskNew">🔄 New IDs</button></div>
+    <div class="card sidecard">
+      <p style="margin:0 0 6px"><b>Facilitator only.</b> Click an ID to download the tested Chip Bot sketch. Every ID is the same code. Open it in the Arduino IDE and upload it to the robot, then show the class what it does.</p>
+      <div class="deskids" id="deskIds"></div>
+      <p class="small">Board: <b>Arduino Nano</b> (Processor: ATmega328P, try Old Bootloader if the upload fails). This sketch needs the <b>OttoDIYLib</b> library on this laptop (Sketch, Include Library, Add .ZIP Library, or the Library Manager). Reloading the page makes a fresh set of IDs.</p>
+    </div>
   </div>
   <div id="proBody" hidden>
     <div class="codetop">

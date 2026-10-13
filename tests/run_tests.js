@@ -63,10 +63,22 @@ const Studio = require('../src/studiocore.js');
   cases.push([id + '_studio_design', id, Studio.toState(id, full, { builder: 'Aarav', robot: 'Zippy', date: '14 Oct 2026' })]);
 });
 
+// the Chip Bot mission lock: whatever the blocks are, the sketch is the mission program
+['empty', 'example', 'every_block', 'hostile', 'studio'].forEach((k) => {
+  const st = k === 'empty' ? Core.newState('chipbot') : k === 'example' ? exampleOf('chipbot') : k === 'every_block' ? stressState('chipbot') : k === 'hostile' ? hostileState('chipbot') : cases.find((c) => c[0] === 'chipbot_studio_design')[2];
+  cases.push(['chipbot_mission_' + k, 'chipbot', st, { mission: true }]);
+});
+
 fs.rmSync(OUT, { recursive: true, force: true });
 const results = [];
-cases.forEach(([name, id, st]) => {
-  const g = Core.generate(id, st);
+cases.forEach(([name, id, st, opts]) => {
+  const g = Core.generate(id, st, opts);
+  if (opts && opts.mission) {
+    ok(/if \(readDistance\(\) < \d+\) \{\s+doRest\(\);\s+beepNote\(\d+, [\d.]+\);[^\n]*\s+waitSecs\(\d+\.\d+\);\s+\} else \{\s+doWalk\(0, 1\);/.test(g.text), name + ': mission program shape missing');
+    ok((g.text.match(/beepNote\(\d+, /g) || []).length >= 4, name + ': mission needs a start-up tune');
+    const w = /waitSecs\((\d+\.\d+)\)/.exec(g.text.slice(g.text.indexOf('studentForever'))); ok(w && +w[1] >= 10 && +w[1] <= 30, name + ': wait out of range');
+    const cm = /readDistance\(\) < (\d+)\)/.exec(g.text); ok(cm && +cm[1] >= 8 && +cm[1] <= 40, name + ': stop distance out of range');
+  }
   ok(!/@@/.test(g.text), name + ': leftover @@ marker');
   ok(!/[]/.test(g.text), name + ': leftover highlight marks');
   ok(!/evil\(|system\(/.test(g.text), name + ': hostile text leaked into code');
@@ -114,6 +126,10 @@ const pendingHeadless = (async function headless() {
 // base-code-untouched checks (real diff: only the serial-reading loop may have moved)
 (function () {
   const ATP = process.env.HOME + '/Documents/Arduino/AT/AT.ino';
+  const atText = fs.existsSync(ATP) ? fs.readFileSync(ATP, 'utf8') : '';
+  const atOk = /PEEKO|Peeko|SH110X/.test(atText);
+  if (!atOk) console.log('  (skipping the Peeko-vs-AT.ino check: ' + ATP + ' does not hold the Peeko sketch any more)');
+  if (atOk) {
   const gen = path.join(OUT, 'peeko_empty', 'peeko_empty.ino');
   const d = spawnSync('diff', ['-w', ATP, gen], { encoding: 'utf8' }).stdout.split('\n');
   const removed = d.filter((l) => l.startsWith('< ')).map((l) => l.slice(2).trim());
@@ -121,6 +137,7 @@ const pendingHeadless = (async function headless() {
   const bad = removed.filter((l) => !allowed.includes(l));
   ok(bad.length === 0, 'Peeko base changed vs your AT.ino, lines lost: ' + JSON.stringify(bad.slice(0, 5)));
   ok(removed.length <= 11, 'Peeko base: too many original lines removed (' + removed.length + ')');
+  }
 
   const CB = fs.readFileSync('/Users/abhijithgiridhar/Desktop/Delhi Chipcamp/chipbot/firmware/chipbot/chipbot.ino', 'utf8').split('\n');
   const cgl = new Set(results.find((r) => r.name === 'chipbot_empty').text.split('\n').map((l) => l.trimEnd()));
@@ -145,7 +162,7 @@ if (compile) {
     if (warns.length) console.log('  warnings in ' + r.name + ':\n   ' + warns.slice(0, 5).join('\n   '));
     if (prog && ram) {
       // Peeko's OLED buffer (1024 B) is malloc'd at runtime, so count it against RAM too
-      const extra = r.id === 'peeko' ? 1024 : 0;
+      const extra = (r.id === 'peeko' || r.id === 'jarvis') ? 1024 : 0;
       const free = 2048 - Number(ram[1]) - extra;
       ok(free > 150, r.name + ': only ' + free + ' bytes of RAM left for the stack (too tight)');
       console.log(('  ' + r.name).padEnd(26) + 'flash ' + prog[2] + '%   RAM ' + ram[1] + ' B' + (extra ? ' + 1024 B display buffer' : '') + '  → ~' + free + ' B free   (' + ((Date.now() - t0) / 1000).toFixed(1) + 's)');

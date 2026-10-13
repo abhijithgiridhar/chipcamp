@@ -3,7 +3,7 @@ const { spawnSync } = require('child_process');
 const path = require('path');
 const extra = process.argv.slice(2);
 let bad = 0;
-[['Code Builder sketches', 'run_tests.js', extra], ['CHIP Challenge levels', 'logic_tests.js', []], ['Circuit Lab wiring checker', 'lab_tests.js', []], ['Studio designs', 'studio_tests.js', []], ["Peeko's Brain", 'brain_tests.js', []], ['Test sketches', 'testsketch_tests.js', extra], ['Pro code (private files)', 'pro_tests.js', extra]].forEach(([name, file, args]) => {
+[['Code Builder sketches', 'run_tests.js', extra], ['CHIP Challenge levels', 'logic_tests.js', []], ['Echo Lab levels', 'echo_tests.js', []], ['Circuit Lab wiring checker', 'lab_tests.js', []], ['Studio designs', 'studio_tests.js', []], ["Peeko's Brain", 'brain_tests.js', []], ['Test sketches', 'testsketch_tests.js', extra], ['Pro code (private files)', 'pro_tests.js', extra]].forEach(([name, file, args]) => {
   process.stdout.write('\n== ' + name + ' ==\n');
   const r = spawnSync(process.execPath, [path.join(__dirname, file)].concat(args), { stdio: 'inherit' });
   if (r.status !== 0) bad++;

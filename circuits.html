@@ -329,7 +329,7 @@ body{background:var(--bg);margin:0}
       const locked = (s.id === 'design' && LOCKED_DESIGN[r] && !ChipCamp.day2());
       a.className = 'fstep' + (s.id === current ? ' cur' : '') + (doneFor(s.id, r, p) ? ' done' : '') + (locked ? ' lock' : '');
       a.href = s.href;
-      a.innerHTML = '<i>' + (doneFor(s.id, r, p) && s.id !== current ? '\u2713' : (i + 1)) + '</i>' + s.label + (locked ? ' <small>Day 2</small>' : '') + (s.id === 'pro' && !ChipCamp.proUnlocked() ? ' <small>\ud83d\udd12</small>' : '');
+      a.innerHTML = '<i>' + (doneFor(s.id, r, p) && s.id !== current ? '\u2713' : (i + 1)) + '</i>' + (s.id === 'pro' && r === 'chipbot' ? 'Upload desk' : s.label) + (locked ? ' <small>Day 2</small>' : '') + (s.id === 'pro' && !ChipCamp.proUnlocked() ? ' <small>\ud83d\udd12</small>' : '');
       if (s.id === current) a.setAttribute('aria-current', 'step');
       nav.appendChild(a);
     });
@@ -412,7 +412,7 @@ body{background:var(--bg);margin:0}
     soil: { name: 'Soil moisture sensor', kind: 'plug3', w: 56, h: 84, port: { x: 28, y: -14 }, cable: { s: '#59c059', v: '#e5484d', g: '#2b2f4a' }, unoTerms: { s: [-16, -58], v: [0, -58], g: [16, -58] }, note: 'Two metal probes go in the soil.' },
     usb: { name: 'USB cable', kind: 'usb', w: 80, h: 46, port: { x: 40, y: 0 }, note: 'Powers the board and carries your code to it. Every robot runs from this cable.' },
     hcsr04: { name: 'Ultrasonic sensor (HC-SR04)', kind: 'pins', w: 124, h: 60, terms: { vcc: [-42, 32], trig: [-14, 32], echo: [14, 32], gnd: [42, 32] }, labels: { vcc: 'VCC', trig: 'TRIG', echo: 'ECHO', gnd: 'GND' }, note: 'Chip Bot\'s eyes. It measures distance with sound.' },
-    oled: { name: 'OLED screen', kind: 'pins', w: 100, h: 66, terms: { gnd: [-36, -37], vcc: [-12, -37], scl: [12, -37], sda: [36, -37] }, labels: { gnd: 'GND', vcc: 'VCC', scl: 'SCL', sda: 'SDA' }, note: 'Peeko\'s eyes live on this little screen.' },
+    oled: { name: 'OLED screen', kind: 'pins', w: 100, h: 66, terms: { gnd: [-36, -37], vcc: [-12, -37], scl: [12, -37], sda: [36, -37] }, labels: { gnd: 'GND', vcc: 'VCC', scl: 'SCL', sda: 'SDA' }, note: 'A little screen. Peeko\'s eyes and Jarvis\'s readings show up here.' },
     ldr: { name: 'Light sensor (LDR)', kind: 'legs', w: 40, h: 30, legs: { a: [0, 0], b: [2 * P, 0] }, seatPitch: 2, note: 'Its resistance changes with light. It needs a partner resistor.' },
     resistor: { name: 'Resistor', kind: 'legs', w: 66, h: 14, legs: { a: [0, 0], b: [4 * P, 0] }, seatPitch: 4, note: 'The coloured bands tell you the value. 220 Ω is red, red, brown. 10 kΩ is brown, black, orange.' },
     rgb: { name: 'RGB LED', kind: 'legs', w: 56, h: 50, legs: { r: [0, 0], k: [P, 0], g: [2 * P, 0], b: [3 * P, 0] }, seatPitch: 1, note: 'Red, green, blue and one shared ground (the long leg, K).' },
@@ -454,6 +454,7 @@ body{background:var(--bg);margin:0}
       { key: 'r220', type: 'resistor', ohms: 220, label: 'Resistor 220 Ω', sub: 'red, red, brown · for the LED', qty: 3 },
       { key: 'r10k', type: 'resistor', ohms: 10000, label: 'Resistor 10 kΩ', sub: 'brown, black, orange · for the light sensor', qty: 1 },
       { key: 'rgb', type: 'rgb', label: 'RGB LED', qty: 1 },
+      { key: 'oled', type: 'oled', label: 'OLED screen', qty: 1 },
       { key: 'buzzer', type: 'buzzer', label: 'Buzzer', qty: 1 }
     ]
   };
@@ -590,10 +591,7 @@ body{background:var(--bg);margin:0}
     peeko(c) {
       const out = [];
       out.push(usbItem(c));
-      out.push(linkItem(c, 'OLED screen', 'oled', 'gnd', 'NET:GND', 'GND → ground'));
-      out.push(linkItem(c, 'OLED screen', 'oled', 'vcc', 'NET:5V', 'VCC → 5V power'));
-      out.push(linkItem(c, 'OLED screen', 'oled', 'sda', 'A4.S', 'SDA → A4 (the data wire)'));
-      out.push(linkItem(c, 'OLED screen', 'oled', 'scl', 'A5.S', 'SCL → A5 (the clock wire)'));
+      oledItems(c, out);
       moduleItems(c, 'Head servo', 'head', 'D9', 'Head servo', out);
       buzzerItems(c, 'Bonus', 'D8', out, true);
       return out;
@@ -621,10 +619,18 @@ body{background:var(--bg);margin:0}
           out.push(resistorBetween(c, 'RGB light', 'rgb.' + x[0], x[1] + '.S', led.id + '.' + x[0], 220, x[2] + ' leg ← 220Ω resistor ← ' + x[1]));
         });
       }
+      oledItems(c, out);
       buzzerItems(c, 'Buzzer', 'D8', out, false);
       return out;
     }
   };
+  // the OLED screen (Peeko's eyes, Jarvis's readout): four wires
+  function oledItems(c, out) {
+    out.push(linkItem(c, 'OLED screen', 'oled', 'gnd', 'NET:GND', 'GND → ground'));
+    out.push(linkItem(c, 'OLED screen', 'oled', 'vcc', 'NET:5V', 'VCC → 5V power'));
+    out.push(linkItem(c, 'OLED screen', 'oled', 'sda', 'A4.S', 'SDA → A4 (the data wire)'));
+    out.push(linkItem(c, 'OLED screen', 'oled', 'scl', 'A5.S', 'SCL → A5 (the clock wire)'));
+  }
   // a 3-pin module on a plain Uno: three jumper wires (signal to its pin, power to 5V, ground to GND)
   function moduleItems(c, group, key, pin, name, out, optional) {
     const o = { optional: !!optional };
@@ -706,6 +712,7 @@ body{background:var(--bg);margin:0}
       const rg = add('r220'); seat(rg.id, 11, 'c', 220);
       const rb = add('r220'); seat(rb.id, 12, 'd', 220);
       w('D9.S', bb.id + '#9a'); w('D10.S', bb.id + '#11a'); w('D11.S', bb.id + '#12a'); w(bb.id + '#T-14', bb.id + '#14b');
+      const o = add('oled', 880, 660); w(o.id + '.vcc', bb.id + '#T+7'); w(o.id + '.gnd', bb.id + '#T-7'); w(o.id + '.sda', 'A4.S'); w(o.id + '.scl', 'A5.S');
     }
     return st;
   }

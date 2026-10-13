@@ -6,11 +6,11 @@
   const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const ROBOTS = { chipbot: { name: 'Chip Bot', emoji: '🤖', color: '#2bb3a3' }, peeko: { name: 'Peeko', emoji: '👀', color: '#ff6b5e' }, jarvis: { name: 'Jarvis', emoji: '🌱', color: '#8b7fe8' } };
   const BOARD = { chipbot: 'Tools → Board → <u>Arduino Nano</u> (if the upload fails: Processor → ATmega328P (Old Bootloader))', peeko: 'Tools → Board → <u>Arduino Uno</u>', jarvis: 'Tools → Board → <u>Arduino Uno</u>' };
-  const LIBS = { chipbot: 'No extra libraries needed.', peeko: 'Libraries needed (Tools → Manage Libraries): Adafruit GFX Library and Adafruit SH110X (say yes to BusIO too).', jarvis: 'No extra libraries needed.' };
+  const LIBS = { chipbot: 'No extra libraries needed.', peeko: 'Libraries needed (Tools → Manage Libraries): Adafruit GFX Library and Adafruit SH110X (say yes to BusIO too).', jarvis: 'Libraries needed (Tools → Manage Libraries): Adafruit GFX Library and Adafruit SH110X (say yes to BusIO too).' };
   const SAY = {
     chipbot: 'Chip Bot checks its buzzer, its four servos and its distance sensor, one after the other.',
     peeko: 'Peeko checks its screen, its head servo and its buzzer, one after the other.',
-    jarvis: 'Jarvis checks its LED, its soil sensor, its light sensor and its buzzer, one after the other.'
+    jarvis: 'Jarvis checks its LED, its soil sensor, its light sensor, its buzzer and its screen, one after the other.'
   };
   const CHECKS = {
     chipbot: [
@@ -27,7 +27,8 @@
       { id: 'led', title: 'RGB LED', see: 'Red, then green, then blue, then white (all three), each for about a second and a half.', fix: 'A colour is missing? That colour\'s 220 Ω resistor or wire is wrong. Nothing lights? The long leg of the LED must go to ground.' },
       { id: 'soil', title: 'Soil sensor', see: 'The soil number changes, and it drops when you dip the probe in water. The Serial Monitor says [PASS].', fix: '[CHECK]? Check the signal wire on A0, and the power and ground wires.' },
       { id: 'light', title: 'Light sensor', see: 'The light number changes when you cover the sensor with your hand. The Serial Monitor says [PASS].', fix: '[CHECK]? The LDR goes between 5V and A1, and the 10 kΩ resistor goes between A1 and ground.' },
-      { id: 'buzzer', title: 'Buzzer on D8', see: 'Three beeps: one plain, then two different pitches.', fix: 'Silent? Flip the two legs: the long leg (+) goes to D8 and the short leg (−) to ground.' }
+      { id: 'buzzer', title: 'Buzzer on D8', see: 'Three beeps: one plain, then two different pitches.', fix: 'Silent? Flip the two legs: the long leg (+) goes to D8 and the short leg (−) to ground.' },
+      { id: 'screen', title: 'OLED screen', see: 'The screen shows SOIL and LIGHT with a percentage and a raw number for each. The numbers change when you dip the probe or cover the sensor.', fix: 'Blank, and [CHECK]? SDA goes to A4 and SCL goes to A5 (swapped is the most common mistake). Then check VCC to 5V and GND to ground.' }
     ]
   };
   const PIN = { chipbot: 'D13', peeko: 'D8', jarvis: 'D8' };

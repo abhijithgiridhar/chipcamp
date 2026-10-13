@@ -1,0 +1,63 @@
+<header class="topbar">
+  <a class="homebtn" href="index.html" title="Back to the Chip Camp welcome screen" aria-label="Home">🏠</a>
+  <div class="brand"><span class="logo" aria-hidden="true"><i style="background:#4C97FF"></i><i style="background:#FFAB19"></i><i style="background:#59C059"></i><i style="background:#CF63CF"></i></span>Echo Lab</div>
+  <nav class="lvls" id="lvls" aria-label="Levels"></nav>
+  <div class="spacer"></div>
+  <button class="btn small" id="muteBtn" aria-pressed="false" title="Sound on or off">🔇 Sound off</button>
+</header>
+
+<main class="eg">
+  <section class="card mission" aria-label="Mission">
+    <div class="mtop"><span class="num" id="mNum">1</span><span class="concept" id="mConcept"></span></div>
+    <h1 id="mTitle"></h1>
+    <p id="mSay"></p>
+    <div class="worked" id="mWorked" hidden></div>
+    <div class="stats">
+      <div class="stat"><small>Pings left</small><b id="sPings"></b></div>
+      <div class="stat"><small>Bumps</small><b id="sBumps">0</b></div>
+      <div class="stat"><small>Par</small><b id="sPar"></b></div>
+    </div>
+    <p class="tip" id="mHint" hidden></p>
+    <div class="legend"><span><i class="k fog"></i>unknown</span><span><i class="k floor"></i>floor</span><span><i class="k wall"></i>wall</span><span><i class="k foam"></i>foam</span><span>🚩 goal</span></div>
+  </section>
+
+  <section class="card boardcard" aria-label="The room">
+    <div class="boardwrap"><svg id="board" role="img" aria-label="Map of the room. Most of it is hidden."></svg></div>
+    <div class="msg" id="msg" role="status" aria-live="polite"></div>
+  </section>
+
+  <section class="card controls" aria-label="Controls">
+    <div class="pad">
+      <button class="btn big ping" id="pingBtn">📡 Ping</button>
+      <div class="row">
+        <button class="btn big" id="leftBtn" title="Turn left (←)">⟲ Turn left</button>
+        <button class="btn big" id="rightBtn" title="Turn right (→)">Turn right ⟳</button>
+      </div>
+      <button class="btn big go" id="walkBtn" title="Walk one step (↑)">⬆ Walk 1 step</button>
+      <button class="btn small" id="restartBtn">↺ Restart this level</button>
+    </div>
+    <div class="echo" id="echoBox" hidden>
+      <div class="echoh">📡 An echo came back!</div>
+      <div class="echot" id="echoT"></div>
+      <label for="ans">How many steps can Chip Bot walk before the wall?</label>
+      <div class="ansrow"><input id="ans" type="number" inputmode="numeric" min="0" max="20" autocomplete="off"><button class="btn go" id="ansBtn">Check</button></div>
+      <button class="linkbtn" id="helpBtn">Show me how to work it out</button>
+      <div class="how" id="how" hidden></div>
+    </div>
+    <div class="notebook">
+      <h3>📒 Notebook</h3>
+      <div id="log" class="log"><span class="muted">Your pings will be written here.</span></div>
+    </div>
+    <p class="keys">Keys: P ping · ← → turn · ↑ walk · Enter check</p>
+  </section>
+</main>
+
+<div class="over" id="over" hidden>
+  <div class="overcard">
+    <div class="stars" id="oStars"></div>
+    <h2 id="oTitle"></h2>
+    <p id="oText"></p>
+    <div class="orow"><button class="btn" id="oAgain">↺ Play again</button><button class="btn go big" id="oNext">Next level ➜</button></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>

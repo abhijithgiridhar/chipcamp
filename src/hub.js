@@ -30,6 +30,8 @@
 
     const lv = ChipCamp.levelsCompleted();
     const pl = $('#pgLogic'); pl.textContent = lv + ' of 10'; pl.classList.toggle('done', lv >= 10);
+    let echoDone = 0; try { const e = JSON.parse(localStorage.getItem('chipcamp.echo')) || {}; echoDone = Object.keys(e.levels || {}).filter((k) => e.levels[k] > 0).length; } catch (e) { /* fine */ }
+    const pe = $('#pgEcho'); if (pe) { pe.textContent = echoDone + ' of 10'; pe.classList.toggle('done', echoDone >= 10); }
 
     $('#sCircuit').textContent = 'Drag parts together and wire up ' + label + '.';
     const pc = $('#pgCircuit'); const cDone = p.circuits[r];

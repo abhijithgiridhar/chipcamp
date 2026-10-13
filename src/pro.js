@@ -20,8 +20,37 @@
   }
   const storedKey = () => { try { return localStorage.getItem(KEY); } catch (e) { return null; } };
 
+  const ID_CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+  let deskIds = null;
+  function newIds() {
+    const out = new Set();
+    while (out.size < 5) {
+      const b = new Uint8Array(4); crypto.getRandomValues(b);
+      out.add('CB-' + Array.from(b, (x) => ID_CHARS[x % ID_CHARS.length]).join(''));
+    }
+    deskIds = Array.from(out).map((id) => ({ id, used: false }));
+  }
+  function renderDesk() {
+    const C = window.__camp, pro = data.chipbot;
+    $('#proBody').hidden = true; $('#deskBody').hidden = false;
+    if (!deskIds) newIds();
+    const box = $('#deskIds'); box.innerHTML = '';
+    deskIds.forEach((d) => {
+      const b = document.createElement('button'); b.className = 'deskid' + (d.used ? ' used' : ''); b.textContent = d.id;
+      b.onclick = () => {
+        C.download('ChipBot_' + d.id.replace('-', '_') + '.ino', pro.desk.split('@@ID@@').join(d.id));
+        d.used = true; b.classList.add('used'); C.toast('Downloaded ' + d.id + '. Open it in the Arduino IDE and upload.');
+      };
+      box.appendChild(b);
+    });
+    $('#deskNew').onclick = () => { newIds(); renderDesk(); };
+    $('#deskBack').onclick = () => { location.hash = '#build'; };
+  }
+
   function renderBody() {
     const C = window.__camp, proj = C.S.proj, pro = data[proj];
+    if (proj === 'chipbot' && pro.desk) { renderDesk(); return; }
+    $('#deskBody').hidden = true;
     const gen = C.Core.generate(proj, C.state(), { pro });
     $('#proTitle').textContent = pro.title;
     $('#proBlurb').textContent = pro.blurb;
@@ -39,7 +68,10 @@
   }
 
   async function show() {
-    const lock = $('#proLock'), body = $('#proBody');
+    const lock = $('#proLock'), body = $('#proBody'); $('#deskBody').hidden = true;
+    const cb = window.__camp && window.__camp.S.proj === 'chipbot';
+    lock.querySelector('h2').textContent = cb ? 'The Upload desk' : 'The Pro code';
+    lock.querySelector('p').textContent = cb ? 'This is where your facilitator puts the tested program on your robot. Finish your own program first, then ask your facilitator to unlock it.' : 'This is the final, more complex program for your robot. It is the same robot with a much cleverer brain. Finish your own program first, then ask your facilitator to unlock it.';
     if (!window.PRO_PAYLOAD) { lock.hidden = false; body.hidden = true; $('#proMsg').textContent = 'The Pro code is not part of this copy of the site.'; $('#proForm').hidden = true; return; }
     if (!data && storedKey()) { try { data = await decryptWith(storedKey()); } catch (e) { try { localStorage.removeItem(KEY); } catch (e2) { /* fine */ } } }
     if (data) { lock.hidden = true; body.hidden = false; renderBody(); } else { lock.hidden = false; body.hidden = true; }

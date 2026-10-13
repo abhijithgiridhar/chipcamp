@@ -175,18 +175,17 @@
       ],
       story: [
         { id: 'name', title: 'Name it', say: 'Give your Chip Bot a name and put your own name on it. Watch both appear in the code.', done: (s) => !!s.robot.trim() },
-        { id: 'wake', title: 'Wake up', say: 'What does Chip Bot do the moment it switches on? Say hello? Beep? Put it under "when Chip Bot wakes up".', done: (s) => s.wake.length > 0 },
-        { id: 'forever', title: 'Forever', say: 'Now the main behaviour. Everything inside "forever" repeats again and again.', done: (s) => s.forever.length > 0 },
-        { id: 'wait', title: 'Add time', say: 'Robots need rests. Add a wait so Chip Bot does not rush from one move to the next.', done: (s) => countType(s, 'wait') > 0 },
-        { id: 'choice', title: 'Make a choice', say: 'Chip Bot has eyes (the distance sensor). If something is close, turn away. Otherwise keep walking. That is an "if / else".', done: (s) => countType(s, /^if_/) > 0 },
-        { id: 'repeat', title: 'Repeat', say: 'A dance with 3 wiggles? Use "repeat" instead of copying blocks.', done: (s) => countType(s, 'repeat') > 0 }
+        { id: 'tune', title: 'Happy tune', say: 'What does Chip Bot do the moment it switches on? Under "when Chip Bot wakes up" put at least 3 "beep note" blocks. A short happy tune!', done: (s) => missionInfo(s).tune },
+        { id: 'walk', title: 'Walk', say: 'Under "forever", Chip Bot has to walk. Use the "walk forward" block. One step at a time is best, so it can look around between steps.', done: (s) => missionInfo(s).walk },
+        { id: 'look', title: 'Look ahead', say: 'Chip Bot has eyes (the distance sensor). Add "if distance is less than 15 cm" under forever and put the walk block in the else part.', done: (s) => missionInfo(s).look },
+        { id: 'stop', title: 'Stop and shout', say: 'If something is close, Chip Bot must stop. Inside the if, add "stand still" and a "beep note" that lasts at least 1.5 seconds. A long sound means "obstacle!".', done: (s) => missionInfo(s).stop },
+        { id: 'patient', title: 'Be patient', say: 'Do not shout 100 times. After the long beep, add "wait" for 10 to 30 seconds so Chip Bot reminds you only now and then.', done: (s) => missionInfo(s).patient }
       ],
       example: function (n) {
         return {
-          wake: [n('hello'), n('repeat', { times: 2 }, [n('note', { note: 'C2', secs: 0.2 }), n('wait', { secs: 0.1 })])],
+          wake: [n('hello'), n('note', { note: 'C', secs: 0.2 }), n('note', { note: 'E', secs: 0.2 }), n('note', { note: 'G', secs: 0.2 }), n('note', { note: 'C2', secs: 0.4 })],
           forever: [
-            n('if_dist', { cmp: 'less', cm: 15 }, [n('turn', { dir: 'left', steps: 3 }), n('note', { note: 'G', secs: 0.2 })], [n('walk', { dir: 'fwd', steps: 4 })]),
-            n('wait', { secs: 0.5 })
+            n('if_dist', { cmp: 'less', cm: 15 }, [n('stand'), n('note', { note: 'C', secs: 2 }), n('wait', { secs: 30 })], [n('walk', { dir: 'fwd', steps: 1 })])
           ]
         };
       }
@@ -252,6 +251,43 @@
     P.cats.forEach((c) => { P.catMap[c.id] = c; });
   });
 
+  /* ---------- the Chip Bot mission ----------
+     Whatever blocks a student builds, the sketch they get is the mission program: a happy tune, then walk one step at a time,
+     and if something is closer than N cm, stand still, make one long sound and wait before looking again.
+     Their own choices (names, tune, distance, long note, wait time) are kept, within safe limits. */
+  function missionInfo(state) {
+    const wake = state.wake || [], forever = state.forever || [];
+    const iff = forever.find((n) => n.type === 'if_dist') || null;
+    const kids = iff ? (iff.kids || []) : [], els = iff ? (iff.els || []) : [];
+    const notes = wake.filter((n) => n.type === 'note');
+    const longNote = kids.find((n) => n.type === 'note' && Number(n.p.secs) >= 1.5) || null;
+    const waitNode = kids.find((n) => n.type === 'wait' && Number(n.p.secs) >= 10) || null;
+    const walkOut = els.some((n) => n.type === 'walk' && n.p.dir === 'fwd');
+    return {
+      iff, notes, longNote, waitNode,
+      tune: notes.length >= 3,
+      walk: walkOut || forever.some((n) => n.type === 'walk' && n.p.dir === 'fwd'),
+      look: !!iff && iff.p.cmp === 'less' && walkOut,
+      stop: !!iff && kids.some((n) => n.type === 'stand') && !!longNote,
+      patient: !!waitNode
+    };
+  }
+  const MISSION_TUNE = [['C', 0.2], ['E', 0.2], ['G', 0.2], ['C2', 0.4]];
+  function missionComplete(state) { const m = missionInfo(state); return m.tune && m.walk && m.look && m.stop && m.patient; }
+  const clampN = (v, lo, hi, d) => { v = Number(v); return isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d; };
+  function missionState(state) {
+    const m = missionInfo(state), mk = (t, p, k, e) => mkNode('chipbot', t, p, k, e);
+    const tune = m.notes.length >= 3 ? m.notes.slice(0, 6).map((n) => [n.p.note, clampN(n.p.secs, 0.1, 0.6, 0.2)]) : MISSION_TUNE;
+    const cm = m.iff ? Math.round(clampN(m.iff.p.cm, 8, 40, 15)) : 15;
+    const ln = m.longNote ? { note: m.longNote.p.note, secs: clampN(m.longNote.p.secs, 1.5, 3, 1.5) } : { note: 'C', secs: 1.5 };
+    const wait = m.waitNode ? clampN(m.waitNode.p.secs, 10, 30, 30) : 30;
+    return {
+      builder: state.builder, robot: state.robot, date: state.date, settings: Object.assign({}, state.settings || {}),
+      wake: [mk('hello')].concat(tune.map((t) => mk('note', { note: t[0], secs: t[1] }))),
+      forever: [mk('if_dist', { cmp: 'less', cm }, [mk('stand'), mk('note', ln), mk('wait', { secs: wait })], [mk('walk', { dir: 'fwd', steps: 1 })])]
+    };
+  }
+
   /* ---------- state + tree helpers ---------- */
   let uidN = 0;
   const uid = () => 'n' + (++uidN) + Math.random().toString(36).slice(2, 6);
@@ -315,6 +351,7 @@
   // opts.pro = { title, patches, extra, wake, forever } makes the advanced "Pro" sketch from the same base code
   function generate(projId, state, opts) {
     const P = PROJECTS[projId], pro = opts && opts.pro;
+    if (opts && opts.mission && projId === 'chipbot') state = missionState(state);   // the guided mission program
     const robot = cleanText(state.robot, 16, P.robotDefault);
     const builder = cleanText(state.builder, 16, 'a CHIP Camp student');
     const builderConst = cleanText(state.builder, 16, 'Friend');
@@ -367,6 +404,7 @@
   return {
     PROJECTS, TEMPLATES, MARK_S, MARK_E, stripMarks,
     norm, cleanText, fmtF, noteHz, NOTES,
-    newState, exampleState, mkNode, defaults, walk, countType, countBlocks, generate, uid, LOOP_VARS
+    newState, exampleState, mkNode, defaults, walk, countType, countBlocks, generate, uid, LOOP_VARS,
+    missionInfo, missionState, missionComplete
   };
 });

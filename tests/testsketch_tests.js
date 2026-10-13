@@ -20,7 +20,7 @@ Object.keys(BOARDS).forEach((id) => {
   const out = (r.stdout || '') + (r.stderr || '');
   ok(r.status === 0, id + ' test sketch does not compile\n' + out.split('\n').filter((l) => /error/i.test(l)).slice(0, 6).join('\n'));
   const prog = out.match(/Sketch uses (\d+) bytes \((\d+)%\)/), ram = out.match(/Global variables use (\d+) bytes/);
-  if (prog && ram) console.log(('  ' + id + ' test').padEnd(24) + 'flash ' + prog[2] + '%   RAM ' + ram[1] + ' B' + (id === 'peeko' ? ' + 1024 B display buffer' : ''));
+  if (prog && ram) console.log(('  ' + id + ' test').padEnd(24) + 'flash ' + prog[2] + '%   RAM ' + ram[1] + ' B' + ((id === 'peeko' || id === 'jarvis') ? ' + 1024 B display buffer' : ''));
 });
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

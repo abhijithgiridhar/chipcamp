@@ -156,6 +156,9 @@
       '<g class="plant"><path class="stem" d="M160 210 C160 180 160 160 160 140" stroke="#3aa85c" stroke-width="7" fill="none" stroke-linecap="round"/>' +
       '<g class="leafL"><ellipse cx="136" cy="152" rx="26" ry="12" fill="#43c06b"/></g><g class="leafR"><ellipse cx="184" cy="148" rx="26" ry="12" fill="#43c06b"/></g>' +
       '<ellipse class="leafT" cx="160" cy="132" rx="12" ry="22" fill="#4fd079"/></g>' +
+      '<g class="jv-oled"><rect x="196" y="66" width="116" height="48" rx="7" fill="#262b3d" stroke="#8d96b5" stroke-width="3"/>' +
+      '<text class="ov-s" x="203" y="84" font-size="12" font-family="monospace" fill="#e8f1ff" font-weight="700"></text>' +
+      '<text class="ov-l" x="203" y="104" font-size="12" font-family="monospace" fill="#e8f1ff" font-weight="700"></text></g>' +
       '<text class="jv-buzz" x="286" y="152" font-size="26" opacity="0">🔔</text></svg><div class="notes"></div></div>';
     const q = (s) => mount.querySelector(s), notes = $(mount, '.notes');
     const soilEl = q('.soil'), plant = q('.plant'), sun = q('.jv-sun'), bulb = q('.bulb'), glow = q('.glow');
@@ -169,6 +172,8 @@
       leaves.forEach((e) => e.setAttribute('fill', leafCol));
       plant.style.transformOrigin = '160px 210px';
       plant.style.transform = 'rotate(' + ((1 - w) * 12) + 'deg) scaleY(' + (0.8 + w * 0.2) + ')';
+      q('.ov-s').textContent = 'SOIL  ' + Math.round(sensors.soil) + '%  ' + Math.round(520 - 240 * w);
+      q('.ov-l').textContent = 'LIGHT ' + Math.round(sensors.light) + '%  ' + Math.round(l * 1023);
       sun.style.opacity = 0.2 + l * 0.8;
       sun.style.transformOrigin = '58px 52px';
       sun.style.transform = 'scale(' + (0.8 + l * 0.35) + ')';
