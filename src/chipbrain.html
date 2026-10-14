@@ -1,0 +1,64 @@
+<header class="topbar">
+  <a class="homebtn" href="index.html" title="Back to the Chip Camp welcome screen" aria-label="Home">🏠</a>
+  <div class="brand"><span class="logo" aria-hidden="true"><i style="background:#2BB3A3"></i><i style="background:#FFBF00"></i><i style="background:#9966FF"></i><i style="background:#4C97FF"></i></span>Chip Bot's Brain</div>
+  <div class="spacer"></div>
+</header>
+
+<main class="brain cb">
+  <section class="card bsteps" aria-label="Steps">
+    <div class="idea">
+      <h2>💡 The big idea: two ways to send the same message</h2>
+      <div class="flow2">
+        <div class="lane"><b>You</b><span class="pill">⌨️ type <code>1</code> in the Serial Monitor</span><span class="arr">➜</span><span class="pill">📟 message <code>1</code></span><span class="arr">➜</span><span class="pill">⚙️ servo 1 moves</span></div>
+        <div class="lane ai"><b>The AI</b><span class="pill">📷 camera sees a blue card</span><span class="arr">➜</span><span class="pill">🧠 model says "blue"</span><span class="arr">➜</span><span class="pill">📟 message <code>1</code></span><span class="arr">➜</span><span class="pill">⚙️ servo 1 moves</span></div>
+      </div>
+      <p class="small">Chip Bot does not know or care who sent the <code>1</code>. A person or an AI, it moves servo 1 either way. <b>Teachable Machine</b> is the part that learns to turn what the camera sees into a message. Everything after that is the code you already wrote.</p>
+    </div>
+    <ol>
+      <li class="bstep">
+        <h2><span class="n">1</span>Connect Chip Bot</h2>
+        <p>Upload the Chip Bot sketch from the Upload desk first. <b>Close the Serial Monitor in the Arduino IDE</b>, because only one program can use the USB cable at a time. You can try everything without Chip Bot, since the one on the right moves too.</p>
+        <button class="btn" id="connect">🔌 Connect Chip Bot</button>
+        <button class="btn small" id="testSend" hidden>Send 1 (test)</button>
+        <div class="status" id="serialStatus" role="status"></div>
+      </li>
+      <li class="bstep">
+        <h2><span class="n">2</span>Choose how it sees</h2>
+        <div class="modes" role="tablist">
+          <button class="mode on" id="modeColour" role="tab" aria-selected="true"><b>🎨 Colour cards</b><small>Works right now. Hold up a red, yellow, green or blue card.</small></button>
+          <button class="mode" id="modeTM" role="tab" aria-selected="false"><b>🧠 My own AI model</b><small>Teach Teachable Machine anything you like.</small></button>
+        </div>
+        <div id="paneColour">
+          <p>Hold a coloured card, or a coloured page, in the middle of the camera picture. Chip Bot's brain looks at the middle and decides which colour it is. Nothing to train.</p>
+        </div>
+        <div id="paneTM" hidden>
+          <p>Open Teachable Machine, choose <b>Image Project</b>, then <b>Standard image model</b>. Make 2 to 4 classes, for example <i>Thumbs up</i>, <i>Peace sign</i> and <i>Nobody</i>. Record about 40 pictures of each, then press <b>Train Model</b>.</p>
+          <a class="btn" href="https://teachablemachine.withgoogle.com/train/image" target="_blank" rel="noopener">Open Teachable Machine ↗</a>
+          <p>Then <b>Export Model</b>, <b>Upload my model</b>, and paste the link:</p>
+          <div class="row"><input id="link" type="url" placeholder="https://teachablemachine.withgoogle.com/models/..." spellcheck="false" autocomplete="off"><button class="btn go" id="loadLink">Load</button></div>
+          <details class="alt"><summary>No link? Use the downloaded files</summary>
+            <p>Export Model, then <b>Download</b>, unzip it, and choose all three files: <code>model.json</code>, <code>metadata.json</code> and <code>weights.bin</code>.</p>
+            <input id="files" type="file" multiple accept=".json,.bin">
+          </details>
+          <div class="status" id="modelStatus" role="status"></div>
+        </div>
+      </li>
+      <li class="bstep">
+        <h2><span class="n">3</span>What should each one do?</h2>
+        <div id="mapping" class="mapping"></div>
+        <label class="slider"><span>How sure must it be?</span><input id="sure" type="range" min="60" max="99" step="1" value="85"><output id="sureOut">85%</output></label>
+        <button class="btn go big" id="start">▶ Start Chip Bot's brain</button>
+        <div class="status" id="runStatus" role="status"></div>
+      </li>
+    </ol>
+  </section>
+
+  <aside class="card stagecard" aria-label="Chip Bot">
+    <div class="stagehead"><h2>🤖 Chip Bot</h2></div>
+    <div class="msgbox"><small>Message sent to Chip Bot</small><b id="sent">·</b></div>
+    <div class="servos" id="servos"></div>
+    <div class="camwrap"><div id="cam" class="cam"><span class="camhint">Your camera shows here</span></div><div id="bars" class="bars"></div></div>
+    <div class="serial" id="serial"><b>What Chip Bot says</b></div>
+  </aside>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>

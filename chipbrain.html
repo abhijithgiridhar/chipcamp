@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chip Bot's Brain · Chip Camp</title>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Nunito:wght@600;800;900&family=JetBrains+Mono:wght@400;700&display=swap");
+:root{
+  --ink:#2b2f4a; --ink-soft:#69709a; --bg:#e8f0ff; --card:#ffffff; --line:#d3def6; --line-soft:#e6edfb;
+  --purple:#7c4dff; --blue:#4c97ff; --green:#3fb950; --green-d:#2c8f3b; --events:#FFBF00;
+  --font-d:"Fredoka","Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;
+  --font-b:"Nunito","Segoe UI","Trebuchet MS",system-ui,sans-serif;
+  --font-m:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --nh:6px; --nx:16px; --nw:26px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-b);font-size:15px;line-height:1.4;-webkit-font-smoothing:antialiased;}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+[hidden]{display:none!important}
+
+/* ---------- top bar ---------- */
+.topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 18px;background:linear-gradient(90deg,#7c4dff,#4c97ff);color:#fff;box-shadow:0 3px 0 rgba(0,0,0,.12);}
+.brand{font-family:var(--font-d);font-size:24px;font-weight:600;letter-spacing:.2px;display:flex;align-items:center;gap:8px;margin-right:6px}
+.brand .logo{display:inline-grid;grid-template-columns:repeat(2,12px);gap:3px;transform:rotate(-8deg)}
+.brand .logo i{width:12px;height:12px;border-radius:4px;display:block}
+.ptabs{display:flex;gap:8px;flex-wrap:wrap}
+.ptab{border:0;cursor:pointer;font-family:var(--font-d);font-size:17px;font-weight:500;padding:8px 16px;border-radius:16px;background:rgba(255,255,255,.2);color:#fff;display:flex;align-items:center;gap:7px;transition:transform .12s, background .15s;}
+.ptab:hover{background:rgba(255,255,255,.32);transform:translateY(-1px)}
+.ptab[aria-selected="true"]{background:#fff;color:var(--pc);box-shadow:0 4px 0 rgba(0,0,0,.18);transform:translateY(-1px)}
+.ptab .em{font-size:20px}
+.spacer{flex:1}
+.viewtabs{display:flex;background:rgba(0,0,0,.18);border-radius:18px;padding:4px;gap:4px}
+.vtab{border:0;cursor:pointer;font-family:var(--font-d);font-size:17px;padding:8px 18px;border-radius:14px;background:transparent;color:#fff;display:flex;align-items:center;gap:6px}
+.vtab[aria-selected="true"]{background:#fff;color:var(--purple);box-shadow:0 3px 0 rgba(0,0,0,.18)}
+
+.btn{border:0;cursor:pointer;font-family:var(--font-d);font-weight:500;font-size:15px;padding:8px 14px;border-radius:14px;background:#fff;color:var(--ink);box-shadow:0 3px 0 #c9d6f2;border:2px solid #d3def6;display:inline-flex;align-items:center;gap:6px;transition:transform .08s, box-shadow .08s;white-space:nowrap}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 0 #c9d6f2}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 #c9d6f2}
+.btn.go{background:var(--green);border-color:var(--green-d);color:#fff;box-shadow:0 4px 0 var(--green-d)}
+.btn.go:hover{box-shadow:0 5px 0 var(--green-d)}
+.btn.go:active{box-shadow:0 1px 0 var(--green-d)}
+.btn.stop{background:#ff6680;border-color:#d94a63;color:#fff;box-shadow:0 4px 0 #d94a63}
+.btn.big{font-size:19px;padding:12px 22px;border-radius:18px}
+.btn.small{font-size:13px;padding:5px 10px;border-radius:11px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* ---------- blocks ---------- */
+.blk{--c:#9966FF;position:relative;filter:drop-shadow(0 2px 0 rgba(0,0,0,.2));user-select:none;touch-action:none}
+.dz>.blk+.blk,.blk+.blk{margin-top:calc(var(--nh) * -1)}
+.blk>.row,.blk>.foot{background:var(--c);color:#fff;font-family:var(--font-d);font-weight:500;font-size:15px;text-shadow:0 1px 0 rgba(0,0,0,.18)}
+.blk>.row{display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-height:46px;padding:8px 10px calc(8px + var(--nh)) 12px;
+  clip-path:polygon(0 0,var(--nx) 0,calc(var(--nx) + 4px) var(--nh),calc(var(--nx) + var(--nw) - 4px) var(--nh),calc(var(--nx) + var(--nw)) 0,100% 0,100% calc(100% - var(--nh)),calc(var(--nx) + var(--nw)) calc(100% - var(--nh)),calc(var(--nx) + var(--nw) - 4px) 100%,calc(var(--nx) + 4px) 100%,var(--nx) calc(100% - var(--nh)),0 calc(100% - var(--nh)));
+  cursor:grab}
+.blk.c>.row{clip-path:polygon(0 0,var(--nx) 0,calc(var(--nx) + 4px) var(--nh),calc(var(--nx) + var(--nw) - 4px) var(--nh),calc(var(--nx) + var(--nw)) 0,100% 0,100% 100%,0 100%);padding-bottom:8px;border-radius:12px 12px 0 0}
+.blk.c>.row.else{clip-path:none;border-radius:0;min-height:34px;padding-top:6px;padding-bottom:6px}
+.blk:not(.c)>.row{border-radius:12px 12px 12px 12px}
+.blk>.foot{height:calc(26px + var(--nh));border-radius:0 0 12px 12px;display:flex;align-items:center;padding:0 12px var(--nh) 12px;gap:8px;
+  clip-path:polygon(0 0,100% 0,100% calc(100% - var(--nh)),calc(var(--nx) + var(--nw)) calc(100% - var(--nh)),calc(var(--nx) + var(--nw) - 4px) 100%,calc(var(--nx) + 4px) 100%,var(--nx) calc(100% - var(--nh)),0 calc(100% - var(--nh)))}
+.cslot{display:flex;background:var(--c)}
+.cslot::before{content:"";width:16px;flex:none;background:var(--c)}
+.cslot>.dz{flex:1;background:#f7f9ff;border-radius:10px 0 0 10px;min-height:44px;margin:0;box-shadow:inset 0 3px 0 rgba(0,0,0,.08)}
+.blk .x{margin-left:auto;border:0;background:rgba(255,255,255,.28);color:#fff;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:12px;line-height:1;padding:0;opacity:.0;transition:opacity .12s}
+.blk:hover>.row .x,.blk>.row .x:focus-visible{opacity:1}
+.blk .x:hover{background:rgba(255,255,255,.5)}
+.blk .tag{font-size:11px;font-weight:700;background:rgba(0,0,0,.16);border-radius:10px;padding:2px 8px;font-family:var(--font-b);text-shadow:none}
+.elsebtn{border:0;cursor:pointer;background:rgba(255,255,255,.28);color:#fff;font-family:var(--font-d);font-size:13px;border-radius:10px;padding:3px 10px}
+.elsebtn:hover{background:rgba(255,255,255,.45)}
+.blk.running>.row,.blk.running>.foot{animation:glow .6s ease-in-out infinite alternate}
+@keyframes glow{from{filter:brightness(1)}to{filter:brightness(1.35) saturate(1.2)}}
+.blk.pop{animation:pop .38s cubic-bezier(.3,1.7,.5,1)}
+@keyframes pop{0%{transform:scale(.6) rotate(-4deg);opacity:.2}100%{transform:scale(1) rotate(0);opacity:1}}
+.blk.lifting{opacity:.3}
+.ghost{position:fixed;z-index:1000;pointer-events:none;transform:rotate(2deg) scale(1.04);filter:drop-shadow(0 10px 12px rgba(40,40,80,.35));opacity:.96}
+.ghost .x{display:none}
+
+/* parameter fields (Scratch style) */
+.pill{display:inline-flex;align-items:center;border-radius:16px;background:#fff;color:var(--ink);text-shadow:none;font-family:var(--font-b);font-weight:800;font-size:14px;padding:0;overflow:hidden;box-shadow:inset 0 -2px 0 rgba(0,0,0,.1)}
+.pill input{border:0;background:transparent;outline:0;font-weight:800;color:var(--ink);padding:3px 9px;min-width:0;text-align:center;font-family:var(--font-b)}
+.pill input[type=number]{width:58px;-moz-appearance:textfield}
+.pill input[type=number]::-webkit-outer-spin-button,.pill input[type=number]::-webkit-inner-spin-button{opacity:.55}
+.pill input[type=text]{width:116px}
+.pill:focus-within{outline:3px solid rgba(255,255,255,.75);outline-offset:1px}
+.drop{display:inline-flex;align-items:center;border-radius:14px;background:rgba(0,0,0,.2);color:#fff;font-family:var(--font-b);font-weight:800;font-size:14px;text-shadow:none;padding:0;position:relative}
+.drop select{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:#fff;font-weight:800;padding:4px 24px 4px 10px;cursor:pointer;outline:0;border-radius:14px;font-family:var(--font-b)}
+.drop select option{color:var(--ink);background:#fff}
+.drop::after{content:"▾";position:absolute;right:9px;pointer-events:none;font-size:12px}
+.drop:focus-within{outline:3px solid rgba(255,255,255,.75);outline-offset:1px}
+.static{display:inline-flex;align-items:center;border-radius:14px;padding:2px 9px;font-weight:800;font-size:13px;font-family:var(--font-b);text-shadow:none}
+.static.p{background:#fff;color:var(--ink)}
+.static.d{background:rgba(0,0,0,.2);color:#fff}
+.palette-blk{margin-bottom:10px;cursor:grab}
+.palette-blk>.row{cursor:grab}
+.palette-blk.c>.foot{height:calc(18px + var(--nh))}
+
+.dz{display:flex;flex-direction:column;min-height:40px;position:relative}
+.dz.over{outline:3px dashed var(--purple);outline-offset:-3px;border-radius:12px;background:rgba(124,77,255,.07)}
+.dz:empty::before,.dz.empty::before{content:"drop blocks here";display:flex;align-items:center;justify-content:center;min-height:44px;color:#9aa4c7;font-weight:800;font-size:13px;border-radius:10px;border:2px dashed #cfd9f3;margin:4px}
+.dropline{height:0;position:relative;z-index:5}
+.dropline::after{content:"";position:absolute;left:-2px;right:-2px;top:-3px;height:6px;border-radius:4px;background:var(--purple);box-shadow:0 0 0 2px #fff}
+/* ---------- misc ---------- */
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#2b2f4a;color:#fff;font-family:var(--font-d);padding:10px 18px;border-radius:16px;opacity:0;pointer-events:none;transition:all .25s;z-index:3000;box-shadow:0 8px 20px rgba(0,0,0,.25)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.modalback{position:fixed;inset:0;background:rgba(43,47,74,.5);display:grid;place-items:center;z-index:2000;padding:16px}
+.modal{background:#fff;border-radius:22px;width:min(560px,100%);max-height:86vh;overflow:auto;padding:18px 20px;box-shadow:0 20px 50px rgba(0,0,0,.3);border:3px solid var(--line)}
+.modal h2{font-family:var(--font-d);font-weight:500;margin:0 0 10px;font-size:22px}
+.modal textarea{width:100%;height:120px;border:2px solid var(--line);border-radius:12px;padding:8px;font-family:var(--font-m);font-size:12px}
+.saverow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:2px solid var(--line-soft)}
+.saverow .who{flex:1;font-weight:800}
+.saverow .who small{display:block;font-weight:600;color:var(--ink-soft)}
+.conf{position:fixed;z-index:2500;font-size:26px;pointer-events:none;animation:conf 1.1s ease-out forwards}
+@keyframes conf{0%{transform:translate(0,0) rotate(0) scale(.6);opacity:1}100%{transform:translate(var(--dx),var(--dy)) rotate(var(--r)) scale(1.2);opacity:0}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+.homebtn{display:inline-grid;place-items:center;width:42px;height:42px;border-radius:14px;background:rgba(255,255,255,.22);color:#fff;text-decoration:none;font-size:21px;box-shadow:0 3px 0 rgba(0,0,0,.14);transition:transform .12s,background .15s;flex:none}
+.homebtn:hover{background:rgba(255,255,255,.36);transform:translateY(-1px)}
+.homebtn:focus-visible{outline:3px solid #fff;outline-offset:2px}
+a.btn{text-decoration:none}
+
+/* ---------- the step bar ---------- */
+.flow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 18px;background:#fff;border-bottom:2px solid var(--line-soft)}
+.fstep{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink-soft);font-family:var(--font-d);font-size:16px;padding:5px 14px 5px 6px;border-radius:999px;border:2px solid var(--line);background:#fff;transition:transform .12s}
+.fstep:hover{transform:translateY(-1px)}
+.fstep i{width:26px;height:26px;border-radius:50%;background:#e6edfb;display:grid;place-items:center;font-style:normal;font-size:14px;color:var(--ink-soft)}
+.fstep small{font-family:var(--font-b);font-weight:800;font-size:11px;background:#fff1c9;color:#7a5b00;border-radius:8px;padding:1px 6px}
+.fstep.done{border-color:#9bdca4;background:#effbf1;color:#23702f}
+.fstep.done i{background:var(--green);color:#fff}
+.fstep.cur{border-color:var(--purple);color:var(--purple);box-shadow:0 0 0 3px rgba(124,77,255,.18);background:#fff}
+.fstep.cur i{background:var(--purple);color:#fff}
+.fstep.lock{opacity:.55;pointer-events:none}
+@media (max-width:760px){.flow{padding:8px 10px}.fstep{font-size:14px}}
+
+/* Peeko's Brain */
+.card{background:var(--card);border:2px solid var(--line);border-radius:20px;box-shadow:0 4px 0 var(--line)}
+.brain{display:grid;grid-template-columns:minmax(420px,1fr) 372px;gap:14px;padding:14px 18px 40px;align-items:start;max-width:1400px;margin:0 auto}
+@media (max-width:1000px){.brain{grid-template-columns:1fr}.stagecard{position:static}}
+.bsteps{padding:8px 18px 18px}
+.bsteps ol{list-style:none;margin:0;padding:0}
+.bstep{padding:14px 0 16px;border-bottom:3px solid var(--line-soft)}
+.bstep:last-child{border-bottom:0}
+.bstep h2{font-family:var(--font-d);font-weight:500;font-size:21px;margin:0 0 6px;display:flex;align-items:center;gap:10px}
+.bstep .n{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--purple);color:#fff;font-size:16px}
+.bstep p{margin:4px 0 10px;font-weight:700;color:#38406a}
+.bstep code{font-family:var(--font-m);font-size:.88em;background:#f1f4ff;border-radius:6px;padding:1px 6px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row input{flex:1;min-width:220px;border:2px solid var(--line);border-radius:12px;padding:9px 12px;font-size:15px;font-weight:700}
+.alt{margin-top:10px;font-weight:700}
+.alt summary{cursor:pointer;color:var(--ink-soft)}
+.status{margin-top:8px;font-weight:800;min-height:20px}
+.status.bad{color:#d94a63}
+.status.good{color:#2c8f3b}
+.mapping{display:flex;flex-direction:column;gap:8px;margin:6px 0 12px}
+.mapping .empty{color:var(--ink-soft)}
+.maprow{display:grid;grid-template-columns:minmax(80px,1fr) auto;gap:4px 10px;align-items:center;background:#fbfaff;border:3px solid #9966FF;border-radius:14px;padding:8px 10px}
+.maprow b{font-family:var(--font-d);font-weight:500;font-size:16px;overflow-wrap:anywhere}
+.maprow select{border:2px solid var(--line);border-radius:10px;padding:6px 8px;font-weight:800;font-size:14px;background:#fff}
+.maprow .bar{grid-column:1/-1;height:8px;border-radius:6px;background:#e9edfb;overflow:hidden}
+.maprow .bar i{display:block;height:100%;width:0;background:#9966FF;transition:width .12s}
+.slider{display:grid;grid-template-columns:1fr auto;gap:2px 8px;font-weight:800;font-size:14px;margin:6px 0 14px}
+.slider input{grid-column:1/-1;accent-color:var(--purple);width:100%}
+.slider output{font-family:var(--font-m);color:var(--purple)}
+.camwrap{padding:10px 14px 0;border-top:2px solid var(--line-soft)}
+.cam{min-height:120px;border-radius:14px;background:#eef2ff;display:grid;place-items:center;overflow:hidden;color:var(--ink-soft);font-weight:800}
+.cam canvas{width:100%;height:auto;display:block}
+.bars{display:flex;flex-direction:column;gap:3px;margin:8px 0 6px;font-size:12px;font-weight:800}
+.bars div{display:grid;grid-template-columns:90px 1fr 40px;gap:6px;align-items:center}
+.bars i{display:block;height:8px;border-radius:5px;background:#9966FF}
+.bars span.p{text-align:right;font-family:var(--font-m)}
+
+/* Chip Bot's Brain (builds on brain.css) */
+.idea{background:#f1fbf9;border:3px solid #2bb3a3;border-radius:18px;padding:10px 14px 12px;margin:10px 0 8px}
+.idea h2{font-family:var(--font-d);font-weight:500;font-size:19px;margin:0 0 8px}
+.flow2{display:grid;gap:8px}
+.lane{display:flex;gap:6px;align-items:center;flex-wrap:wrap;background:#fff;border:2px solid var(--line);border-radius:14px;padding:6px 8px}
+.lane>b{font-family:var(--font-d);font-weight:500;background:#2bb3a3;color:#fff;border-radius:10px;padding:2px 10px;min-width:56px;text-align:center}
+.lane.ai>b{background:#9966FF}
+.pill{background:#f4f7ff;border:2px solid var(--line);border-radius:12px;padding:3px 9px;font-weight:800;font-size:13.5px}
+.arr{color:var(--ink-soft);font-weight:900}
+.idea code{background:#fff3c4;border-radius:6px;padding:0 6px;font-family:var(--font-m);font-weight:700}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0 10px}
+.mode{border:3px solid var(--line);background:#fff;border-radius:16px;padding:8px 10px;text-align:left;cursor:pointer;display:grid;gap:2px;font-family:inherit}
+.mode b{font-family:var(--font-d);font-weight:500;font-size:16px}.mode small{color:var(--ink-soft);font-weight:700}
+.mode.on{border-color:#2bb3a3;background:#effaf8;box-shadow:0 3px 0 #bfe6e1}
+.swatch{display:inline-block;width:16px;height:16px;border-radius:5px;vertical-align:-3px;margin-right:6px;border:1px solid rgba(0,0,0,.25)}
+.msgbox{margin:8px 14px 0;background:#2b2f4a;color:#fff;border-radius:14px;padding:6px 12px;display:flex;align-items:center;gap:10px}
+.msgbox small{flex:1;font-weight:800;color:#c9d2f2}
+.msgbox b{font-family:var(--font-m);font-size:30px;min-width:34px;text-align:center;color:#ffbf00}
+.msgbox.pop b{animation:msgpop .5s}
+@keyframes msgpop{0%{transform:scale(.4)}60%{transform:scale(1.4)}100%{transform:scale(1)}}
+.servos{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 14px 4px}
+.sv{background:#f4f7ff;border:3px solid var(--line);border-radius:14px;padding:6px 2px 4px;text-align:center;transition:border-color .2s,background .2s}
+.sv small{display:block;font-size:11px;font-weight:800;color:var(--ink-soft);line-height:1.15}
+.sv .dial{width:46px;height:46px;margin:2px auto;border-radius:50%;background:#fff;border:3px solid #c9d6f2;position:relative}
+.sv .arm{position:absolute;left:50%;top:50%;width:4px;height:19px;margin-left:-2px;margin-top:-19px;background:#2bb3a3;border-radius:3px;transform-origin:50% 100%;transform:rotate(0)}
+.sv b{font-family:var(--font-d);font-weight:500}
+.sv.on{border-color:#2bb3a3;background:#effaf8}
+.sv.on .arm{animation:swing 1.6s ease-in-out}
+@keyframes swing{0%{transform:rotate(0)}20%{transform:rotate(-45deg)}60%{transform:rotate(45deg)}85%,100%{transform:rotate(0)}}
+
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="homebtn" href="index.html" title="Back to the Chip Camp welcome screen" aria-label="Home">🏠</a>
+  <div class="brand"><span class="logo" aria-hidden="true"><i style="background:#2BB3A3"></i><i style="background:#FFBF00"></i><i style="background:#9966FF"></i><i style="background:#4C97FF"></i></span>Chip Bot's Brain</div>
+  <div class="spacer"></div>
+</header>
+
+<main class="brain cb">
+  <section class="card bsteps" aria-label="Steps">
+    <div class="idea">
+      <h2>💡 The big idea: two ways to send the same message</h2>
+      <div class="flow2">
+        <div class="lane"><b>You</b><span class="pill">⌨️ type <code>1</code> in the Serial Monitor</span><span class="arr">➜</span><span class="pill">📟 message <code>1</code></span><span class="arr">➜</span><span class="pill">⚙️ servo 1 moves</span></div>
+        <div class="lane ai"><b>The AI</b><span class="pill">📷 camera sees a blue card</span><span class="arr">➜</span><span class="pill">🧠 model says "blue"</span><span class="arr">➜</span><span class="pill">📟 message <code>1</code></span><span class="arr">➜</span><span class="pill">⚙️ servo 1 moves</span></div>
+      </div>
+      <p class="small">Chip Bot does not know or care who sent the <code>1</code>. A person or an AI, it moves servo 1 either way. <b>Teachable Machine</b> is the part that learns to turn what the camera sees into a message. Everything after that is the code you already wrote.</p>
+    </div>
+    <ol>
+      <li class="bstep">
+        <h2><span class="n">1</span>Connect Chip Bot</h2>
+        <p>Upload the Chip Bot sketch from the Upload desk first. <b>Close the Serial Monitor in the Arduino IDE</b>, because only one program can use the USB cable at a time. You can try everything without Chip Bot, since the one on the right moves too.</p>
+        <button class="btn" id="connect">🔌 Connect Chip Bot</button>
+        <button class="btn small" id="testSend" hidden>Send 1 (test)</button>
+        <div class="status" id="serialStatus" role="status"></div>
+      </li>
+      <li class="bstep">
+        <h2><span class="n">2</span>Choose how it sees</h2>
+        <div class="modes" role="tablist">
+          <button class="mode on" id="modeColour" role="tab" aria-selected="true"><b>🎨 Colour cards</b><small>Works right now. Hold up a red, yellow, green or blue card.</small></button>
+          <button class="mode" id="modeTM" role="tab" aria-selected="false"><b>🧠 My own AI model</b><small>Teach Teachable Machine anything you like.</small></button>
+        </div>
+        <div id="paneColour">
+          <p>Hold a coloured card, or a coloured page, in the middle of the camera picture. Chip Bot's brain looks at the middle and decides which colour it is. Nothing to train.</p>
+        </div>
+        <div id="paneTM" hidden>
+          <p>Open Teachable Machine, choose <b>Image Project</b>, then <b>Standard image model</b>. Make 2 to 4 classes, for example <i>Thumbs up</i>, <i>Peace sign</i> and <i>Nobody</i>. Record about 40 pictures of each, then press <b>Train Model</b>.</p>
+          <a class="btn" href="https://teachablemachine.withgoogle.com/train/image" target="_blank" rel="noopener">Open Teachable Machine ↗</a>
+          <p>Then <b>Export Model</b>, <b>Upload my model</b>, and paste the link:</p>
+          <div class="row"><input id="link" type="url" placeholder="https://teachablemachine.withgoogle.com/models/..." spellcheck="false" autocomplete="off"><button class="btn go" id="loadLink">Load</button></div>
+          <details class="alt"><summary>No link? Use the downloaded files</summary>
+            <p>Export Model, then <b>Download</b>, unzip it, and choose all three files: <code>model.json</code>, <code>metadata.json</code> and <code>weights.bin</code>.</p>
+            <input id="files" type="file" multiple accept=".json,.bin">
+          </details>
+          <div class="status" id="modelStatus" role="status"></div>
+        </div>
+      </li>
+      <li class="bstep">
+        <h2><span class="n">3</span>What should each one do?</h2>
+        <div id="mapping" class="mapping"></div>
+        <label class="slider"><span>How sure must it be?</span><input id="sure" type="range" min="60" max="99" step="1" value="85"><output id="sureOut">85%</output></label>
+        <button class="btn go big" id="start">▶ Start Chip Bot's brain</button>
+        <div class="status" id="runStatus" role="status"></div>
+      </li>
+    </ol>
+  </section>
+
+  <aside class="card stagecard" aria-label="Chip Bot">
+    <div class="stagehead"><h2>🤖 Chip Bot</h2></div>
+    <div class="msgbox"><small>Message sent to Chip Bot</small><b id="sent">·</b></div>
+    <div class="servos" id="servos"></div>
+    <div class="camwrap"><div id="cam" class="cam"><span class="camhint">Your camera shows here</span></div><div id="bars" class="bars"></div></div>
+    <div class="serial" id="serial"><b>What Chip Bot says</b></div>
+  </aside>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* Chip Camp: what each student has chosen and finished, shared by every page (kept in this browser only). */
+(function (root) {
+  'use strict';
+  const KEY = 'chipcamp.v1';
+  const ROBOTS = ['chipbot', 'peeko', 'jarvis'];
+  function read() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
+  function write(d) { try { localStorage.setItem(KEY, JSON.stringify(d)); } catch (e) { /* private window: just don't remember */ } }
+  function clean(s) { return String(s == null ? '' : s).replace(/[^A-Za-z0-9 .,!?'_-]/g, '').replace(/\s+/g, ' ').trim().slice(0, 16); }
+
+  root.ChipCamp = {
+    ROBOTS,
+    get() {
+      const d = read();
+      return { name: clean(d.name), robot: ROBOTS.indexOf(d.robot) >= 0 ? d.robot : null, levels: d.levels || {}, circuits: d.circuits || {}, code: d.code || {}, tests: d.tests || {}, copied: d.copied || {} };
+    },
+    design(robot) { const d = read(); return (d.designs && d.designs[robot]) || null; },
+    setDesign(robot, design) { if (ROBOTS.indexOf(robot) < 0) return; const d = read(); d.designs = d.designs || {}; d.designs[robot] = design; write(d); },
+    testDone(robot, on) { const d = read(); d.tests = d.tests || {}; d.tests[robot] = on !== false; write(d); },
+    codeCopied(robot) { const d = read(); d.copied = d.copied || {}; d.copied[robot] = true; write(d); },
+    proUnlocked() { try { return !!localStorage.getItem('chipcamp.prokey'); } catch (e) { return false; } },
+    day2() { return !!read().day2; },
+    setDay2(on) { const d = read(); d.day2 = !!on; write(d); },
+    robotOrDefault() { return this.get().robot || 'chipbot'; },
+    setName(n) { const d = read(); d.name = clean(n); write(d); },
+    setRobot(r) { if (ROBOTS.indexOf(r) < 0) return; const d = read(); d.robot = r; write(d); },
+    levelDone(level, stars) { const d = read(); d.levels = d.levels || {}; d.levels[level] = Math.max(d.levels[level] || 0, stars || 1); write(d); },
+    circuitDone(robot) { const d = read(); d.circuits = d.circuits || {}; d.circuits[robot] = true; write(d); },
+    codeBlocks(robot, n) { const d = read(); d.code = d.code || {}; d.code[robot] = n; write(d); },
+    levelsCompleted() { const l = this.get().levels; return Object.keys(l).filter((k) => l[k] > 0).length; }
+  };
+
+  // the home button on every page goes back to the student's robot page
+  if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', function () {
+      var r = root.ChipCamp.get().robot, b = document.querySelector('.homebtn');
+      if (b && r) b.setAttribute('href', 'index.html#' + r);
+    });
+  }
+})(typeof self !== 'undefined' ? self : this);
+
+</script>
+<script>
+/* Peeko's Brain: turns what the Teachable Machine model sees into a Peeko command. */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.CampBrain = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+  // the words Peeko's sketch already understands over USB
+  const REACTIONS = [
+    ['happy', '😊 happy'], ['sad', '😢 sad'], ['surprised', '😲 surprised'], ['angry', '😠 angry'], ['sleepy', '😴 sleepy'],
+    ['celebrate', '🎉 celebrate'], ['neutral', '😐 neutral'], ['left', '⬅️ look left'], ['right', '➡️ look right'], ['nothing', '🚫 do nothing']
+  ];
+  // Chip Bot answers to the numbers 1 to 4 (the same ones you can type in the Serial Monitor)
+  const CHIPBOT_REACTIONS = [
+    ['1', '⚙️ move servo 1 (left hip)'], ['2', '⚙️ move servo 2 (right hip)'], ['3', '⚙️ move servo 3 (left foot)'], ['4', '⚙️ move servo 4 (right foot)'], ['nothing', '🚫 do nothing']
+  ];
+  const SETS = { peeko: REACTIONS, chipbot: CHIPBOT_REACTIONS };
+  const idsOf = (robot) => (SETS[robot] || REACTIONS).map((r) => r[0]);
+  const IDS = idsOf('peeko');
+  const MODEL_URL = /^https:\/\/teachablemachine\.withgoogle\.com\/models\/([A-Za-z0-9_-]+)\/?$/;
+
+  function modelBase(link) {
+    const m = String(link || '').trim().match(MODEL_URL);
+    return m ? 'https://teachablemachine.withgoogle.com/models/' + m[1] + '/' : null;
+  }
+  function cleanMapping(labels, mapping, robot) {
+    const out = {}, ids = idsOf(robot);
+    labels.forEach((l) => { out[l] = mapping && ids.indexOf(mapping[l]) >= 0 ? mapping[l] : 'nothing'; });
+    return out;
+  }
+
+  // A colour card held up to the camera: red, yellow, green or blue (or null when it is not a clear colour).
+  function classifyColour(r, g, b) {
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+    const v = mx / 255, s = mx === 0 ? 0 : d / mx;
+    if (v < 0.22 || s < 0.38) return null;
+    let h = 0;
+    if (mx === r) h = ((g - b) / d) % 6; else if (mx === g) h = (b - r) / d + 2; else h = (r - g) / d + 4;
+    h = (h * 60 + 360) % 360;
+    if (h < 15 || h >= 335) return 'red';
+    if (h >= 40 && h < 72) return 'yellow';
+    if (h >= 85 && h < 165) return 'green';
+    if (h >= 190 && h < 265) return 'blue';
+    return null;
+  }
+  const COLOURS = ['red', 'yellow', 'green', 'blue'];
+  // the average colour of the pixels in the middle of the picture that are clearly coloured
+  function dominantColour(rgba, w, h) {
+    const x0 = Math.floor(w * 0.3), x1 = Math.floor(w * 0.7), y0 = Math.floor(h * 0.3), y1 = Math.floor(h * 0.7), votes = { red: 0, yellow: 0, green: 0, blue: 0 };
+    let n = 0;
+    for (let y = y0; y < y1; y += 2) for (let x = x0; x < x1; x += 2) {
+      const i = (y * w + x) * 4, c = classifyColour(rgba[i], rgba[i + 1], rgba[i + 2]); n++;
+      if (c) votes[c]++;
+    }
+    let best = null, bv = 0; COLOURS.forEach((c) => { if (votes[c] > bv) { bv = votes[c]; best = c; } });
+    return { colour: bv / Math.max(1, n) >= 0.3 ? best : null, share: bv / Math.max(1, n) };
+  }
+  function newState() { return { candidate: null, count: 0, current: null, lastTime: -1e9, lastSent: -1e9 }; }
+
+  // preds: [{className, probability}]. Returns a command to send, or null.
+  // A class has to win a few frames in a row, so one blurry frame doesn't trigger Peeko.
+  function decide(preds, mapping, opts, st, now) {
+    const o = Object.assign({ threshold: 0.85, frames: 3, repeatMs: 6000, gapMs: 1800, robot: 'peeko' }, opts), ids = idsOf(o.robot);
+    let top = null;
+    (preds || []).forEach((p) => { if (!top || p.probability > top.probability) top = p; });
+    if (!top || top.probability < o.threshold) { st.candidate = null; st.count = 0; st.current = null; return null; }
+    if (top.className === st.candidate) st.count++; else { st.candidate = top.className; st.count = 1; }
+    if (st.count < o.frames) return null;
+    const changed = st.current !== top.className, due = now - st.lastTime >= o.repeatMs;
+    if (!changed && !due) return null;
+    if (now - st.lastSent < o.gapMs) return null;
+    st.current = top.className; st.lastTime = now;
+    const react = mapping && mapping[top.className];
+    if (!react || react === 'nothing' || ids.indexOf(react) < 0) return null;
+    st.lastSent = now;
+    return react;
+  }
+
+  return { REACTIONS, CHIPBOT_REACTIONS, COLOURS, modelBase, cleanMapping, newState, decide, classifyColour, dominantColour };
+});
+
+</script>
+<script>
+/* Chip Bot's Brain: the camera (colour cards, or a Teachable Machine model) decides, and the SAME numbers you can type in the
+   Serial Monitor (1 to 4) are sent to Chip Bot over USB. */
+(function () {
+  'use strict';
+  const Brain = CampBrain;
+  const $ = (s) => document.querySelector(s);
+  const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+  const TF = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js';
+  const TM = 'https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js';
+  const OPTS = { robot: 'chipbot' };
+  const SERVO_NAMES = ['left hip', 'right hip', 'left foot', 'right foot'];
+  const COLOUR_CSS = { red: '#e03b3b', yellow: '#f2c200', green: '#2fb04a', blue: '#2f6fe0' };
+  const DEFAULT_COLOUR_MAP = { blue: '1', green: '2', yellow: '3', red: '4' };
+
+  const S = {
+    mode: 'colour', model: null, webcam: null, labels: [], mapping: {}, writer: null, port: null, running: false, st: Brain.newState(),
+    video: null, stream: null, canvas: null
+  };
+  let toastT = 0;
+  function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2400); }
+  function say(id, msg, kind) { const n = $(id); if (n) { n.textContent = msg; n.className = 'status' + (kind ? ' ' + kind : ''); } }
+  function log(t) { const s = $('#serial'), d = el('div'); d.textContent = t; s.appendChild(d); while (s.children.length > 30) s.children[1].remove(); s.scrollTop = s.scrollHeight; }
+
+  /* ---------- the four servos on screen ---------- */
+  const servoBox = $('#servos');
+  SERVO_NAMES.forEach((n, i) => servoBox.appendChild(el('div', 'sv', '<small>servo ' + (i + 1) + '</small><div class="dial"><div class="arm"></div></div><b>' + (i + 1) + '</b><small>' + n + '</small>')));
+  function moveOnScreen(cmd) {
+    const i = Number(cmd) - 1, box = servoBox.children[i]; if (!box) return;
+    box.classList.remove('on'); void box.offsetWidth; box.classList.add('on');
+    clearTimeout(box._t); box._t = setTimeout(() => box.classList.remove('on'), 1800);
+  }
+
+  /* ---------- Chip Bot over USB ---------- */
+  async function readLoop(port) {
+    try {
+      const dec = new TextDecoderStream(); port.readable.pipeTo(dec.writable).catch(() => {});
+      const rd = dec.readable.getReader(); let buf = '';
+      for (;;) {
+        const { value, done } = await rd.read(); if (done) break;
+        buf += value; let k;
+        while ((k = buf.indexOf('\n')) >= 0) { const line = buf.slice(0, k).trim(); buf = buf.slice(k + 1); if (line) log(line); }
+      }
+    } catch (e) { /* the cable was unplugged: fine */ }
+  }
+  $('#connect').onclick = async () => {
+    if (!('serial' in navigator)) { say('#serialStatus', 'This browser cannot talk to Chip Bot. Use Chrome or Edge.', 'bad'); return; }
+    try {
+      S.port = await navigator.serial.requestPort();
+      await S.port.open({ baudRate: 9600 });
+      S.writer = S.port.writable.getWriter();
+      say('#serialStatus', 'Connected. Give Chip Bot two seconds to wake up.', 'good'); $('#testSend').hidden = false;
+      readLoop(S.port);
+    } catch (e) { say('#serialStatus', 'Could not connect: ' + (e && e.name === 'NotFoundError' ? 'no port was chosen.' : 'is the Serial Monitor in the Arduino IDE still open? Close it and try again.'), 'bad'); }
+  };
+  async function send(cmd) {
+    if (!S.writer) return;
+    try { await S.writer.write(new TextEncoder().encode(cmd + '\n')); } catch (e) { say('#serialStatus', 'Lost the connection to Chip Bot.', 'bad'); S.writer = null; }
+  }
+  function fire(cmd, why) {
+    const box = $('.msgbox'); $('#sent').textContent = cmd; box.classList.remove('pop'); void box.offsetWidth; box.classList.add('pop');
+    log('→ sent "' + cmd + '"' + (why ? ' (' + why + ')' : '')); moveOnScreen(cmd); send(cmd);
+  }
+  $('#testSend').onclick = () => fire('1', 'test');
+
+  /* ---------- the two ways of seeing ---------- */
+  function setMode(m) {
+    stop(); S.mode = m;
+    $('#modeColour').classList.toggle('on', m === 'colour'); $('#modeTM').classList.toggle('on', m === 'tm');
+    $('#modeColour').setAttribute('aria-selected', m === 'colour'); $('#modeTM').setAttribute('aria-selected', m === 'tm');
+    $('#paneColour').hidden = m !== 'colour'; $('#paneTM').hidden = m !== 'tm';
+    if (m === 'colour') { S.labels = Brain.COLOURS.slice(); S.mapping = Object.assign({}, DEFAULT_COLOUR_MAP); S.labels.forEach((l) => { if (!S.mapping[l]) S.mapping[l] = 'nothing'; }); renderMapping(); $('#start').disabled = false; }
+    else { S.labels = S.model ? S.model.getClassLabels() : []; S.mapping = Brain.cleanMapping(S.labels, S.mapping, 'chipbot'); renderMapping(); $('#start').disabled = !S.model; }
+  }
+  $('#modeColour').onclick = () => setMode('colour'); $('#modeTM').onclick = () => setMode('tm');
+
+  function loadScript(src) { return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('Could not load ' + src)); document.head.appendChild(s); }); }
+  async function ensureLibs() { if (window.tmImage) return; say('#modelStatus', 'Getting the AI tools ready (needs the internet)...'); await loadScript(TF); await loadScript(TM); }
+  function gotModel(model) {
+    S.model = model; S.labels = model.getClassLabels(); S.mapping = Brain.cleanMapping(S.labels, {}, 'chipbot'); S.st = Brain.newState();
+    renderMapping(); say('#modelStatus', 'Loaded: ' + S.labels.length + ' classes (' + S.labels.join(', ') + ')', 'good'); $('#start').disabled = false;
+  }
+  $('#loadLink').onclick = async () => {
+    const base = Brain.modelBase($('#link').value);
+    if (!base) { say('#modelStatus', 'That is not a Teachable Machine link. It starts with https://teachablemachine.withgoogle.com/models/', 'bad'); return; }
+    try { await ensureLibs(); say('#modelStatus', 'Loading your model...'); gotModel(await tmImage.load(base + 'model.json', base + 'metadata.json')); }
+    catch (e) { console.error(e); say('#modelStatus', 'Could not load that model. Check the link and the internet, then try again.', 'bad'); }
+  };
+  $('#files').onchange = async (e) => {
+    const f = Array.from(e.target.files), by = (re) => f.find((x) => re.test(x.name));
+    const m = by(/^model.*\.json$/i), md = by(/^metadata.*\.json$/i), w = by(/\.bin$/i);
+    if (!m || !md || !w) { say('#modelStatus', 'Choose all three files: model.json, metadata.json and weights.bin', 'bad'); return; }
+    try { await ensureLibs(); gotModel(await tmImage.loadFromFiles(m, w, md)); } catch (err) { console.error(err); say('#modelStatus', 'Could not read those files.', 'bad'); }
+  };
+
+  /* ---------- what each one does ---------- */
+  function renderMapping() {
+    const box = $('#mapping'); box.innerHTML = '';
+    if (!S.labels.length) { box.appendChild(el('p', 'empty', 'Load your model first.')); return; }
+    S.labels.forEach((l) => {
+      const row = el('div', 'maprow'), name = el('b');
+      if (S.mode === 'colour') { name.innerHTML = '<span class="swatch" style="background:' + COLOUR_CSS[l] + '"></span>' + l + ' card'; } else name.textContent = l;
+      const sel = el('select'); Brain.CHIPBOT_REACTIONS.forEach((r) => { const o = el('option'); o.value = r[0]; o.textContent = r[1]; sel.appendChild(o); });
+      sel.value = S.mapping[l] || 'nothing'; sel.setAttribute('aria-label', 'What Chip Bot does for ' + l);
+      sel.onchange = () => { S.mapping[l] = sel.value; };
+      const bar = el('div', 'bar', '<i></i>'); bar.dataset.label = l;
+      row.appendChild(name); row.appendChild(sel); row.appendChild(bar); box.appendChild(row);
+    });
+  }
+  function renderBars(preds) {
+    preds.forEach((p) => { const b = document.querySelector('.bar[data-label="' + CSS.escape(p.className) + '"] i'); if (b) b.style.width = Math.round(p.probability * 100) + '%'; });
+    const box = $('#bars'); box.innerHTML = '';
+    preds.forEach((p) => { const d = el('div'); d.innerHTML = '<span></span><i></i><span class="p"></span>'; d.children[0].textContent = p.className; d.children[1].style.width = Math.round(p.probability * 100) + '%'; d.children[2].textContent = Math.round(p.probability * 100) + '%'; box.appendChild(d); });
+  }
+  $('#sure').oninput = () => { $('#sureOut').textContent = $('#sure').value + '%'; };
+
+  /* ---------- the loop ---------- */
+  function step(preds) {
+    renderBars(preds);
+    const cmd = Brain.decide(preds, S.mapping, Object.assign({ threshold: Number($('#sure').value) / 100 }, OPTS), S.st, performance.now());
+    if (cmd) { say('#runStatus', 'Sent ' + cmd + ': servo ' + cmd + ' moves.', 'good'); fire(cmd, S.mode === 'colour' ? 'colour card' : 'AI model'); }
+  }
+  async function frame() {
+    if (!S.running) return;
+    try {
+      if (S.mode === 'tm') { S.webcam.update(); step(await S.model.predict(S.webcam.canvas)); }
+      else {
+        const v = S.video, c = S.canvas, w = 160, h = 120; c.width = w; c.height = h;
+        const ctx = c.getContext('2d', { willReadFrequently: true }); ctx.drawImage(v, 0, 0, w, h);
+        const d = Brain.dominantColour(ctx.getImageData(0, 0, w, h).data, w, h);
+        ctx.strokeStyle = d.colour ? COLOUR_CSS[d.colour] : '#fff'; ctx.lineWidth = 3; ctx.strokeRect(w * 0.3, h * 0.3, w * 0.4, h * 0.4);
+        step(Brain.COLOURS.map((n) => ({ className: n, probability: d.colour === n ? 1 : 0 })));
+        $('#runStatus').className = 'status'; if (!d.colour) say('#runStatus', 'Watching... hold a colour card in the middle box.');
+      }
+    } catch (e) { console.error(e); }
+    requestAnimationFrame(frame);
+  }
+  function stop() {
+    if (!S.running) return;
+    S.running = false; if (S.webcam) { try { S.webcam.stop(); } catch (e) { /* fine */ } }
+    if (S.stream) S.stream.getTracks().forEach((t) => t.stop());
+    $('#cam').innerHTML = '<span class="camhint">Your camera shows here</span>'; $('#start').textContent = "▶ Start Chip Bot's brain"; say('#runStatus', 'Stopped.');
+  }
+  $('#start').onclick = async () => {
+    if (S.running) { stop(); return; }
+    try {
+      say('#runStatus', 'Starting the camera...');
+      if (S.mode === 'tm') {
+        S.webcam = new tmImage.Webcam(224, 224, true); await S.webcam.setup(); await S.webcam.play();
+        $('#cam').innerHTML = ''; $('#cam').appendChild(S.webcam.canvas);
+      } else {
+        S.stream = await navigator.mediaDevices.getUserMedia({ video: { width: 320, height: 240 } });
+        S.video = document.createElement('video'); S.video.srcObject = S.stream; S.video.muted = true; S.video.playsInline = true; await S.video.play();
+        S.canvas = document.createElement('canvas'); $('#cam').innerHTML = ''; $('#cam').appendChild(S.canvas);
+      }
+      S.st = Brain.newState(); S.running = true; $('#start').textContent = '■ Stop'; say('#runStatus', 'Watching...', 'good'); requestAnimationFrame(frame);
+    } catch (e) { console.error(e); say('#runStatus', 'Could not start the camera. Allow camera access and try again.', 'bad'); }
+  };
+
+  setMode('colour');
+  window.__chipbrain = { S, step, fire, setMode };
+})();
+
+</script>
+</body>
+</html>

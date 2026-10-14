@@ -7,6 +7,10 @@
     D8 ultrasonic TRIG   D9 ultrasonic ECHO   D13 buzzer
   Power: everything runs from the laptop USB cable. There is no battery pack.
 
+  Type 1, 2, 3 or 4 in the Serial Monitor (9600 baud) and that servo moves: 1 left hip, 2 right hip,
+  3 left foot, 4 right foot. The Chip Bot Brain page sends the very same numbers from the camera.
+  Only one servo moves at a time, so USB power is enough.
+
   The walking, turning and dancing code below is the tested Otto code from
   Chip Bot Studio. Only the STUDENT PART sections are different for each student.
 */
@@ -32,16 +36,22 @@ bool abortFlag = false;
 //@@KEEP-
 
 // ---------------------------------------------------------------- serial helpers
+uint8_t servoRequests = 0;                    // bit 0..3 = "move servo 1..4 when you get a chance"
+
 void pollSerial() {
   while (Serial.available()) {
-    if (Serial.read() == '!') abortFlag = true;
+    char c = Serial.read();
+    if (c == '!') abortFlag = true;
+    else if (c >= '1' && c <= '4') servoRequests |= (uint8_t)(1 << (c - '1'));
   }
 }
 bool aborted() { pollSerial(); return abortFlag; }
 
+void serviceServoRequests();                  // defined below, once the servo helpers exist
+
 void waitMs(uint16_t ms) {
   unsigned long end = millis() + ms;
-  while (millis() < end) { if (aborted()) return; delay(5); }
+  while (millis() < end) { if (aborted()) return; if (servoRequests) serviceServoRequests(); delay(5); }
 }
 
 // ---------------------------------------------------------------- servos
@@ -87,6 +97,22 @@ void execute(const int A[4], const int O[4], const int phDeg[4], uint8_t steps) 
     for (uint8_t i = 0; i < 4; i++)
       writeServo(i, 90 + O[i] + A[i] * sin(2.0 * PI * t / T_STEP + phDeg[i] * PI / 180.0));
     delay(15);
+  }
+}
+
+// One servo, on its own: out, the other way, back to the middle. The rest stay switched off, so USB power is enough.
+void servoShow(uint8_t i) {
+  Serial.print(F("Servo ")); Serial.print(i + 1); Serial.println(F(" moves"));
+  servo[i].attach(PIN_SERVO[i]);
+  writeServo(i, 90);  delay(350);
+  writeServo(i, 60);  delay(450);
+  writeServo(i, 120); delay(450);
+  writeServo(i, 90);  delay(350);
+  if (!attached) servo[i].detach();
+}
+void serviceServoRequests() {
+  for (uint8_t i = 0; i < 4; i++) {
+    if (servoRequests & (1 << i)) { servoRequests &= (uint8_t)~(1 << i); servoShow(i); }
   }
 }
 
@@ -210,10 +236,12 @@ void setup() {
   pinMode(PIN_BUZZER, OUTPUT);
   Serial.begin(9600);
   loadTrims();
-  doRest();
+  Serial.println(F("Type 1, 2, 3 or 4 to move a servo (1 left hip, 2 right hip, 3 left foot, 4 right foot)."));
   studentWake();
 }
 
 void loop() {
   studentForever();
+  pollSerial();
+  serviceServoRequests();
 }

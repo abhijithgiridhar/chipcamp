@@ -49,17 +49,20 @@ int readAverage(int pin) {
 }
 
 // 0 = bone dry, 100 = soaking wet
-int soilPercent() {
-  long pct = map(readAverage(PIN_SOIL), SOIL_DRY, SOIL_WET, 0, 100);
+int soilFromRaw(int raw) {
+  if (SOIL_DRY == SOIL_WET) return 0;           // a bench setting mistake must not divide by zero
+  long pct = map(raw, SOIL_DRY, SOIL_WET, 0, 100);
   return (int)constrain(pct, 0, 100);
 }
+int soilPercent() { return soilFromRaw(readAverage(PIN_SOIL)); }
 
 // 0 = dark, 100 = very bright
-int lightPercent() {
-  long pct = map(readAverage(PIN_LIGHT), 0, 1023, 0, 100);
+int lightFromRaw(int raw) {
+  long pct = map(raw, 0, 1023, 0, 100);
   if (!LIGHT_BRIGHT_IS_HIGH) pct = 100 - pct;
   return (int)constrain(pct, 0, 100);
 }
+int lightPercent() { return lightFromRaw(readAverage(PIN_LIGHT)); }
 
 // r, g, b are 1 (on) or 0 (off)
 void setColor(int r, int g, int b) {
@@ -85,21 +88,22 @@ void drawReading(int y, const char* label, int pct, int raw) {
   display.fillRect(0, y + 27, (int)(1.28 * pct), 4, SH110X_WHITE);
 }
 
+unsigned long lastScreen = 0;
 void updateScreen() {
   if (!screenOk) return;
+  lastScreen = millis();
   int soilRaw = readAverage(PIN_SOIL), lightRaw = readAverage(PIN_LIGHT);
   display.clearDisplay();
-  drawReading(0, "SOIL", soilPercent(), soilRaw);
-  drawReading(33, "LIGHT", lightPercent(), lightRaw);
+  drawReading(0, "SOIL", soilFromRaw(soilRaw), soilRaw);       // the number and the percentage come from the same reading
+  drawReading(33, "LIGHT", lightFromRaw(lightRaw), lightRaw);
   display.display();
 }
 
-// Waits, but keeps the screen fresh while it waits.
+// Waits, but keeps the screen fresh (twice a second) while it waits. Short waits are not slowed down.
 void waitSecs(float secs) {
   unsigned long end = millis() + (unsigned long)(secs * 1000.0);
-  unsigned long nextScreen = 0;
   while ((long)(end - millis()) > 0) {
-    if (millis() >= nextScreen) { updateScreen(); nextScreen = millis() + 500; }
+    if (millis() - lastScreen >= 500UL) updateScreen();
     delay(20);
   }
 }
@@ -112,14 +116,15 @@ void playNote(unsigned int hz, float secs) {
 }
 
 void printSensors() {
+  int soilRaw = readAverage(PIN_SOIL), lightRaw = readAverage(PIN_LIGHT);
   Serial.print(F("Soil: "));
-  Serial.print(soilPercent());
+  Serial.print(soilFromRaw(soilRaw));
   Serial.print(F("% (raw "));
-  Serial.print(readAverage(PIN_SOIL));
+  Serial.print(soilRaw);
   Serial.print(F(")   Light: "));
-  Serial.print(lightPercent());
+  Serial.print(lightFromRaw(lightRaw));
   Serial.print(F("% (raw "));
-  Serial.print(readAverage(PIN_LIGHT));
+  Serial.print(lightRaw);
   Serial.println(F(")"));
 }
 
@@ -142,6 +147,7 @@ void studentForever() {
 void setup() {
   Serial.begin(9600);
   screenOk = display.begin(0x3C, true);
+  if (screenOk) Wire.setClock(400000);          // faster screen updates
   if (!screenOk) Serial.println(F("No screen found. Check the 4 OLED wires (SDA to A4, SCL to A5). The robot still works."));
   display.setTextColor(SH110X_WHITE);
   pinMode(PIN_LED_R, OUTPUT);
@@ -154,5 +160,5 @@ void setup() {
 
 void loop() {
   studentForever();
-  updateScreen();
+  if (millis() - lastScreen >= 500UL) updateScreen();
 }

@@ -54,5 +54,21 @@ ok(B.decide(null, map, {}, B.newState(), 0) === null && B.decide([], null, null,
 const fs = require('fs');
 const ino = fs.readFileSync(__dirname + '/../firmware/peeko.base.ino', 'utf8');
 B.REACTIONS.filter((r) => r[0] !== 'nothing').forEach((r) => ok(ino.includes('cmd == "' + r[0] + '"'), 'Peeko sketch does not understand ' + r[0]));
+// Chip Bot: servo numbers 1 to 4 only, and the colour cards
+(function () {
+  const cmap = B.cleanMapping(['Red card', 'Blue card'], { 'Red card': '2', 'Blue card': '9' }, 'chipbot');
+  ok(cmap['Red card'] === '2' && cmap['Blue card'] === 'nothing', 'chipbot mapping keeps 1 to 4 only');
+  ok(B.cleanMapping(['A'], { A: '1' }, 'peeko').A === 'nothing', 'servo numbers are not Peeko reactions');
+  const st2 = B.newState(); let tt = 0; const pp = [{ className: 'blue', probability: 1 }, { className: 'red', probability: 0 }];
+  const m2 = { blue: '1', red: 'nothing' };
+  B.decide(pp, m2, { robot: 'chipbot' }, st2, tt += 100); B.decide(pp, m2, { robot: 'chipbot' }, st2, tt += 100);
+  ok(B.decide(pp, m2, { robot: 'chipbot' }, st2, tt += 100) === '1', 'blue card sends 1 after three frames');
+  [[220, 40, 40, 'red'], [235, 200, 30, 'yellow'], [40, 170, 70, 'green'], [30, 90, 220, 'blue'], [128, 128, 128, null], [10, 10, 10, null], [240, 240, 240, null], [210, 120, 90, null]].forEach(([r, g, b, want]) => ok(B.classifyColour(r, g, b) === want, 'colour ' + [r, g, b] + ' is ' + want + ', got ' + B.classifyColour(r, g, b)));
+  const w = 40, h = 40, img = new Uint8ClampedArray(w * h * 4); for (let i = 0; i < w * h; i++) { img[i * 4] = 30; img[i * 4 + 1] = 90; img[i * 4 + 2] = 220; img[i * 4 + 3] = 255; }
+  ok(B.dominantColour(img, w, h).colour === 'blue', 'a blue picture is blue');
+  for (let i = 0; i < w * h; i++) { img[i * 4] = 120; img[i * 4 + 1] = 120; img[i * 4 + 2] = 120; }
+  ok(B.dominantColour(img, w, h).colour === null, 'a grey picture is no colour');
+})();
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

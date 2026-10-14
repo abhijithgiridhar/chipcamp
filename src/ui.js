@@ -298,7 +298,7 @@
       };
     };
     if (S.proj === 'chipbot') {
-      const m = el('button', 'schip', '<span class="e">🎯</span><span><b>The mission</b><small>The program we want Chip Bot to run</small></span>');
+      const m = el('button', 'schip', '<span class="e">🎯</span><span><b>The mission</b><small>Beep every second when something is close</small></span>');
       arm(m, 'Click again to replace my blocks', () => { const st = state(), ms = Core.missionState(st); st.wake = ms.wake; st.forever = ms.forever; renderScript(); changed(); toast('The mission program is in the blocks. Change the numbers to make it yours!'); });
       box.appendChild(m);
     }
@@ -491,10 +491,10 @@
     const st = state(), steps = P().story.filter((x) => x.id !== 'name'), done = steps.map((x) => !!x.done(st)), all = done.every(Boolean);
     card.hidden = false; up.hidden = false;
     card.className = 'card missioncard' + (all ? ' ok' : '');
-    card.innerHTML = '<h3>🎯 The mission</h3><p class="small">Chip Bot must walk, spot obstacles, stop, make one long sound, and wait before looking again. Tick every box and your program <b>is</b> the mission.</p><ul class="mlist">' +
+    card.innerHTML = '<h3>🎯 The mission</h3><p class="small">Chip Bot beeps <b>once every second</b> when something is closer than <b>10 cm</b>. Tick every box and your program <b>is</b> the mission. The four servos have nothing to do with the blocks: type <b>1, 2, 3 or 4</b> in the Serial Monitor and that servo moves.</p><ul class="mlist">' +
       steps.map((x, i) => '<li class="' + (done[i] ? 'on' : '') + '"><i>' + (done[i] ? '✓' : '○') + '</i><span><b>' + esc(x.title) + '</b></span></li>').join('') + '</ul>' +
       (all ? '<p class="mok">🎉 Your program matches the mission. This is the code Chip Bot will run.</p>'
-           : '<p class="small">Not there yet? No problem. Whatever you build, the code below is always the mission program, with your names, tune, distance and sounds in it. Want to see it as blocks?</p><button class="btn go" id="snapBtn">🎯 Snap my blocks to the mission</button>');
+           : '<p class="small">Not there yet? No problem. Whatever you build, the code below is always the mission program, with your names, notes and distance in it. Want to see it as blocks?</p><button class="btn go" id="snapBtn">🎯 Snap my blocks to the mission</button>');
     const snap = $('#snapBtn');
     if (snap) snap.onclick = () => { const m = Core.missionState(st); st.wake = m.wake; st.forever = m.forever; persist(); renderScript(); changed(); renderCode(); toast('Your blocks now match the mission. Change the numbers to make it yours!'); };
     up.innerHTML = '<h3>📤 Upload desk</h3><ol><li><span>Wires checked, USB cable plugged in?</span></li><li><span>Mission ' + (all ? '<b>complete ✓</b>' : 'not complete yet (that is fine)') + '.</span></li><li><span>Press the button and show your ticket to the facilitator. They put the tested code on your robot.</span></li></ol><button class="btn go" id="ticketBtn">🎫 I\'m ready for upload</button><div id="ticket"></div>';

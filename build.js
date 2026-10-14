@@ -37,6 +37,7 @@ const pages = [
   { out: 'test.html', title: 'Test it · Chip Camp', fonts: 'tool', css: ['shared.css', 'test.css'], body: 'test.html', tests: true, js: ['progress.js', 'flow.js', 'test.js'] },
   { out: 'studio.html', title: 'Studio · Chip Camp', fonts: 'tool', css: ['shared.css', 'stage.css', 'studio.css'], body: 'studio.html', js: ['progress.js', 'flow.js', 'core.js', 'studiocore.js', 'runtime.js', 'stages.js', 'studio.js'] },
   { out: 'brain.html', title: "Peeko's Brain · Chip Camp", fonts: 'tool', css: ['shared.css', 'stage.css', 'brain.css'], body: 'brain.html', js: ['progress.js', 'stages.js', 'braincore.js', 'brain.js'] },
+  { out: 'chipbrain.html', title: "Chip Bot's Brain · Chip Camp", fonts: 'tool', css: ['shared.css', 'brain.css', 'chipbrain.css'], body: 'chipbrain.html', js: ['progress.js', 'braincore.js', 'chipbrain.js'] },
   { out: 'logic.html', title: 'The CHIP Challenge · Chip Camp', fonts: 'tool', css: ['shared.css', 'logic.css'], body: 'logic.html', js: ['progress.js', 'logiccore.js', 'logic.js'] },
   { out: 'echo.html', title: 'Echo Lab · Chip Camp', fonts: 'tool', css: ['shared.css', 'echo.css'], body: 'echo.html', js: ['progress.js', 'echocore.js', 'echo.js'] },
   { out: 'circuits.html', title: 'Circuit Lab · Chip Camp', fonts: 'tool', css: ['shared.css', 'lab.css'], body: 'lab.html', js: ['progress.js', 'flow.js', 'labcore.js', 'lab.js'] }

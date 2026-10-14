@@ -16,7 +16,7 @@ const noCompile = process.argv.includes('--no-compile') || !fs.existsSync(CLI);
   const pro = require(path.join(dir, 'chipbot.pro.js'));
   ok(typeof pro.desk === 'string' && /@@ID@@/.test(pro.desk), 'chipbot desk sketch with an @@ID@@ placeholder');
   const text = pro.desk.split('@@ID@@').join('CB-TEST');
-  ok(/void setup\(\)/.test(text) && /void loop\(\)/.test(text) && /otto/i.test(text), 'chipbot desk sketch has setup, loop and uses Otto');
+  ok(/void setup\(\)/.test(text) && /void loop\(\)/.test(text) && /Servo/.test(text) && !/Otto/.test(text), 'chipbot desk sketch has setup, loop and uses only the Servo library');
   ok(!/[^\x00-\x7F]/.test(text), 'chipbot desk sketch is plain ASCII');
   const out = path.join(__dirname, 'out', 'chipbot_desk', 'chipbot_desk'); fs.mkdirSync(out, { recursive: true }); fs.writeFileSync(path.join(out, 'chipbot_desk.ino'), text);
   if (noCompile) return;
@@ -24,7 +24,7 @@ const noCompile = process.argv.includes('--no-compile') || !fs.existsSync(CLI);
   LIBS.forEach((l) => args.push('--libraries', l)); args.push(out);
   const r = spawnSync(CLI, args, { encoding: 'utf8', maxBuffer: 1 << 26 });
   ok(r.status === 0, 'chipbot desk sketch does not compile\n' + ((r.stdout || '') + (r.stderr || '')).split('\n').filter((l) => /error/i.test(l)).slice(0, 6).join('\n'));
-  console.log('  chipbot desk sketch compiles with OttoDIYLib');
+  console.log('  chipbot desk sketch compiles');
 })();
 Object.keys(BOARDS).forEach((id) => {
   const pro = require(path.join(dir, id + '.pro.js'));

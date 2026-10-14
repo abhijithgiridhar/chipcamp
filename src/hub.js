@@ -41,7 +41,10 @@
     $('#sTest').textContent = 'Check every part of ' + label + ' after you wire it.';
     const SN = { chipbot: ['Dance Studio', 'Choose the moves for ' + label + '.'], peeko: ['Face Studio', 'Choose the faces for ' + label + '.'], jarvis: ['Light Studio', 'Choose the lights for ' + label + '.'] };
     $('#nStudio').textContent = SN[r][0]; $('#sStudio').textContent = SN[r][1];
-    $('#tBrain').hidden = r !== 'peeko';
+    $('#tBrain').hidden = r !== 'peeko' && r !== 'chipbot';
+    $('#tBrain').setAttribute('href', r === 'chipbot' ? 'chipbrain.html' : 'brain.html');
+    $('#tBrain').querySelector('.tt').innerHTML = r === 'chipbot' ? "<b>Chip Bot's Brain</b><small>Show a colour card and a servo moves. See how AI and your code connect.</small>" : "<b>Peeko's Brain</b><small>Teach Peeko to recognise you with Teachable Machine.</small>";
+    const pb = $('#pgBrain'); if (pb) pb.textContent = r === 'chipbot' ? 'New' : 'Day 2';
     const dz = ChipCamp.design(r); const ps = $('#pgStudio'); ps.textContent = dz ? 'Designed ✓' : 'Not yet'; ps.classList.toggle('done', !!dz);
 
     $('#sCode').textContent = 'Build ' + label + "'s logic with blocks, then copy the code.";

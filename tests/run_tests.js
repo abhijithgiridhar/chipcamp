@@ -74,10 +74,11 @@ const results = [];
 cases.forEach(([name, id, st, opts]) => {
   const g = Core.generate(id, st, opts);
   if (opts && opts.mission) {
-    ok(/if \(readDistance\(\) < \d+\) \{\s+doRest\(\);\s+beepNote\(\d+, [\d.]+\);[^\n]*\s+waitSecs\(\d+\.\d+\);\s+\} else \{\s+doWalk\(0, 1\);/.test(g.text), name + ': mission program shape missing');
-    ok((g.text.match(/beepNote\(\d+, /g) || []).length >= 4, name + ': mission needs a start-up tune');
-    const w = /waitSecs\((\d+\.\d+)\)/.exec(g.text.slice(g.text.indexOf('studentForever'))); ok(w && +w[1] >= 10 && +w[1] <= 30, name + ': wait out of range');
-    const cm = /readDistance\(\) < (\d+)\)/.exec(g.text); ok(cm && +cm[1] >= 8 && +cm[1] <= 40, name + ': stop distance out of range');
+    ok(/if \(readDistance\(\) < \d+\) \{\s+beepNote\(\d+, [\d.]+\);[^\n]*\s+waitSecs\([\d.]+\);\s+\}/.test(g.text), name + ': mission program shape missing');
+    ok(!/doWalk\(0, 1\)/.test(g.text.slice(g.text.indexOf('void studentForever'))), name + ': mission must not walk');
+    const w = /waitSecs\((\d+\.\d+)\)/.exec(g.text.slice(g.text.indexOf('void studentForever'))); ok(w && +w[1] >= 0.5 && +w[1] <= 2, name + ': wait out of range');
+    const cm = /readDistance\(\) < (\d+)\)/.exec(g.text.slice(g.text.indexOf('void studentForever'))); ok(cm && +cm[1] >= 3 && +cm[1] <= 15, name + ': stop distance out of range');
+    ok(/servoRequests/.test(g.text) && /servoShow/.test(g.text), name + ': serial servo control missing');
   }
   ok(!/@@/.test(g.text), name + ': leftover @@ marker');
   ok(!/[]/.test(g.text), name + ': leftover highlight marks');
@@ -142,7 +143,9 @@ const pendingHeadless = (async function headless() {
   const CB = fs.readFileSync('/Users/abhijithgiridhar/Desktop/Delhi Chipcamp/chipbot/firmware/chipbot/chipbot.ino', 'utf8').split('\n');
   const cgl = new Set(results.find((r) => r.name === 'chipbot_empty').text.split('\n').map((l) => l.trimEnd()));
   const must = CB.slice(65, 123).concat(CB.slice(124, 185), CB.slice(186, 196)).filter((l) => l.trim());
-  const lost = must.filter((l) => !cgl.has(l.trimEnd()));
+  // two lines changed on purpose: the serial reader also takes the servo numbers 1 to 4, and waiting also serves them
+  const CHANGED_ON_PURPOSE = ["    if (Serial.read() == '!') abortFlag = true;", '  while (millis() < end) { if (aborted()) return; delay(5); }'];
+  const lost = must.filter((l) => !cgl.has(l.trimEnd()) && CHANGED_ON_PURPOSE.indexOf(l.trimEnd()) < 0);
   ok(lost.length === 0, 'Chip Bot Otto code changed vs chipbot.ino: ' + JSON.stringify(lost.slice(0, 3)));
 })();
 

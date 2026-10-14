@@ -557,17 +557,16 @@ a.btn{text-decoration:none}
       ],
       story: [
         { id: 'name', title: 'Name it', say: 'Give your Chip Bot a name and put your own name on it. Watch both appear in the code.', done: (s) => !!s.robot.trim() },
-        { id: 'tune', title: 'Happy tune', say: 'What does Chip Bot do the moment it switches on? Under "when Chip Bot wakes up" put at least 3 "beep note" blocks. A short happy tune!', done: (s) => missionInfo(s).tune },
-        { id: 'walk', title: 'Walk', say: 'Under "forever", Chip Bot has to walk. Use the "walk forward" block. One step at a time is best, so it can look around between steps.', done: (s) => missionInfo(s).walk },
-        { id: 'look', title: 'Look ahead', say: 'Chip Bot has eyes (the distance sensor). Add "if distance is less than 15 cm" under forever and put the walk block in the else part.', done: (s) => missionInfo(s).look },
-        { id: 'stop', title: 'Stop and shout', say: 'If something is close, Chip Bot must stop. Inside the if, add "stand still" and a "beep note" that lasts at least 1.5 seconds. A long sound means "obstacle!".', done: (s) => missionInfo(s).stop },
-        { id: 'patient', title: 'Be patient', say: 'Do not shout 100 times. After the long beep, add "wait" for 10 to 30 seconds so Chip Bot reminds you only now and then.', done: (s) => missionInfo(s).patient }
+        { id: 'hello', title: 'Say hello', say: 'What does Chip Bot do the moment it switches on? Put a "say hello" block under "when Chip Bot wakes up". Add a few "beep note" blocks too if you want a start-up tune.', done: (s) => missionInfo(s).hello },
+        { id: 'look', title: 'Look ahead', say: 'Chip Bot has eyes: the distance sensor. Under "forever" add "if distance is less than 10 cm". Everything Chip Bot does when something is close goes inside it.', done: (s) => missionInfo(s).look },
+        { id: 'beep', title: 'Beep', say: 'Inside the if, add a "beep note" block. Something is in front of Chip Bot, so it should shout about it!', done: (s) => missionInfo(s).beep },
+        { id: 'rhythm', title: 'Every second', say: 'Add "wait 1 seconds" under the beep, inside the if. Now Chip Bot beeps once a second for as long as something is there.', done: (s) => missionInfo(s).rhythm }
       ],
       example: function (n) {
         return {
-          wake: [n('hello'), n('note', { note: 'C', secs: 0.2 }), n('note', { note: 'E', secs: 0.2 }), n('note', { note: 'G', secs: 0.2 }), n('note', { note: 'C2', secs: 0.4 })],
+          wake: [n('hello'), n('note', { note: 'C', secs: 0.2 }), n('note', { note: 'G', secs: 0.2 })],
           forever: [
-            n('if_dist', { cmp: 'less', cm: 15 }, [n('stand'), n('note', { note: 'C', secs: 2 }), n('wait', { secs: 30 })], [n('walk', { dir: 'fwd', steps: 1 })])
+            n('if_dist', { cmp: 'less', cm: 10 }, [n('note', { note: 'C2', secs: 0.2 }), n('wait', { secs: 1 })])
           ]
         };
       }
@@ -634,39 +633,36 @@ a.btn{text-decoration:none}
   });
 
   /* ---------- the Chip Bot mission ----------
-     Whatever blocks a student builds, the sketch they get is the mission program: a happy tune, then walk one step at a time,
-     and if something is closer than N cm, stand still, make one long sound and wait before looking again.
-     Their own choices (names, tune, distance, long note, wait time) are kept, within safe limits. */
+     Whatever blocks a student builds, the sketch they get is the mission program: say hello, then forever: if something is
+     closer than N cm (default 10), beep and wait about a second. Their own choices (names, start-up tune, distance, note, wait)
+     are kept, within safe limits. The servos are never part of the blocks: they answer to 1 to 4 typed in the Serial Monitor,
+     and that is in the tested base code for everybody. */
   function missionInfo(state) {
     const wake = state.wake || [], forever = state.forever || [];
-    const iff = forever.find((n) => n.type === 'if_dist') || null;
-    const kids = iff ? (iff.kids || []) : [], els = iff ? (iff.els || []) : [];
-    const notes = wake.filter((n) => n.type === 'note');
-    const longNote = kids.find((n) => n.type === 'note' && Number(n.p.secs) >= 1.5) || null;
-    const waitNode = kids.find((n) => n.type === 'wait' && Number(n.p.secs) >= 10) || null;
-    const walkOut = els.some((n) => n.type === 'walk' && n.p.dir === 'fwd');
+    const iff = forever.find((n) => n.type === 'if_dist' && n.p.cmp === 'less') || null;
+    const kids = iff ? (iff.kids || []) : [];
+    const noteNode = kids.find((n) => n.type === 'note') || null;
+    const waitNode = kids.find((n) => n.type === 'wait' && Number(n.p.secs) >= 0.5 && Number(n.p.secs) <= 2) || null;
     return {
-      iff, notes, longNote, waitNode,
-      tune: notes.length >= 3,
-      walk: walkOut || forever.some((n) => n.type === 'walk' && n.p.dir === 'fwd'),
-      look: !!iff && iff.p.cmp === 'less' && walkOut,
-      stop: !!iff && kids.some((n) => n.type === 'stand') && !!longNote,
-      patient: !!waitNode
+      iff, noteNode, waitNode,
+      notes: wake.filter((n) => n.type === 'note'),
+      hello: wake.some((n) => n.type === 'hello'),
+      look: !!iff,
+      beep: !!noteNode,
+      rhythm: !!noteNode && !!waitNode
     };
   }
-  const MISSION_TUNE = [['C', 0.2], ['E', 0.2], ['G', 0.2], ['C2', 0.4]];
-  function missionComplete(state) { const m = missionInfo(state); return m.tune && m.walk && m.look && m.stop && m.patient; }
+  function missionComplete(state) { const m = missionInfo(state); return m.hello && m.look && m.beep && m.rhythm; }
   const clampN = (v, lo, hi, d) => { v = Number(v); return isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d; };
   function missionState(state) {
     const m = missionInfo(state), mk = (t, p, k, e) => mkNode('chipbot', t, p, k, e);
-    const tune = m.notes.length >= 3 ? m.notes.slice(0, 6).map((n) => [n.p.note, clampN(n.p.secs, 0.1, 0.6, 0.2)]) : MISSION_TUNE;
-    const cm = m.iff ? Math.round(clampN(m.iff.p.cm, 8, 40, 15)) : 15;
-    const ln = m.longNote ? { note: m.longNote.p.note, secs: clampN(m.longNote.p.secs, 1.5, 3, 1.5) } : { note: 'C', secs: 1.5 };
-    const wait = m.waitNode ? clampN(m.waitNode.p.secs, 10, 30, 30) : 30;
+    const cm = m.iff ? Math.round(clampN(m.iff.p.cm, 3, 15, 10)) : 10;
+    const note = m.noteNode ? { note: m.noteNode.p.note, secs: clampN(m.noteNode.p.secs, 0.1, 0.5, 0.2) } : { note: 'C2', secs: 0.2 };
+    const wait = m.waitNode ? clampN(m.waitNode.p.secs, 0.5, 2, 1) : 1;
     return {
       builder: state.builder, robot: state.robot, date: state.date, settings: Object.assign({}, state.settings || {}),
-      wake: [mk('hello')].concat(tune.map((t) => mk('note', { note: t[0], secs: t[1] }))),
-      forever: [mk('if_dist', { cmp: 'less', cm }, [mk('stand'), mk('note', ln), mk('wait', { secs: wait })], [mk('walk', { dir: 'fwd', steps: 1 })])]
+      wake: [mk('hello')].concat(m.notes.slice(0, 5).map((n) => mk('note', { note: n.p.note, secs: clampN(n.p.secs, 0.1, 0.6, 0.2) }))),
+      forever: [mk('if_dist', { cmp: 'less', cm }, [mk('note', note), mk('wait', { secs: wait })])]
     };
   }
 
